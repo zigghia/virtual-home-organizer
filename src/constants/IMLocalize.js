@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import "intl-pluralrules";
 
 import en from './translations/en';
-import ro  from './translations/ro';
+import ro from './translations/ro';
 import { fetchAllData, Tables } from "@/utils/databases";
 import { User } from '@/utils/models';
 
@@ -12,25 +12,25 @@ import { User } from '@/utils/models';
 export const CURRENT_USER = async (me = 'None') => {
 	const def = {nickname: me, id: 1, 'isDefault': 1};
 	try {
-		let currentUser =  await AsyncStorage.getItem('vho-current-user');
+		let currentUser = await AsyncStorage.getItem('vho-current-user');
 		if (!currentUser) {
-				const {rows} = await fetchAllData(Tables.USERS);
-					currentUser = JSON.stringify((rows._array ?? [])[0]);
+			const {rows} = await fetchAllData(Tables.USERS);
+			currentUser = JSON.stringify((rows._array ?? [])[0]);
 
-				try {
-					await AsyncStorage.setItem(
-						'vho-current-user',
-						JSON.stringify(currentUser)
-					);
-				} catch (error) {
-					return def;
-				}
+			try {
+				await AsyncStorage.setItem(
+					'vho-current-user',
+					currentUser
+				);
+			} catch (error) {
+				return def;
+			}
 		}
 
 		return JSON.parse(currentUser);
 
 	} catch (error) {
-		 return def;
+		return def;
 	}
 }
 
@@ -60,7 +60,8 @@ const LANGUAGE_DETECTOR = {
 			callback(language);
 		});
 	},
-	init: () => {},
+	init: () => {
+	},
 	cacheUserLanguage: language => {
 		AsyncStorage.setItem('vho-user-language', language);
 	}

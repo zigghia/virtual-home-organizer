@@ -36,7 +36,7 @@ const createTables = async (userNicknameDefault: string): Promise<unknown> => {
 		await tx.executeSqlAsync(`CREATE TABLE IF NOT EXISTS ${Tables.USERS} (
 												id INTEGER PRIMARY KEY NOT NULL,
 												nickname TEXT UNIQUE NOT NULL,
-                                                               isDefault INTEGER             NOT NULL CHECK (isDefault IN (0, 1)) default 0
+                                                               isDefault INTEGER  NOT NULL CHECK (isDefault IN (0, 1)) default 0
                                     )`,[]);
 
 		await tx.executeSqlAsync(`CREATE TABLE IF NOT EXISTS ${Tables.PRODUCTS}(
@@ -44,6 +44,8 @@ const createTables = async (userNicknameDefault: string): Promise<unknown> => {
                                                                containerIdentifier  TEXT,
                                                                colors  	  			TEXT,
                                                                categories  			TEXT,
+                                                               imgUri				TEXT,
+                                                               description			TEXT,
                                                                season  				TEXT,
                                                                searchKeys           TEXT,
                                                                userID INTEGER CHECK (userID IN (0,1)) default 0      
@@ -146,7 +148,7 @@ export const initDatabase = async (userNicknameDefault: string): Promise<void> =
 
 	try {
 		//	await deleteCategory();
-		//	await dropTables();
+		//await dropTables(Tables.PRODUCTS);
 		await createTables(userNicknameDefault);
 	} catch (err: unknown) {
 		throw err;
@@ -187,6 +189,7 @@ export const deleteFromTable = async (ids: number [], table: Tables) => {
 
 
 export const fetchAllData = (table: Tables, where: string = ''): Promise<SQLResultSet> => {
+
 	return new Promise((resolve, reject) =>
 		database.transaction((tx) => {
 			tx.executeSql(

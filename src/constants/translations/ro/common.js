@@ -7,6 +7,10 @@ export default {
 	defaultDBError: 'EROARE NECUNOSCUTA, \n cod {{code}}',
 	yes: 'OK',
 	no: 'Nu',
+	route: {
+		search: "Lista ta",
+		create: "Adaugare item"
+	},
 	errors: {
 		required: 'Campul este obligatoriu.',
 		minLen: 'Minim {{min}} caractere.',

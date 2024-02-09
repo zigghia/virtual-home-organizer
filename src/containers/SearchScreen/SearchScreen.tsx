@@ -38,8 +38,8 @@ const SearchScreen = (props: any) => {
 
 	const getList = async () => {
 		try {
-			const cu: User = await CURRENT_USER(t('common:defaultNickname'));
-			const where = [`userID = ${cu.id}`]
+			const cu  = await CURRENT_USER(t('common:defaultNickname'));
+			const where = [`userID = ${1}`]
 			const {rows}: SQLResultSet = await fetchAllData(Tables.PRODUCTS, ' WHERE ' + where.join(' AND '));
 			setDbData(rows._array);
 			setListData(rows._array);
@@ -148,17 +148,17 @@ const SearchScreen = (props: any) => {
 	return (
 		<>
 			<View style={[s.resetSearch]}>
-				<Button isSecondary onPress={resetSearch} text={'Reset'}>
-					<Ionicons name="search-sharp" size={38} color="white"/>
+				<Button isSecondary onPress={resetSearch} text={t('search:reset')}>
+					<MaterialIcons name="clear" size={38} color="white" />
 				</Button>
 			</View>
 			<View style={[s.moreFilters]}>
-				<Button isSecondary onPress={resetSearch} text={'More filters'} disabled>
+				<Button isSecondary onPress={resetSearch} text={t('search:filters')} disabled>
 					<Ionicons name="filter" size={38} color="white" />
 				</Button>
 			</View>
 			<View style={[s.addNew]}>
-				<Button isSecondary onPress={navigateTpAddNew} text={'Add new'}>
+				<Button isSecondary onPress={navigateTpAddNew} text={t('search:add')}>
 					<MaterialIcons name="add-box" size={38} color="white"/>
 				</Button>
 			</View>
@@ -218,26 +218,26 @@ export const s = StyleSheet.create({
 		position: 'absolute',
 		top: 135,
 		paddingTop: 0,
-		width: 120,
-		height: 80,
+		width: 145,
+		height: 70,
 		left: 10,
 		zIndex: 50,
 	},
 	addNew: {
 		position: 'absolute',
-		top: 10,
+		top: 20,
 		paddingTop: 0,
-		width: 120,
-		left:  131,
-		height: 80,
+		width: 145,
+		left:  156,
+		height: 70,
 		zIndex: 50
 	},
 	resetSearch: {
 		position: 'absolute',
-		top: 10,
+		top: 20,
 		paddingTop: 0,
-		width: 120,
-		height: 80,
+		width: 145,
+		height: 70,
 		left: 10,
 		zIndex: 50
 	}

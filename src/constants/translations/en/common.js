@@ -6,6 +6,10 @@ export default {
   yes: 'OK',
   no: 'No',
   defaultNickname: 'Me',
+  route: {
+     search: "Your List",
+     create: "Create"
+  },
   defaultDBError: 'UNKNOWN ERROR, code {{code}}',
   errors: {
     required: 'Field is mandatory.',

@@ -14,19 +14,20 @@ export type CustomRootNavigatorParamList = {
 const Stack = createNativeStackNavigator<CustomRootNavigatorParamList>();
 export default function HomeScreen() {
 	const {t, i18n} = useTranslation();
+
 	return (
 		<>
 			<Stack.Navigator>
 				<Stack.Screen
-					name="Search"
+					name='Search'
 					component={SearchScreen}
-					options={{ headerShown: true }}
+					options={{ headerShown: true, title: t('common:route.search') }}
 				/>
 
 				<Stack.Screen
-					name="Create"
+					name= 'Create'
 					component={CreateEntryScreen}
-					options={{ headerShown: true }}
+					options={{ headerShown: true, title: t('common:route.create') }}
 				/>
 
 			</Stack.Navigator>
