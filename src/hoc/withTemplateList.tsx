@@ -2,7 +2,8 @@ import React, { ComponentType, useEffect, useState } from "react";
 import { View, Text } from 'react-native';
 import { SelectColorItemModel } from '@/utils/models';
 export interface WithTemplateListProps {
-	WrappedComponent: React.ComponentType
+	WrappedComponent: React.ComponentType,
+	items: unknown[]
 }
 const withTemplateList =  <T extends WithTemplateListProps = WithTemplateListProps>(WrappedComponent: ComponentType<T>, cols =2) => {
 

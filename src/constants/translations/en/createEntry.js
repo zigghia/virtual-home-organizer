@@ -2,11 +2,12 @@ export default {
 	preview: 'Preview',
 	category: {
 		title: 'Select category:',
-		subtitle: 'You\'ll search your items by selected type (ex: red shoes).',
+		tooltip: 'You\'ll search your items by selected type (ex: red shoes).',
 		footer: 'Add a new category',
 		addError: 'You can have maximum {max} categories.',
 		createNewTitle: 'New category',
-		createNewSubtitle: 'Name your new category  - maximum {max} characters'
+		createNewSubtitle: 'Name your new category  - maximum {max} characters',
+		addWarning: 'This category already exists'
 	},
 	description: {
 		title: 'Some description',
@@ -14,6 +15,7 @@ export default {
 		footer: "Not mandatory, but needs validating if you entered a value"
 	},
 	container: {
+		tooltip: 'Note a number on box and write it down here',
 		title: 'Container identifier',
 		subtitle: '* Enter the box identifier - This is mandatory',
 		footer: 'Click check button to  validate input'

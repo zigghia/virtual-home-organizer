@@ -1,5 +1,5 @@
 export default {
-	deleteMessage: 'Gata, i-ai vandut? Nu vei mai vedea inregistrarea in lista',
+	deleteMessage: 'Trebuie sa confirmi stergerea definitiva din lista ta',
 	deleteTitle: 'Sigur stergi?',
 	reset: 'Reset',
 	add: 'Adauga',

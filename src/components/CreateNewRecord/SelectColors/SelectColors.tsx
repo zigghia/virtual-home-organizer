@@ -4,19 +4,18 @@ import SelectColorItem from '@/components/CreateNewRecord/SelectColors/SelectCol
 import withTemplateList, { WithTemplateListProps } from '@/hoc/withTemplateList';
 import { SelectColorItemModel } from '@/utils/models';
 import commonStyle from '@/utils/common.style';
-import withStaticDataContext from '@/hoc/withStaticDataContext';
-import { StaticDataContext } from '@/context/StaticDataContext';
+import { DataContext } from '@/context/StaticDataContext';
 import Loading from '@/components/Loading/Loading';
 
 interface SelectColorProps extends WithTemplateListProps{
 	list?: [],
-	items?: [],
-	context?: React.ContextType<typeof StaticDataContext>
+	items?: []
 }
 
-const SelectColors = ({list, context}: SelectColorProps) => {
+const SelectColors = ({list}: SelectColorProps) => {
 
 	const [loading, setLoading] = useState(true);
+	const { dispatch } = React.useContext(DataContext)!;
 
 	useEffect(() => {
 		setLoading(false);
@@ -26,7 +25,7 @@ const SelectColors = ({list, context}: SelectColorProps) => {
 	}, [list]);
 
 	const updateData = (color: any) => {
-		context?.updateColors(color);
+		dispatch({type: 'update', payload: {key: 'colors', id: color.id}});
 	};
 
 	if (loading) {
@@ -49,6 +48,6 @@ const SelectColors = ({list, context}: SelectColorProps) => {
 	)
 }
 
-export default withStaticDataContext(withTemplateList(SelectColors, 3));
+export default withTemplateList(SelectColors, 3);
 
 

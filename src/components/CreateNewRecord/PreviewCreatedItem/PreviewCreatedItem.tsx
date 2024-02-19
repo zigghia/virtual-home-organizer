@@ -1,12 +1,14 @@
-import React, { ComponentType, useMemo } from "react";
-import { Card, Text } from "@rneui/base";
+import React, { ComponentType, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { Text } from "@rneui/base";
 import { FlatList, Image, Modal, StyleSheet, View } from "react-native";
 import withModal from '@/hoc/withModal';
 import { ListItemModel, RecordModel, SelectColorItemModel } from '@/utils/models';
 import { useTranslation } from 'react-i18next';
 import { themeColors, themeDefaults } from '@/constants/app.constants';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { Entypo, Ionicons } from '@expo/vector-icons';
+
+import { DataContext } from '@/context/StaticDataContext';
+import { s as st } from '@/components/CreateNewRecord/SelectColors/SelectColors.style';
+import { Entypo } from '@expo/vector-icons';
 
 interface PreviewCreatedItemProps {
 	colors: SelectColorItemModel[],
@@ -14,7 +16,7 @@ interface PreviewCreatedItemProps {
 	formValues: RecordModel
 }
 
-type ItemProps = { id: string; value:  string; title?: string; titleStyle: {}, itemStyle: {}, textContainerStyle?: {} };
+type ItemProps = { id: string; value: string; title?: string; titleStyle: {}, itemStyle: {}, textContainerStyle?: {} };
 const Item = ({title, value, titleStyle, itemStyle, textContainerStyle}: ItemProps) => (
 	value ?
 		<View style={itemStyle}>
@@ -25,86 +27,88 @@ const Item = ({title, value, titleStyle, itemStyle, textContainerStyle}: ItemPro
 		</View>
 		: null
 );
-const PreviewCreatedItem = ({colors, categories, formValues}: PreviewCreatedItemProps) => {
-	const [t] = useTranslation();
-	const categoryList = useMemo(() => (categories ?? []).filter(c => c.selected).map(c => c.name).join(), categories);
-	const colorsList = useMemo(() => (colors ?? []).filter(c => c.selected).map(c => c.name).join(), colors);
+const PreviewCreatedItem = ({formValues}: PreviewCreatedItemProps) => {
 
-	const DATA = [
-		{
-			id: 'previewList1',
-			title: 'Culori:',
-			value: 'shshdhd, dddd',
-			titleStyle: s.title,
-			itemStyle: s.item
+	const {data} = React.useContext(DataContext)!;
+	const [colors, setColors] = useState<SelectColorItemModel[]>([]);
+	const [categories, setCategories] = useState<string[]>([]);
 
-		},
-		{
-			id: 'previewList2',
-			title: 'Categorii:',
-			value: 'dddd ddd',
-			titleStyle: s.title,
-			itemStyle: s.item
-		},
-		{
-			id: 'previewList3',
-			title: 'Observatii: ',
-			value: formValues?.description ?? ' ddddddddddddd',
-			titleStyle: s.title,
-			itemStyle: s.item
-		},
-		{
-			id: 'previewList4',
-			title: 'Observatii: ',
-			value: formValues?.description ?? ' ddddddddddddd',
-			titleStyle: s.title,
-			itemStyle: s.item
-		},
-		{
-			id: 'previewList5',
-			title: 'Observatii: ',
-			value: formValues?.description ?? ' ddddddddddddd',
-			titleStyle: s.title,
-			itemStyle: s.item
-		},
-	];
+	useEffect(() => {
+		setColors(data.colors.filter(c => c.selected).map(c => ({bgColor: c.bgColor, name: c.name})));
+		setCategories(data.categories.filter(c => c.selected).map(c => c.name ?? ''));
+	}, []);
 
 	return (
-	  <SafeAreaView>
-			<View style={{backgroundColor: themeColors.secondary, paddingVertical: 40}}>
-				<Entypo name="price-tag" size={100} color='white'
-						style={{  shadowColor: "#000", verticalAlign: 'bottom', alignItems: 'center', alignSelf: 'center',
-							padding: 10,
-							shadowOffset: {
-								width: 0,
-								height: 2,
-							},
-							shadowOpacity: 0.25,
-							shadowRadius: 4,
-							elevation: 3,}}>
-					<Text style={{ color: 'white',fontSize: 100,}}>12</Text>
+		<View style={s.container}>
+			<View style={{backgroundColor: themeColors.secondary}}>
+				<Entypo name="price-tag" size={80} color='white'
+						style={s.priceTag}>
+					<Text style={{color: 'white', fontSize: 80,}}>{formValues.containerIdentifier ?? '?'}</Text>
 				</Entypo>
-
-
-
 			</View>
-			<View>
-				<FlatList style={{maxHeight:  300}}
-					data={DATA}
-					renderItem={({item}) => <Item  {...item}/>}
-					keyExtractor={item => item.id}
-				/>
-			</View>
-			<View style={[s.item, {justifyContent: 'center'}]}>
+			{ formValues.description && <View style={{paddingVertical: 10, paddingLeft: 5}}><Text style={s.text}>{formValues.description.toUpperCase()}</Text></View>}
+
+			{ categories[0] && <View style={s.categoriesContainer}>
+										{
+											categories.map((c, index) =>
+																			<View key={'category' + index} style={s.categoriesStyle}>
+																							<Text lineBreakMode={'clip'} style={[s.text, {padding: 10}]}>{c}</Text>
+																			</View>)
+										}
+									</View>
+			}
+
+			{ colors[0] && <View style={s.colorsContainer}>
+				{
+					colors.map((c, index) => <View key={'color' + index} style={[st.color, {height: 30, backgroundColor: c?.bgColor}]}/>)
+
+				}
+				</View>
+			}
+
+			<View style={[s.item, {justifyContent: 'center', marginVertical: 10}]}>
 				{formValues?.imgUri?.length && <Image source={{uri: formValues.imgUri}} style={s.image}/>}
 			</View>
 
-	  </SafeAreaView>
+		</View>
 
 	);
 }
 
 export const s = StyleSheet.create({
+	colorsContainer: {
+		paddingVertical: 10,
+		flexDirection: 'row',
+		justifyContent: 'flex-start',
+		alignItems: 'flex-start'
+	},
+	container: {
+		margin: 10,
+		padding: 10
+	},
+	priceTag :{
+		verticalAlign: 'bottom',
+		alignItems: 'center',
+		alignSelf: 'center',
+		padding: 10,
+	},
+	categoriesContainer: {
+		marginVertical: 10,
+		flexDirection: 'row',
+		justifyContent: 'flex-start',
+		alignItems: 'flex-start',
+		flexWrap: 'wrap'
+	},
+	categoriesStyle: {
+		flexDirection: 'row',
+		borderRightWidth: StyleSheet.hairlineWidth,
+		borderColor: themeColors.disabled,
+		borderLeftWidth: StyleSheet.hairlineWidth
+	},
+	text: {
+		fontSize: 25,
+		color: themeColors.header
+	},
 	textContainer: {
 		flexDirection: 'row'
 	},
@@ -116,19 +120,6 @@ export const s = StyleSheet.create({
 	},
 	boxContainer: {
 		textAlignVertical: 'center',
-		paddingHorizontal: '30%',
-		justifyContent: 'center',
-		paddingBottom: 20,
-		shadowColor: "#000",
-		padding: 10,
-		shadowOffset: {
-			width: 0,
-			height: 2,
-		},
-		shadowOpacity: 0.25,
-		shadowRadius: 4,
-
-		elevation: 3,
 	},
 	textContainerTitle: {
 		textAlign: 'center',
@@ -141,20 +132,11 @@ export const s = StyleSheet.create({
 	},
 	item: {
 		backgroundColor: '#fefefe',
-		shadowColor: "#000",
-		padding: 10,
-		shadowOffset: {
-			width: 0,
-			height: 2,
-		},
-		shadowOpacity: 0.25,
-		shadowRadius: 4,
 
-		elevation: 3,
 	},
 	title: {
 		fontSize: themeDefaults.fontHeader3,
 	},
 });
 
-export default withModal(PreviewCreatedItem);
+export default withModal(PreviewCreatedItem, {position: 'full'});

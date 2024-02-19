@@ -2,12 +2,14 @@ export enum themeColors {
 	secondary= '#4fb09d',
 	primary=  '#A20373',
 	disabled = '#e0e0e0',
-	darkGrey = '#cccccc',
-	header= '#444'
+	darkGrey = '#C8C7CD',
+	header= '#444',
+	lightGrey = '#F8F8F8',
+	error =  '#cc0000'
 }
 
 export enum themeDefaults {
-	buttonHeight = 60,
+	buttonHeight = 40,
 	fontSize = 16,
 	fontHeader1 = 40,
 	fontHeader2 = 30,
@@ -17,7 +19,8 @@ export enum themeDefaults {
 
 export enum appConstants {
 	maxCategoriesAllowed = 15,
-	maxCategoryCharsAllowed = 10
+	maxCategoryCharsAllowed = 10,
+	maxBoxIdentifierLength=3
 }
 
 

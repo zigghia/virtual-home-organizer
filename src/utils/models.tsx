@@ -1,4 +1,5 @@
 export interface ListItemModel {
+	plural?: string | undefined;
 	id?: number;
 	name?: string;
 	selected?: boolean;
@@ -10,11 +11,10 @@ export interface SelectColorItemModel extends ListItemModel {
 	bgColor?: string;
 	fontColor?: string;
 	default?: boolean; //only 9 color default maximum to be displayed in main page
-	plural?: string; //when saving, save both form [rosu, rosii]
 }
 
 export interface RecordModel {
-	id?: string;
+	id?: number;
 	colors?: string;
 	categories?: string;
 	imgUri?: string;

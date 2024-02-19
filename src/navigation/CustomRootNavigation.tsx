@@ -1,16 +1,14 @@
 import * as React from 'react';
-import { Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import HomeScreen from '@/containers/HomeScreen';
+import HomeRootNavigator from './HomeRootNavigator';
 import SettingsScreen from '@/containers/Settings/SettingsScreen';
 import { themeColors } from '@/constants/app.constants';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 export const Tab = createBottomTabNavigator();
-
+type icon = 'home' | 'home-outline' | 'settings' | 'settings-outline';
 export default function CustomRootNavigator() {
   const { t } = useTranslation();
   return (
@@ -24,7 +22,7 @@ export default function CustomRootNavigator() {
               iconName = focused ? 'settings' : 'settings-outline';
             }
 
-            return <Ionicons name={iconName} size={size} color={color} />;
+            return <Ionicons name={iconName as icon} size={size} color={color} />;
           },
           tabBarActiveTintColor: '#A20373',
           tabBarInactiveTintColor: 'gray',
@@ -33,7 +31,7 @@ export default function CustomRootNavigator() {
       >
           <Tab.Screen
               name='Home'
-              component={HomeScreen}
+              component={HomeRootNavigator}
               options={{ tabBarLabel: t('navigate:home') , tabBarBadge: 0, tabBarBadgeStyle: { backgroundColor: themeColors.secondary, color: 'white' } }}
           />
         <Tab.Screen

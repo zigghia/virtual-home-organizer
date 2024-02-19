@@ -1,15 +1,18 @@
 import * as SQLite from 'expo-sqlite';
-import { SQLError, SQLResultSet, SQLTransaction } from 'expo-sqlite';
-import * as FileSystem from 'expo-file-system';
-import { ListItemModel, RecordModel } from '@/utils/models';
+import { SQLResultSet, SQLTransaction } from 'expo-sqlite';
+
+import {  RecordModel } from '@/utils/models';
+import { SQLStatementArg } from 'expo-sqlite/src/SQLite.types';
+import { warnAboutConfigAndThrow } from 'expo-cli/build/commands/utils/modifyConfigAsync';
 
 export enum Tables {
 	PROPERTIES = 'properties',
 	USERS = 'users',
-	PRODUCTS = 'products'
+	PRODUCTS = 'products',
+	SETTINGS = 'settings'
 }
 
-
+//settings version, imgDirName, fa => free account
 const database = SQLite.openDatabase('virtualHomeOrganiser.db');
 
 const dropTables = async (table?: Tables): Promise<any> => {
@@ -54,8 +57,7 @@ const createTables = async (userNicknameDefault: string): Promise<unknown> => {
 
 
 		await tx.executeSqlAsync(`CREATE TABLE IF NOT EXISTS ${Tables.PRODUCTS} (
-    								  id INTEGER PRIMARY KEY
-                                      NOT NULL,
+    								  id INTEGER PRIMARY KEY  NOT NULL,
                                       containerIdentifier TEXT,
                                       colors TEXT,
                                       categories TEXT,
@@ -133,7 +135,7 @@ const createTables = async (userNicknameDefault: string): Promise<unknown> => {
 }
 
 export const insertProduct = async (data: RecordModel) => {
-	await database.transactionAsync(async tx => {
+	return await database.transactionAsync(async tx => {
 
 		const {colors = '', userId = 1, categories = '', containerIdentifier = '', description = '', imgUri = '', searchKeys = '', season = ''} = data;
 		await tx.executeSqlAsync(`INSERT INTO ${Tables.PRODUCTS}
@@ -154,13 +156,13 @@ export const initDatabase = async (userNicknameDefault: string): Promise<void> =
 		throw err;
 	}
 }
-export const insertCategory = (name: string, language: string): Promise<SQLResultSet> => {
+export const insertProperty = (name: string, language: string, type= 'category'): Promise<SQLResultSet> => {
 	return new Promise((resolve, reject) =>
 		database.transaction((tx) => {
 			tx.executeSql(
 				`INSERT INTO ${Tables.PROPERTIES} (name, type, lang, properties)
                  VALUES (?, ?, ?, ?)`,
-				[name ?? '-', 'category', language, JSON.stringify({deletable: true})],
+				[name ?? '-', type, language, JSON.stringify({deletable: true})],
 				(tr, resultSet) => resolve(resultSet),
 				(tr: SQLTransaction, error): any => {
 					reject(error)
@@ -180,22 +182,33 @@ export const deleteCategory = async (name: string, lang: string) => {
 }
 
 export const deleteFromTable = async (ids: number [], table: Tables) => {
-	await database.transactionAsync(async tx => {
-		await tx.executeSqlAsync(`DELETE
-                                  FROM ${table}
-                                  WHERE id in (?)`, [ids.join(',')]);
-	}, false);
+
+	try {
+		await database.transactionAsync(async tx => {
+			try {
+				await tx.executeSqlAsync(`DELETE
+                                          FROM ${table}
+                                          WHERE id IN (${ids.join(' , ')})`, []);
+			} catch (err) {
+				throw err;
+			}
+
+		}, false);
+	}
+	catch (err) {
+		throw err;
+	}
 }
 
 
-export const fetchAllData = (table: Tables, where: string = ''): Promise<SQLResultSet> => {
+export const fetchAllData = (table: Tables, where: string = '', args?:  SQLStatementArg[]): Promise<SQLResultSet> => {
 
 	return new Promise((resolve, reject) =>
 		database.transaction((tx) => {
 			tx.executeSql(
 				`SELECT *
                  from ${table} ${where}`,
-				[],
+				args,
 				(tr, resultSet) => resolve(resultSet),
 				(tr: SQLTransaction, error): any => {
 					reject(error)

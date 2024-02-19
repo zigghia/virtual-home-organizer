@@ -6,8 +6,8 @@ import { themeColors, themeDefaults } from "@/constants/app.constants";
 const Button = (props) => {
 
 	const extraStyle = {
-		...props.buttonStyle,
 		marginRight: props.isLeft ? 5 : 0,
+		...props.buttonStyle,
 	};
 
 	const style = [		s.button, {...extraStyle},
@@ -34,14 +34,12 @@ export const s = StyleSheet.create({
 	},
 	button: {
 		minWidth: 100,
-		padding: 10,
 		flex: 1,
 		alignItems: 'center',
 		justifyContent: 'center',
-		paddingVertical: 20,
+		paddingVertical: 10,
 		paddingHorizontal: 32,
 		borderRadius: 10,
-		elevation: 3,
 		flexDirection: 'row',
 		backgroundColor: themeColors.primary
 	},

@@ -1,36 +1,58 @@
 import React, { useEffect, useState } from "react";
 import { Alert, Image, Linking, Platform, Text, View } from 'react-native';
-import { launchCameraAsync } from 'expo-image-picker';
+import * as ImagePicker from 'expo-image-picker';
+import { launchCameraAsync, launchImageLibraryAsync, PermissionStatus } from 'expo-image-picker';
 import { s } from './UserImagePicker.style';
 import { MaterialIcons } from '@expo/vector-icons';
 import Button from '@/components/Button/Button';
-import RecordContext from '@/context/RecordContext';
-import * as ImagePicker from 'expo-image-picker';
-import { useAppPermissions } from '@/utils/permissions';
 import { useTranslation } from 'react-i18next';
 import { themeDefaults } from '@/constants/app.constants';
-
+import { useCameraPermissions } from 'expo-camera/next';
+import * as MediaLibrary from 'expo-media-library';
+import Loading from '@/components/Loading/Loading';
 
 interface UserImagePickerProps {
-	imgUri: string | undefined,
 	onSaveData: (value: string) => void
 }
 
-const UserImagePicker = ({ imgUri, onSaveData}: UserImagePickerProps) => {
+const UserImagePicker = ({onSaveData}: UserImagePickerProps) => {
 	const [image, setImage] = useState<string | null>();
-	const [cameraPermission, settingsHandler] = useAppPermissions();
-	const {t, i18n} = useTranslation();
+	const [cameraPermission, reqCameraPermission] = useCameraPermissions();
+	const [mediaPermission, reqMediaPermission] = MediaLibrary.usePermissions();
+	const [loading, setLoading] = useState(false);
+	const [t] = useTranslation();
 
-	useEffect(() => {
-		setImage(imgUri);
-	}, []);
+
 	const takePicture = async () => {
+		let permission: PermissionStatus | undefined = cameraPermission?.status;
 
-		if ( !cameraPermission ) {
-			settingsHandler();
+		if ( cameraPermission?.status === PermissionStatus.UNDETERMINED ) {
+			permission = (await reqCameraPermission())?.status || PermissionStatus.DENIED;
+		}
+
+		if ( permission == PermissionStatus.DENIED ) {
+
+			Alert.alert(t('common:permission.camera.title'),
+				t('common:permission.camera.message'),
+				[
+					{
+						text: t('common:permission.camera.no'),
+						style: 'cancel',
+					},
+					{
+						text: t('common:permission.camera.yes'),
+						onPress: () => openSettings().then(() => {
+						})
+					},
+				]);
 			return;
 		}
 
+		if (permission != PermissionStatus.GRANTED) {
+			return;
+		}
+
+		setLoading(true);
 		const result = await launchCameraAsync({
 			allowsEditing: true,
 			aspect: [3, 4],
@@ -46,17 +68,43 @@ const UserImagePicker = ({ imgUri, onSaveData}: UserImagePickerProps) => {
 
 		setImage(imgUri);
 		onSaveData(imgUri);
+		setLoading(false);
 	}
 
 	const pickImage = async () => {
+		let permission: MediaLibrary.PermissionResponse | null = mediaPermission;
 
-		let result = await ImagePicker.launchImageLibraryAsync({
-			mediaTypes: ImagePicker.MediaTypeOptions.All,
+		if ( permission?.status == PermissionStatus.UNDETERMINED ) {
+			permission = (await reqMediaPermission()) ?? PermissionStatus.DENIED;
+		}
+
+		if ( !permission?.canAskAgain || permission?.status === PermissionStatus.DENIED ) {
+			Alert.alert(t('common:permission.camera.title'),
+				t('common:permission.camera.message'),
+				[
+					{
+						text: t('common:permission.camera.no'),
+						style: 'cancel',
+					},
+					{
+						text: t('common:permission.camera.yes'),
+						onPress: () => openSettings().then(() => {
+						})
+					},
+				]);
+			return;
+		}
+
+		if (!permission?.granted) {
+			return;
+		}
+		setLoading(true);
+		let result = await launchImageLibraryAsync({
+			mediaTypes: ImagePicker.MediaTypeOptions.Images,
 			allowsEditing: true,
-			aspect: [4, 3],
-			quality: 1,
+			aspect: [3, 4],
+			quality: 0.5,
 		});
-
 
 		if ( result?.canceled ) {
 			return;
@@ -66,11 +114,16 @@ const UserImagePicker = ({ imgUri, onSaveData}: UserImagePickerProps) => {
 
 		setImage(imgUri);
 		onSaveData(imgUri);
+		setLoading(false);
 	}
 
 	let imagePreview = <Text style={{fontSize: themeDefaults.fontSize}}>{t('createEntry:picture.subtitle')}</Text>;
 
 	image && (imagePreview = <Image source={{uri: image}} style={s.image}/>)
+
+	if(loading) {
+		return <Loading/>
+	}
 
 	return (
 		<View style={s.container}>
@@ -88,5 +141,13 @@ const UserImagePicker = ({ imgUri, onSaveData}: UserImagePickerProps) => {
 		</View>
 	);
 }
+
+const openSettings = async () => {
+	if ( Platform.OS === 'ios' ) {
+		return Linking.openURL('app-settings:');
+	} else {
+		return Linking.openSettings();
+	}
+};
 
 export default UserImagePicker;

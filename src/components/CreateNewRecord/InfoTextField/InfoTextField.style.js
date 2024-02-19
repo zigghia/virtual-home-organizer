@@ -4,31 +4,34 @@ import { themeColors } from "@/constants/app.constants";
 export const s = StyleSheet.create({
 	container: {
 		 flex: 1,
-		 flexDirection: 'row'
+		 flexDirection: 'row',
 	},
 	inner: {
 		flex: 1,
-		padding: 10,
+		marginHorizontal: 5,
 		justifyContent: 'justify-start'
 	},
 	input: {
-		fontSize: 30,
-		margin: 0,
+		fontSize: 25,
 		textAlign: 'center',
-		borderWidth: 2,
-		paddingRight: 60,
+		borderWidth: 1,
+		margin: 0,
+		paddingRight: 0,
 		paddingLeft: 10,
-		paddingVertical: 10,
+		paddingVertical: 15,
 		borderRadius: 20,
-		borderColor: '#4fb09d',
-		backgroundColor: '#fff'
+		borderColor: themeColors.secondary,
+		backgroundColor: '#fff',
+		height: 60
 	},
 	text: {
-		backgroundColor: themeColors.disabled,
-		padding: 15,
-		borderRadius: 10,
+		height: 60,
+		backgroundColor: themeColors.lightGrey,
+		padding: 10,
+		borderRadius: 20,
 		flexDirection: 'row',
-		justifyContent: 'center'
+		alignItems: 'center',
+		flex: 1
 	},
 	error: {
 		color: '#cc0000',

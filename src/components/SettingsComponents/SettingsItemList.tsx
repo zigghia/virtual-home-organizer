@@ -4,21 +4,23 @@ import { Alert, FlatList, StyleSheet, Text, View } from 'react-native';
 import { themeColors } from '@/constants/app.constants';
 import { ListItemModel, SelectColorItemModel } from '@/utils/models';
 import Button from '@/components/Button/Button';
-import withTemplateList from '@/hoc/withTemplateList';
+import withTemplateList, { WithTemplateListProps } from '@/hoc/withTemplateList';
 import commonStyle from '@/utils/common.style';
 import { useTranslation } from 'react-i18next';
 import { deleteFromTable, Tables } from '@/utils/databases';
+import AlertComponent from '@/components/AlertComponent';
 
-interface CLProps {
+interface CLProps extends WithTemplateListProps{
 	list: [];
-	items: [];
-	deleted: (value: boolean) => void
+	deleted: (value: boolean) => void,
+	type: 'categories' | 'descriptions'
 }
 
-const CategoriesList = ({list, deleted}: CLProps) => {
+const SettingsItemsList = ({list, deleted, type}: CLProps) => {
 	const [checked, setChecked] = useState<{ [key: number]: boolean }>({});
 	const [buttonDisabled, setButtonDisabled] = useState(true)
 	const [t, i18n] = useTranslation();
+	const [showAlertModal, setShowAlert] = useState(false);
 
 	const check = (value: boolean, id: number) => {
 		const newVal = {...checked, [id]: value};
@@ -27,48 +29,38 @@ const CategoriesList = ({list, deleted}: CLProps) => {
 	}
 
 	const deleteSelectedCategories = async () => {
-		const ids = Object.entries(checked).filter(e => e[1]).map(e => Number(e[0]));
-		return await deleteFromTable(ids, Tables.PROPERTIES).catch(err => console.log('some err', err));
-	}
-
-	const showAlert = async () => {
-		Alert.alert(t('settings:categories.alert.title'),
-			t('settings:categories.alert.message'),
-			[
-				{
-					text: t('common:permission.camera.no'),
-					style: 'cancel',
-				},
-				{
-					text: t('common:permission.camera.yes'),
-					onPress: () => {
-						deleteSelectedCategories()
-							.then(() => {
-								setChecked([]);
-								deleted(true)
-							})
-							.catch(() => {
-								deleted(false);
-								Alert.alert(
-									t('settings:categories.alert.error.title'),
-									t('settings:categories.alert.error.message'));
-							});
-					}
-				}
-			]);
+		setButtonDisabled(true);
+		try {
+			const ids = Object.entries(checked).filter(e => e[1]).map(e => Number(e[0]));
+			setShowAlert(false);
+			await deleteFromTable(ids, Tables.PROPERTIES).catch(err => console.log('some err', err));
+			deleted(true);
+			setChecked([]);
+		}
+		catch (err) {
+			console.log('Delete settings', err);
+			deleted(false);
+			Alert.alert(
+				t('settings:categories.alert.error.title'),
+				t('settings:categories.alert.error.message'));
+		}
 	}
 	const renderItem = (item: ListItemModel) => {
+		if (!item?.id) {
+			return;
+		}
 
 		return <View style={styles.section} key={`check${item.id}`}>
 			<Checkbox
 				style={styles.checkbox}
 				value={checked[item.id] ?? false}
-				onValueChange={value => check(value, item.id)}
+				onValueChange={value => check(value, Number(item.id))}
 				color={checked[item.id] ? themeColors.secondary : undefined}
 			/>
 			<Text style={styles.paragraph}>{item.name}</Text>
 		</View>
 	}
+
 	return <View>
 		{
 			(list ?? []).map((line: ListItemModel[], index: number) => {
@@ -79,8 +71,17 @@ const CategoriesList = ({list, deleted}: CLProps) => {
 		}
 
 		<View style={styles.container}>
-			<Button text='Sterge' onPress={showAlert} disabled={buttonDisabled}></Button>
+			<Button text='Sterge' onPress={() => setShowAlert(true)} disabled={buttonDisabled}></Button>
 		</View>
+
+		<AlertComponent
+			isVisible={showAlertModal}
+			closeModal={() => {
+				setShowAlert(false)
+			}}
+			message={t(`settings:${type}.alert.message`)}
+			title={t(`settings:${type}.alert.title`)}
+			onPressOK={deleteSelectedCategories}/>
 	</View>
 }
 
@@ -106,4 +107,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default withTemplateList(CategoriesList, 2);
+export default withTemplateList(SettingsItemsList, 2);
