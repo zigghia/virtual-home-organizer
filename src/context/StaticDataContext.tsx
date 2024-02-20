@@ -13,6 +13,7 @@ export type dataType = {
 export const DataContext = createContext<{
 	data: dataType,
 	init: boolean,
+	reloadData: () => void,
 	dispatch: React.Dispatch<ReducerPayload>;
 } | null>(null);
 
@@ -95,23 +96,27 @@ const reducer = (state: dataType, action: ReducerPayload) => {
 const RecordDataProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
 	const [data, dispatch] = useReducer(reducer, {colors: [], descriptions: [], categories: []});
 	const [init, setInit] = useState(true);
+	const [reloadData, setReloadData] = useState(true);
 	const {i18n} = useTranslation();
 
+	const loadData = async (where: string = '') => {
+		setInit(true);
+		const loadedData = await loadPropertiedData(i18n.language).catch(err => alert(err));
+
+		if ( loadedData ) {
+			dispatch({type: 'init', payload: loadedData});
+			setInit(false);
+		}
+	};
+
 	useEffect(() => {
-		const loadData = async (where: string = '') => {
-			const loadedData = await loadPropertiedData(i18n.language).catch(err => alert(err));
-
-			if ( loadedData ) {
-				dispatch({type: 'init', payload: loadedData});
-				setInit(false);
-			}
-		};
-
-		loadData();
-	}, [])
+		if (reloadData) {
+			loadData();
+		}
+	}, [reloadData])
 
 
-	return <DataContext.Provider value={{data, init, dispatch}}>
+	return <DataContext.Provider value={{data, init, dispatch, reloadData: () => setReloadData(true)}}>
 		{children}
 	</DataContext.Provider>
 }

@@ -28,7 +28,7 @@ import SelectColorsModal from '@/components/CreateNewRecord/SelectColors/SelectC
 type Props = NativeStackScreenProps<CustomRootNavigatorParamList, 'Create'>;
 const CreateEntryScreen = ({route, navigation}: Props) => {
 	const [formValues, setFormValues] = useState<RecordModel>({} as RecordModel);
-	const {data, dispatch} = React.useContext(DataContext)!;
+	const {data, dispatch, reloadData} = React.useContext(DataContext)!;
 	const [showPreviewModal, setShowPreviewModal] = useState(false);
 	const [showCreateNewCategoryModal, setshowCreateNewCategoryModal] = useState(false);
 	const [showColorsModal, setShowColorsModal] = useState(false);
@@ -105,7 +105,7 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 					await insertProperty(record.description ?? 'name', i18n.language, 'description');
 				}
 			}
-
+			reloadData();
 			navigation.navigate('Search');
 		}
 	}
@@ -170,6 +170,8 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 			<PreviewCreatedItem
 				isVisible={showPreviewModal}
 				formValues={formValues}
+			    categories = {data.categories.filter(c => c.selected).map(c => c.name ?? '')}
+				colors = {data.colors.filter(c => c.selected).map(c => ({bgColor: c.bgColor, name: c.name}))}
 				cancelText='OK'
 				closeModal={() => setShowPreviewModal(false)}
 			/>

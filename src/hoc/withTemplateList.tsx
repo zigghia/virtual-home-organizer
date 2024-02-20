@@ -14,7 +14,6 @@ const withTemplateList =  <T extends WithTemplateListProps = WithTemplateListPro
 
 	return (props: any) => {
 		const [list, setLines] = useState<[][]>([]);
-console.log(props.items);
 		useEffect((() => {
 			const cp = [...props.items];
 			setLines(

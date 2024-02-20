@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Button, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { themeColors } from '@/constants/app.constants';
 import SwipeableItem from '@/components/ListComponents/List/SwipeItem';
@@ -8,6 +8,8 @@ import 'react-native-gesture-handler';
 import { s as st } from '@/components/CreateNewRecord/SelectColors/SelectColors.style';
 import withTemplateList, { WithTemplateListProps, WithTemplateListPropsSimple } from '@/hoc/withTemplateList';
 import commonStyle from '@/utils/common.style';
+import { BackgroundImage } from '@rneui/base';
+import RenderColors from '@/components/RenderColorsBullet/RenderColors';
 
 export interface MainListItemProps {
 	editAction: (id: number | undefined) => void;
@@ -16,29 +18,9 @@ export interface MainListItemProps {
 	index?: number
 }
 
-const RenderColors = withTemplateList(({list} : WithTemplateListPropsSimple) => {
-	return	<>
-		{
-			(list ?? []).map((line: [], index: number) => {
-				return <View style={s.colorsContainer} key={'colors'+index}>
-					{line.map((c: SelectColorItemModel, i) =>
-						(c?.plural ?? '').toLowerCase() === 'mix' ? <Text key={'color' + c.id + index}>mix</Text> :
-							<View key={'color' + c?.id + index}
-								  style={{
-									  ...s.colorBullet,
-									  borderColor: themeColors.darkGrey, borderWidth: StyleSheet.hairlineWidth,
-									  backgroundColor: c?.bgColor
-								  }}/>)
-					}
-				</View>
-			})
-		}
-	</>
-}, 6);
 const SwipeRow = ({deleteAction, editAction, item, index}: MainListItemProps) => {
 
 	const [imgPreview, setImgPreview] = useState(false);
-
 
 	return (
 		<>
@@ -47,22 +29,21 @@ const SwipeRow = ({deleteAction, editAction, item, index}: MainListItemProps) =>
 				onDelete={() => deleteAction && deleteAction(item?.id)}>
 				<View style={s.container}>
 
-					<TouchableOpacity onPress={() => {
-						setImgPreview(true)
-					}}>
-						<Image source={{uri: item.imgUri}} style={s.image}/>
-					</TouchableOpacity>
+					<View>
+						<ImageBackground source={{uri: item.imgUri}} style={s.image}>
+							<View style={s.boxContainer}>
+								<Text style={s.boxText}>{item.containerIdentifier}</Text>
+							</View>
+						</ImageBackground>
+					</View>
 
 					{(index == 0) && <MaterialIcons name="swipe-left" size={24} color={themeColors.header} style={s.icon}/> }
 
-					<View style={{flex: 1, paddingHorizontal: 20}}>
+					<View style={{flex: 1, paddingHorizontal: 20, borderLeftWidth: 2, left: 5, borderColor: themeColors.disabled}}>
 						{item.description && <Text style={s.titleText}>{item.description}</Text>}
 						{item.categories && <Text style={s.contentText}>{item.categories.replaceAll(',', ' | ')}</Text>}
 						{item?.colorsInfo?.[0] &&  <RenderColors items={item.colorsInfo ?? []}/>
 						}
-						<View style={s.boxContainer}>
-							<Text style={s.boxText}>{item.containerIdentifier}</Text>
-						</View>
 					</View>
 				</View>
 			</SwipeableItem>
@@ -75,46 +56,30 @@ const SwipeRow = ({deleteAction, editAction, item, index}: MainListItemProps) =>
 }
 
 export const s = StyleSheet.create({
-	colorBullet: {
-		marginRight: 5,
-		marginLeft: 2,
-		height: 20,
-		width: 20,
-		borderRadius: 50,
-		alignItems: 'center',
-		justifyContent: 'center'
-	},
-	colorsContainer: {
-		paddingVertical: 10,
-		flexDirection: 'row',
-		justifyContent: 'flex-start',
-		alignItems: 'flex-start'
-	},
 	icon: {
 		position: 'absolute',
 		right: 10,
 		top: 10,
 	},
 	image: {
-		height: '100%',
-		width: 120,
-		backgroundColor: 'grey',
-		borderRadius: 5,
-		left: -5
+		height: 170,
+		width: 170,
+		justifyContent: 'flex-end',
+		alignItems: 'flex-end',
 	},
 	boxContainer: {
-		justifyContent: 'center',
-		alignItems: 'center',
 		backgroundColor: themeColors.secondary,
-		marginRight: 10,
-
-		height: 45,
-		marginBottom: 10
+	 	paddingVertical: 10,
+		opacity: 0.95,
+		minWidth: '80%',
+		alignItems: 'center',
+		justifyContent: 'center',
+		alignContent: 'center'
 	},
 	boxText: {
 		color: 'white',
 		fontSize: 30,
-		fontWeight: 'bold',
+		fontWeight: 'bold'
 	},
 	container: {
 		flexDirection: 'row',

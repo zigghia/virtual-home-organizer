@@ -1,76 +1,58 @@
-import React, { ComponentType, useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, {  useEffect, useState } from "react";
 import { Text } from "@rneui/base";
-import { FlatList, Image, Modal, StyleSheet, View } from "react-native";
+import { Image, Pressable, StyleSheet, View } from "react-native";
 import withModal from '@/hoc/withModal';
-import { ListItemModel, RecordModel, SelectColorItemModel } from '@/utils/models';
-import { useTranslation } from 'react-i18next';
+import { ListItemModel, RecordModel, RecordModelExtended, SelectColorItemModel } from '@/utils/models';
 import { themeColors, themeDefaults } from '@/constants/app.constants';
 
 import { DataContext } from '@/context/StaticDataContext';
 import { s as st } from '@/components/CreateNewRecord/SelectColors/SelectColors.style';
 import { Entypo } from '@expo/vector-icons';
+import RenderColors from '@/components/RenderColorsBullet/RenderColors';
 
 interface PreviewCreatedItemProps {
-	colors: SelectColorItemModel[],
-	categories: ListItemModel[],
-	formValues: RecordModel
+	colors?: SelectColorItemModel[],
+	categories: string [],
+	formValues: RecordModelExtended,
+	closeModal: () => void
 }
 
-type ItemProps = { id: string; value: string; title?: string; titleStyle: {}, itemStyle: {}, textContainerStyle?: {} };
-const Item = ({title, value, titleStyle, itemStyle, textContainerStyle}: ItemProps) => (
-	value ?
-		<View style={itemStyle}>
-			<View style={s.textContainer}>
-				<Text style={titleStyle}> {title}</Text>
-				<Text style={titleStyle}> {value}</Text>
-			</View>
-		</View>
-		: null
-);
-const PreviewCreatedItem = ({formValues}: PreviewCreatedItemProps) => {
-
-	const {data} = React.useContext(DataContext)!;
-	const [colors, setColors] = useState<Partial<SelectColorItemModel>[]>([]);
-	const [categories, setCategories] = useState<string[]>([]);
+const PreviewCreatedItem = ({formValues, categories, colors, closeModal}: PreviewCreatedItemProps) => {
+	const [coolors, setColors] = useState<SelectColorItemModel[]>([]);
 
 	useEffect(() => {
-		setColors(data.colors.filter(c => c.selected).map(c => ({bgColor: c.bgColor, name: c.name})));
-		setCategories(data.categories.filter(c => c.selected).map(c => c.name ?? ''));
-	}, []);
+		let c = colors ?? [];
+		if (!colors?.length) {
+			c = formValues?.colorsInfo ?? [];
+		}
+		setColors(c);
+	},[])
 
 	return (
 		<View style={s.container}>
 			<View style={{backgroundColor: themeColors.secondary}}>
 				<Entypo name="price-tag" size={80} color='white'
 						style={s.priceTag}>
-					<Text style={{color: 'white', fontSize: 80,}}>{formValues.containerIdentifier ?? '?'}</Text>
+					<Text style={{color: 'white', fontSize: 80,}}>{formValues?.containerIdentifier ?? '?'}</Text>
 				</Entypo>
 			</View>
-			{ formValues.description && <View style={{paddingVertical: 10, paddingLeft: 5}}><Text style={s.text}>{formValues.description.toUpperCase()}</Text></View>}
+			{ formValues?.description && <View style={{paddingVertical: 10, paddingLeft: 5}}><Text style={s.text}>{formValues.description.toUpperCase()}</Text></View>}
 
-			{ categories[0] && <View style={s.categoriesContainer}>
+			{ categories.length ? <View style={s.categoriesContainer}>
 										{
 											categories.map((c, index) =>
-																			<View key={'category' + index} style={s.categoriesStyle}>
-																							<Text lineBreakMode={'clip'} style={[s.text, {padding: 10}]}>{c}</Text>
-																			</View>)
+												<View key={'category' + index} style={s.categoriesStyle}>
+													<Text lineBreakMode={'clip'} style={[s.text, {padding: 10}]}>{c}</Text>
+												</View>)
 										}
-									</View>
+									</View>: null
 			}
 
-			{ colors[0] && <View style={s.colorsContainer}>
-				{
-					colors.map((c, index) => <View key={'color' + index} style={[st.color, {height: 30,
-						borderColor: themeColors.darkGrey, borderWidth: StyleSheet.hairlineWidth,
-						backgroundColor: c?.bgColor}]}/>)
+			{ <RenderColors items={coolors} /> }
 
-				}
-				</View>
-			}
-
-			<View style={[s.item, {justifyContent: 'center', marginVertical: 10}]}>
+			<Pressable style={[s.item, {justifyContent: 'center', marginVertical: 10}]} onPress={closeModal}>
 				{formValues?.imgUri?.length && <Image source={{uri: formValues.imgUri}} style={s.image}/>}
-			</View>
+			</Pressable>
 
 		</View>
 

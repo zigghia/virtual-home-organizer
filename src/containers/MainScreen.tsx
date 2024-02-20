@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, ListRenderItemInfo } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, ListRenderItemInfo, ScrollView } from 'react-native';
 import { RecordModel, RecordModelExtended, SelectColorItemModel } from '@/utils/models';
 import { useIsFocused } from '@react-navigation/native';
 import { CURRENT_USER } from '@/constants/IMLocalize';
@@ -16,7 +16,7 @@ import ErrorComponent from '@/components/ErrorComponent';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { DataContext } from '@/context/StaticDataContext';
 import Loading from '@/components/Loading/Loading';
-import GridItem from '@/components/ListComponents/List/GridItem';
+import GridList from '@/components/ListComponents/List/GridList';
 
 const MainScreen = (props: any) => {
 	const [dbData, setDbData] = useState<RecordModelExtended[]>([]);
@@ -111,8 +111,13 @@ const MainScreen = (props: any) => {
 		if ( !item ) {
 			return;
 		}
-		return isList ? <SwipeRow key= {`list${index}-${item.id}`} item={item} index={index} deleteAction={deleteAction} editAction={(id) => {}}/>
-						: <GridItem  key= {`grid${index}-${item.id}`} editAction={() => {}}  deleteAction={deleteAction} item={item}/>
+		return <SwipeRow key={`list${index}-${item.id}`}
+						 item={item}
+						 index={index}
+						 deleteAction={deleteAction}
+						 editAction={(id) => {
+				}}/>
+
 	}
 
 	if ( loading ) {
@@ -133,7 +138,7 @@ const MainScreen = (props: any) => {
 					</TouchableOpacity>
 
 					<View style={s.buttonContainer2}>
-						<TouchableOpacity style={[s.button1,{justifyContent: 'center'}]} onPress={() => setIsList(!isList)}>
+						<TouchableOpacity style={[s.button1, {justifyContent: 'center'}]} onPress={() => setIsList(!isList)}>
 							<Ionicons name={isList ? "list-outline" : 'grid-outline'} size={24} color="black"/>
 						</TouchableOpacity>
 						<TouchableOpacity style={{height: 60, borderRadius: 0, justifyContent: 'center', paddingLeft: 10}} disabled>
@@ -141,13 +146,17 @@ const MainScreen = (props: any) => {
 						</TouchableOpacity>
 					</View>
 				</View>
-
-				<FlatList style={{flex: 1, zIndex: 200}}
-						  data={filteredData}
-						  ItemSeparatorComponent={() => <View style={s.separator}/>}
-						  renderItem={renderItem}
-						  keyExtractor={(_item, index) => `list${index}`}
-				/>
+				{isList ?
+					<FlatList style={{flex: 1, zIndex: 200}}
+							  data={filteredData}
+							  ItemSeparatorComponent={() => <View style={s.separator}/>}
+							  renderItem={renderItem}
+							  keyExtractor={(_item, index) => `list${index}`}
+					/> :
+					<ScrollView>
+						<GridList items={filteredData}/>
+					</ScrollView>
+				}
 			</GestureHandlerRootView>
 
 			{
@@ -184,7 +193,7 @@ export const s = StyleSheet.create({
 		fontWeight: 'bold',
 		padding: 5
 	},
-	buttonContainer1 : {
+	buttonContainer1: {
 		alignContent: 'center',
 		alignItems: 'center',
 		justifyContent: 'center',
