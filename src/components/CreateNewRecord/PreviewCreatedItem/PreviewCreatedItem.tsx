@@ -30,7 +30,7 @@ const Item = ({title, value, titleStyle, itemStyle, textContainerStyle}: ItemPro
 const PreviewCreatedItem = ({formValues}: PreviewCreatedItemProps) => {
 
 	const {data} = React.useContext(DataContext)!;
-	const [colors, setColors] = useState<SelectColorItemModel[]>([]);
+	const [colors, setColors] = useState<Partial<SelectColorItemModel>[]>([]);
 	const [categories, setCategories] = useState<string[]>([]);
 
 	useEffect(() => {
@@ -60,7 +60,9 @@ const PreviewCreatedItem = ({formValues}: PreviewCreatedItemProps) => {
 
 			{ colors[0] && <View style={s.colorsContainer}>
 				{
-					colors.map((c, index) => <View key={'color' + index} style={[st.color, {height: 30, backgroundColor: c?.bgColor}]}/>)
+					colors.map((c, index) => <View key={'color' + index} style={[st.color, {height: 30,
+						borderColor: themeColors.darkGrey, borderWidth: StyleSheet.hairlineWidth,
+						backgroundColor: c?.bgColor}]}/>)
 
 				}
 				</View>

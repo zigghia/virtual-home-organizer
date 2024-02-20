@@ -1,6 +1,6 @@
 export interface ListItemModel {
 	plural?: string | undefined;
-	id?: number;
+	id: number;
 	name?: string;
 	selected?: boolean;
 	deletable?: boolean
@@ -25,6 +25,9 @@ export interface RecordModel {
 	season?: string;
 }
 
+export interface RecordModelExtended extends  RecordModel{
+	colorsInfo?: SelectColorItemModel[]
+}
 
 export interface PropertiesDatabaseRecord {
 	id: number,

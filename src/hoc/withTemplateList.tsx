@@ -5,12 +5,16 @@ export interface WithTemplateListProps {
 	WrappedComponent: React.ComponentType,
 	items: unknown[]
 }
+
+export interface WithTemplateListPropsSimple  extends WithTemplateListProps{
+	list: []
+}
 const withTemplateList =  <T extends WithTemplateListProps = WithTemplateListProps>(WrappedComponent: ComponentType<T>, cols =2) => {
 
 
 	return (props: any) => {
 		const [list, setLines] = useState<[][]>([]);
-
+console.log(props.items);
 		useEffect((() => {
 			const cp = [...props.items];
 			setLines(

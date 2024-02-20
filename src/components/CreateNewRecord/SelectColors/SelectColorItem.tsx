@@ -12,22 +12,17 @@ interface SelectColorItemProps {
 
 const SelectColorItem = ({item, onItemPress}: SelectColorItemProps) => {
 
-	const extraStyle = {
-		backgroundColor: item?.bgColor,
-		opacity: item?.selected ? '0.5' : '1'
-	};
 
 	const extraTextStyle = {
 		color: item?.fontColor || 'black',
 	};
-
 
 	let content = <Text>{item?.name}</Text>;
 
 
 	return <Pressable onPress={onItemPress} style={({pressed}) => ([commonStyle.containerListItem, pressed && s.pressed])}>
 
-		<View style={[s.color, {backgroundColor: item?.bgColor}]}>
+		<View style={[s.color, {height: 30, backgroundColor: item?.bgColor}]}>
 			{
 				item?.selected && <Icon
 					iconStyle={extraTextStyle}

@@ -1,7 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 import { SQLResultSet, SQLTransaction } from 'expo-sqlite';
 
-import {  RecordModel } from '@/utils/models';
+import { PropertiesDatabaseRecord, RecordModel } from '@/utils/models';
 import { SQLStatementArg } from 'expo-sqlite/src/SQLite.types';
 import { warnAboutConfigAndThrow } from 'expo-cli/build/commands/utils/modifyConfigAsync';
 
@@ -151,6 +151,7 @@ export const initDatabase = async (userNicknameDefault: string): Promise<void> =
 	try {
 		//	await deleteCategory();
 		//await dropTables(Tables.PRODUCTS);
+		//await dropTables(Tables.PROPERTIES);
 		await createTables(userNicknameDefault);
 	} catch (err: unknown) {
 		throw err;
@@ -218,3 +219,16 @@ export const fetchAllData = (table: Tables, where: string = '', args?:  SQLState
 	);
 }
 
+export const loadPropertiedData = async (language: string, where: string = '') : Promise<any> => {
+	try {
+		const {rows}: SQLResultSet = await fetchAllData(Tables.PROPERTIES, where);
+		if (rows) {
+			return (rows._array ?? []).filter((data: PropertiesDatabaseRecord) => data.lang == language);
+		}
+
+		return [];
+	}
+	catch (err) {
+		throw err;
+	}
+};

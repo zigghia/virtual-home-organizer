@@ -10,10 +10,11 @@ import { DataContext } from '@/context/StaticDataContext';
 
 interface LocationProps extends WithTemplateListProps {
 	value: string,
-	list?: []
+	list?: [],
+	onValueSaved: (value: string) => void
 }
 
-const Location = ({list, value}: LocationProps) => {
+const Location = ({list, value, onValueSaved}: LocationProps) => {
 	const [t] = useTranslation();
 	const {data, dispatch} = React.useContext(DataContext)!;
 	const [readOnly, setReadOnly] = useState(false);
@@ -31,7 +32,12 @@ const Location = ({list, value}: LocationProps) => {
 
 	const updateByNameHandler = (value: string | undefined | number) => {
 		const v = (value ?? '').toString().toLowerCase();
-		dispatch({type: 'update', payload: {key: 'descriptions', name: v, unique: true}});
+		const di =  data.descriptions.find(d => d.name == value);
+		if (di?.id) {
+			dispatch({type: 'update', payload: {key: 'descriptions', id: di.id, unique: true}});
+			return;
+		}
+		onValueSaved(v);
 	}
 
 	return (

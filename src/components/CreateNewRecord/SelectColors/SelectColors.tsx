@@ -8,30 +8,16 @@ import { DataContext } from '@/context/StaticDataContext';
 import Loading from '@/components/Loading/Loading';
 
 interface SelectColorProps extends WithTemplateListProps{
-	list?: [],
-	items?: []
+	list?: []
 }
 
 const SelectColors = ({list}: SelectColorProps) => {
 
-	const [loading, setLoading] = useState(true);
 	const { dispatch } = React.useContext(DataContext)!;
-
-	useEffect(() => {
-		setLoading(false);
-		return (() => {
-			setLoading(true);
-		});
-	}, [list]);
 
 	const updateData = (color: any) => {
 		dispatch({type: 'update', payload: {key: 'colors', id: color.id}});
 	};
-
-	if (loading) {
-		return <Loading/>
-	}
-
 	return (
 		<View>
 			{

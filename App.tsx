@@ -6,6 +6,7 @@ import { initDatabase, } from '@/utils/databases';
 import * as SplashScreen from 'expo-splash-screen';
 import { Text } from '@rneui/base';
 import { useTranslation } from 'react-i18next';
+import RecordDataProvider from '@/context/StaticDataContext';
 
 
 SplashScreen.preventAutoHideAsync().catch((err) => console.log(err));
@@ -49,9 +50,11 @@ export default function App() {
 		return;
 	}
 	return (
-		<View style={styles.container} onLayout={onLayoutRootView}>
-			<CustomRootNavigator/>
-		</View>
+		<RecordDataProvider>
+			<View style={styles.container} onLayout={onLayoutRootView}>
+				<CustomRootNavigator/>
+			</View>
+		</RecordDataProvider>
 	)
 }
 

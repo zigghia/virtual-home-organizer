@@ -53,7 +53,6 @@ const InfoTextField = ({value, onValueSaved, maxLen, isRequired, minLen, isValid
 		if ( value != undefined ) {
 			setCurrentValue(value);
 		}
-		console.log('d', value);
 		setEditMode(value?.length == 0);
 		validate(value ?? '');
 		isValid && isValid(error == null);

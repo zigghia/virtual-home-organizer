@@ -5,8 +5,7 @@ const commonStyle = StyleSheet.create({
 	containerList: {
 		flex: 1,
 		flexDirection: 'row',
-		justifyContent: 'space-evenly',
-
+		width: '100%',
 	},
 	containerListItem: {
 		minWidth: 80,

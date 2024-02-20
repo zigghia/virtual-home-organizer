@@ -1,5 +1,5 @@
 import Checkbox from 'expo-checkbox';
-import React, { ComponentProps, JSXElementConstructor, useCallback, useState } from 'react';
+import React, { ComponentProps, JSXElementConstructor, useCallback, useContext, useState } from 'react';
 import { Alert, FlatList, StyleSheet, Text, View } from 'react-native';
 import { themeColors } from '@/constants/app.constants';
 import { ListItemModel, SelectColorItemModel } from '@/utils/models';
@@ -7,8 +7,9 @@ import Button from '@/components/Button/Button';
 import withTemplateList, { WithTemplateListProps } from '@/hoc/withTemplateList';
 import commonStyle from '@/utils/common.style';
 import { useTranslation } from 'react-i18next';
-import { deleteFromTable, Tables } from '@/utils/databases';
+import { deleteFromTable, loadPropertiedData, Tables } from '@/utils/databases';
 import AlertComponent from '@/components/AlertComponent';
+import StaticDataContext, { DataContext } from '@/context/StaticDataContext';
 
 interface CLProps extends WithTemplateListProps{
 	list: [];
@@ -21,6 +22,7 @@ const SettingsItemsList = ({list, deleted, type}: CLProps) => {
 	const [buttonDisabled, setButtonDisabled] = useState(true)
 	const [t, i18n] = useTranslation();
 	const [showAlertModal, setShowAlert] = useState(false);
+	const {data, dispatch} = useContext(DataContext)!;
 
 	const check = (value: boolean, id: number) => {
 		const newVal = {...checked, [id]: value};
@@ -28,14 +30,18 @@ const SettingsItemsList = ({list, deleted, type}: CLProps) => {
 		setButtonDisabled(!Object.keys(newVal).some((k) => newVal[Number(k)]));
 	}
 
-	const deleteSelectedCategories = async () => {
+	const deleteSelected = async () => {
 		setButtonDisabled(true);
 		try {
 			const ids = Object.entries(checked).filter(e => e[1]).map(e => Number(e[0]));
+
 			setShowAlert(false);
 			await deleteFromTable(ids, Tables.PROPERTIES).catch(err => console.log('some err', err));
+			const newData = await loadPropertiedData(i18n.language).catch(err => alert(err));
+			dispatch({type: 'recalculate', payload: {data: newData, type}});
 			deleted(true);
 			setChecked([]);
+
 		}
 		catch (err) {
 			console.log('Delete settings', err);
@@ -81,7 +87,7 @@ const SettingsItemsList = ({list, deleted, type}: CLProps) => {
 			}}
 			message={t(`settings:${type}.alert.message`)}
 			title={t(`settings:${type}.alert.title`)}
-			onPressOK={deleteSelectedCategories}/>
+			onPressOK={deleteSelected}/>
 	</View>
 }
 

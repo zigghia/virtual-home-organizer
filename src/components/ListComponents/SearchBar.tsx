@@ -4,9 +4,8 @@ import { StyleSheet, TextInput, View, Keyboard, Button, Pressable } from "react-
 import { Feather, Entypo } from "@expo/vector-icons";
 import { themeColors } from '@/constants/app.constants';
 
-const SearchBar = ({onSearch}: { onSearch: (q: string) => void }) => {
+const SearchBar = ({onSearch, placeholder}: { onSearch: (q: string) => void, placeholder: string }) => {
 	const [searchQuery, setSearchQuery] = useState('');
-
 	const [clicked, setClicked] = useState(false);
 
 	const search = (value: string) => {
@@ -21,24 +20,13 @@ const SearchBar = ({onSearch}: { onSearch: (q: string) => void }) => {
 
 				<TextInput
 					style={styles.input}
-					placeholder='Cauta'
+					placeholder= {placeholder}
 					clearButtonMode="while-editing"
 					value={searchQuery}
 					onChangeText={search}
 					onBlur={() => {setClicked(false); Keyboard.dismiss();}}
 					onFocus={() => setClicked(true)}
 				/>
-
-				{/*{clicked && (*/}
-				{/*	<Pressable onPress={() => {Keyboard.dismiss(); search('');}}>*/}
-				{/*		<Entypo*/}
-				{/*			name="cross"*/}
-				{/*			size={20}*/}
-				{/*			color="black"*/}
-
-				{/*		/>*/}
-				{/*	</Pressable>*/}
-				{/*)}*/}
 			</View>
 		</View>
 	);

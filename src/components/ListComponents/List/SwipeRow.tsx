@@ -3,19 +3,42 @@ import { Button, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-n
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { themeColors } from '@/constants/app.constants';
 import SwipeableItem from '@/components/ListComponents/List/SwipeItem';
-import { RecordModel } from '@/utils/models';
+import { ListItemModel, RecordModel, RecordModelExtended, SelectColorItemModel } from '@/utils/models';
 import 'react-native-gesture-handler';
+import { s as st } from '@/components/CreateNewRecord/SelectColors/SelectColors.style';
+import withTemplateList, { WithTemplateListProps, WithTemplateListPropsSimple } from '@/hoc/withTemplateList';
+import commonStyle from '@/utils/common.style';
 
-interface SwipeRowProps {
+export interface MainListItemProps {
 	editAction: (id: number | undefined) => void;
 	deleteAction: (id: number | undefined) => void;
-	item: RecordModel;
+	item: RecordModelExtended;
 	index?: number
 }
 
-const SwipeRow = ({deleteAction, editAction, item, index}: SwipeRowProps) => {
+const RenderColors = withTemplateList(({list} : WithTemplateListPropsSimple) => {
+	return	<>
+		{
+			(list ?? []).map((line: [], index: number) => {
+				return <View style={s.colorsContainer} key={'colors'+index}>
+					{line.map((c: SelectColorItemModel, i) =>
+						(c?.plural ?? '').toLowerCase() === 'mix' ? <Text key={'color' + c.id + index}>mix</Text> :
+							<View key={'color' + c?.id + index}
+								  style={{
+									  ...s.colorBullet,
+									  borderColor: themeColors.darkGrey, borderWidth: StyleSheet.hairlineWidth,
+									  backgroundColor: c?.bgColor
+								  }}/>)
+					}
+				</View>
+			})
+		}
+	</>
+}, 6);
+const SwipeRow = ({deleteAction, editAction, item, index}: MainListItemProps) => {
 
 	const [imgPreview, setImgPreview] = useState(false);
+
 
 	return (
 		<>
@@ -23,23 +46,23 @@ const SwipeRow = ({deleteAction, editAction, item, index}: SwipeRowProps) => {
 				onEdit={() => editAction && editAction(item?.id)}
 				onDelete={() => deleteAction && deleteAction(item?.id)}>
 				<View style={s.container}>
-					<View style={s.boxContainer}>
-						<Text style={s.boxText}>{item.containerIdentifier}</Text>
-					</View>
 
-					<TouchableOpacity onPress={() => {setImgPreview(true)}}>
+					<TouchableOpacity onPress={() => {
+						setImgPreview(true)
+					}}>
 						<Image source={{uri: item.imgUri}} style={s.image}/>
 					</TouchableOpacity>
 
+					{(index == 0) && <MaterialIcons name="swipe-left" size={24} color={themeColors.header} style={s.icon}/> }
 
-
-					{(index == 0) ? <MaterialIcons name="swipe-left" size={24} color={themeColors.header} style={s.icon}/> :
-						<Feather name="zoom-in" size={24} color={themeColors.header} style={s.icon}/>}
-
-					<View style={{flex: 1, padding: 20}}>
-						<Text style={s.titleText}>{item.categories}</Text>
-						<Text numberOfLines={1} style={s.contentText}>{item.colors}</Text>
-						<Text numberOfLines={2} style={s.contentText}>{item.description}</Text>
+					<View style={{flex: 1, paddingHorizontal: 20}}>
+						{item.description && <Text style={s.titleText}>{item.description}</Text>}
+						{item.categories && <Text style={s.contentText}>{item.categories.replaceAll(',', ' | ')}</Text>}
+						{item?.colorsInfo?.[0] &&  <RenderColors items={item.colorsInfo ?? []}/>
+						}
+						<View style={s.boxContainer}>
+							<Text style={s.boxText}>{item.containerIdentifier}</Text>
+						</View>
 					</View>
 				</View>
 			</SwipeableItem>
@@ -52,13 +75,28 @@ const SwipeRow = ({deleteAction, editAction, item, index}: SwipeRowProps) => {
 }
 
 export const s = StyleSheet.create({
+	colorBullet: {
+		marginRight: 5,
+		marginLeft: 2,
+		height: 20,
+		width: 20,
+		borderRadius: 50,
+		alignItems: 'center',
+		justifyContent: 'center'
+	},
+	colorsContainer: {
+		paddingVertical: 10,
+		flexDirection: 'row',
+		justifyContent: 'flex-start',
+		alignItems: 'flex-start'
+	},
 	icon: {
 		position: 'absolute',
 		right: 10,
-		top: 10
+		top: 10,
 	},
 	image: {
-		height: 120,
+		height: '100%',
 		width: 120,
 		backgroundColor: 'grey',
 		borderRadius: 5,
@@ -68,13 +106,13 @@ export const s = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 		backgroundColor: themeColors.secondary,
-		height: 120,
-		minWidth: 60
+		marginRight: 10,
+
+		height: 45,
+		marginBottom: 10
 	},
 	boxText: {
-		transform: [{rotate: '270deg'}],
 		color: 'white',
-		padding: 0,
 		fontSize: 30,
 		fontWeight: 'bold',
 	},
@@ -90,14 +128,13 @@ export const s = StyleSheet.create({
 		fontWeight: 'bold',
 		backgroundColor: 'transparent',
 		fontSize: 20,
-		lineHeight: 30,
+		marginVertical: 5,
 		textTransform: 'uppercase'
 	},
 	contentText: {
-		color: '#999',
+		color: themeColors.header,
 		fontSize: 18,
-		lineHeight: 20,
-		backgroundColor: 'transparent',
+		paddingVertical: 5
 	}
 });
 

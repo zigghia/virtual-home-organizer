@@ -31,15 +31,9 @@ export default function HomeRootNavigator() {
 
 			<Stack.Screen
 				name='Create'
+				component={CreateEntryScreen}
 				options={{headerShown: true, title: t('common:route.create')}}
-			>
-				{(props) => {
-					return (
-						<RecordDataProvider>
-							<CreateEntryScreen {...props}/>
-						</RecordDataProvider>)
-				}}
-			</Stack.Screen>
+			/>
 		</Stack.Navigator>
 	);
 }

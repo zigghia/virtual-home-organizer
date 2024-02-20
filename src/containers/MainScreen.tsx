@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, ListRenderItemInfo } from 'react-native';
-import { RecordModel } from '@/utils/models';
+import { RecordModel, RecordModelExtended, SelectColorItemModel } from '@/utils/models';
 import { useIsFocused } from '@react-navigation/native';
 import { CURRENT_USER } from '@/constants/IMLocalize';
 import { SQLResultSet } from 'expo-sqlite';
@@ -14,13 +14,19 @@ import { Ionicons } from '@expo/vector-icons';
 import AlertComponent from '@/components/AlertComponent';
 import ErrorComponent from '@/components/ErrorComponent';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { DataContext } from '@/context/StaticDataContext';
+import Loading from '@/components/Loading/Loading';
+import GridItem from '@/components/ListComponents/List/GridItem';
 
 const MainScreen = (props: any) => {
-	const [dbData, setDbData] = useState<RecordModel[]>([]);
-	const [filteredData, setListData] = useState<RecordModel[]>([]);
+	const [dbData, setDbData] = useState<RecordModelExtended[]>([]);
+	const [filteredData, setListData] = useState<RecordModelExtended[]>([]);
 	const [error, setError] = useState<string | null>(null);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [toBeDeleted, setToBeDeleted] = useState<null | number>(null);
+	const {data, init} = useContext(DataContext)!;
+	const [isList, setIsList] = useState(true);
+	const [loading, setLoading] = useState(init ?? false);
 	const isFocus = useIsFocused();
 	const [t] = useTranslation();
 
@@ -29,21 +35,29 @@ const MainScreen = (props: any) => {
 		try {
 			const cu = await CURRENT_USER(t('common:defaultNickname'));
 			const {rows}: SQLResultSet = await fetchAllData(Tables.PRODUCTS, ' WHERE userId=? ', [cu?.id ?? 1]);
-			setDbData(rows._array);
-			setListData(rows._array);
+
+			//add colorsInfo
+			const fullData: RecordModelExtended[] = rows._array.map(record => {
+				const cArr = record.colors.split(',').map((c: string) => c.trim().toLowerCase()) ?? [];
+				return {...record, colorsInfo: (data.colors ?? []).filter(c => cArr.includes(c.name?.toLowerCase()))}
+			});
+
+			setDbData(fullData);
+			setListData(fullData);
 		} catch (error) {
 			console.log(error);
 		}
 	};
 
-
 	useEffect(() => {
-		if ( !isFocus ) {
+		if ( !isFocus || init ) {
 			return;
 		}
 
 		getList().catch((err) => console.log(err));
-	}, [isFocus]);
+		setLoading(false);
+	}, [isFocus, init]);
+
 
 	const deleteRecord = async () => {
 		setShowDeleteModal(false);
@@ -93,43 +107,37 @@ const MainScreen = (props: any) => {
 		await props.navigation.navigate('Create');
 	}
 
-	const renderListItem = ({item}: { item: RecordModel }): any => {
+	const renderItem = ({item, index}: { item: RecordModel, index: number }): any => {
 		if ( !item ) {
 			return;
 		}
-		return <SwipeRow item={item} deleteAction={deleteAction} editAction={(id) => {
-		}}/>
+		return isList ? <SwipeRow key= {`list${index}-${item.id}`} item={item} index={index} deleteAction={deleteAction} editAction={(id) => {}}/>
+						: <GridItem  key= {`grid${index}-${item.id}`} editAction={() => {}}  deleteAction={deleteAction} item={item}/>
 	}
+
+	if ( loading ) {
+		return <Loading/>
+	}
+
 
 	return (
 		<>
 			<GestureHandlerRootView style={{flex: 1}}>
-				<SearchBar onSearch={search}/>
+				<SearchBar onSearch={search} placeholder={t('search:searchPlaceholder')}/>
 				<View style={{flexDirection: 'row', marginVertical: 10, alignItems: 'center', justifyContent: 'space-between'}}>
-					<TouchableOpacity style={{
-						height: 60, borderRightWidth: StyleSheet.hairlineWidth,
-						paddingHorizontal: 10,
-						borderColor: 'black'
-					}} onPress={navigateTpAddNew}>
-						<View style={{alignContent: 'center', alignItems: 'center', justifyContent: 'center', flex: 1}}>
-							<Text style={{color: themeColors.header, fontWeight: 'bold', padding: 5}}>Adauga</Text>
+					<TouchableOpacity style={s.button1} onPress={navigateTpAddNew}>
+						<View style={s.buttonContainer1}>
 							<Ionicons name="footsteps-outline" size={24} color={themeColors.header}/>
+							<Text style={s.buttonText}>{t('search:add')}</Text>
 						</View>
-
 					</TouchableOpacity>
 
-					<View style={{flex: 1, flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'flex-end', alignContent: "center", padding: 10}}>
-						<TouchableOpacity style={{
-							height: 60, borderRadius: 0, borderRightWidth: StyleSheet.hairlineWidth, borderColor: 'black',
-							justifyContent: 'center',
-							paddingRight: 10, backgroundColor: 'transparent'
-						}}
-										  onPress={navigateTpAddNew}>
-							<Ionicons name="grid-outline" size={24} color="black" style={{justifyContent: 'center', alignContent: 'center', alignSelf: 'center'}}/>
+					<View style={s.buttonContainer2}>
+						<TouchableOpacity style={[s.button1,{justifyContent: 'center'}]} onPress={() => setIsList(!isList)}>
+							<Ionicons name={isList ? "list-outline" : 'grid-outline'} size={24} color="black"/>
 						</TouchableOpacity>
-						<TouchableOpacity style={{height: 60, borderRadius: 0, justifyContent: 'center', paddingLeft: 10}}>
-							<Ionicons name="filter-outline" size={24} color="black"/>
-							{/*<Ionicons name="list-outline" size={24} color="black" />*/}
+						<TouchableOpacity style={{height: 60, borderRadius: 0, justifyContent: 'center', paddingLeft: 10}} disabled>
+							<Ionicons name='filter-outline' size={24} color="black" disabled/>
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -137,20 +145,20 @@ const MainScreen = (props: any) => {
 				<FlatList style={{flex: 1, zIndex: 200}}
 						  data={filteredData}
 						  ItemSeparatorComponent={() => <View style={s.separator}/>}
-						  renderItem={renderListItem}
+						  renderItem={renderItem}
 						  keyExtractor={(_item, index) => `list${index}`}
 				/>
 			</GestureHandlerRootView>
 
 			{
-				 <AlertComponent
-							isVisible={showDeleteModal}
-							closeModal={() => {
-								setShowDeleteModal(false)
-							}}
-							message={t('search:deleteMessage')}
-							title={t('search:deleteTitle')}
-							onPressOK={deleteRecord}/>
+				<AlertComponent
+					isVisible={showDeleteModal}
+					closeModal={() => {
+						setShowDeleteModal(false)
+					}}
+					message={t('search:deleteMessage')}
+					title={t('search:deleteTitle')}
+					onPressOK={deleteRecord}/>
 			}
 
 			{error && <ErrorComponent transparent
@@ -163,6 +171,32 @@ const MainScreen = (props: any) => {
 }
 
 export const s = StyleSheet.create({
+	buttonContainer2: {
+		flex: 1,
+		flexDirection: 'row',
+		alignItems: 'flex-end',
+		justifyContent: 'flex-end',
+		alignContent: 'center',
+		padding: 10
+	},
+	buttonText: {
+		color: themeColors.header,
+		fontWeight: 'bold',
+		padding: 5
+	},
+	buttonContainer1 : {
+		alignContent: 'center',
+		alignItems: 'center',
+		justifyContent: 'center',
+		flex: 1,
+		minWidth: 50
+	},
+	button1: {
+		height: 60,
+		borderRightWidth: StyleSheet.hairlineWidth,
+		paddingHorizontal: 10,
+		borderColor: 'black'
+	},
 	separator: {
 		backgroundColor: 'rgb(200, 199, 204)',
 		height: StyleSheet.hairlineWidth,
