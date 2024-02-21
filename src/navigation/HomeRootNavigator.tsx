@@ -3,14 +3,13 @@ import { useTranslation } from 'react-i18next';
 import CreateEntryScreen from '@/containers/CreateEntryScreen/CreateEntryScreen';
 import { createNativeStackNavigator, } from '@react-navigation/native-stack';
 import { themeColors } from '@/constants/app.constants';
-import { View } from 'react-native';
 import MainScreen from '@/containers/MainScreen';
-import RecordDataProvider from '@/context/StaticDataContext';
+import { RecordModelExtended } from '@/utils/models';
 
 
 export type CustomRootNavigatorParamList = {
 	Search: undefined;
-	Create: { imgUri: string } | undefined;
+	Record: { edit: RecordModelExtended } | undefined;
 };
 
 
@@ -30,7 +29,7 @@ export default function HomeRootNavigator() {
 
 
 			<Stack.Screen
-				name='Create'
+				name='Record'
 				component={CreateEntryScreen}
 				options={{headerShown: true, title: t('common:route.create')}}
 			/>

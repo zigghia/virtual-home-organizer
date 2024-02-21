@@ -30,7 +30,7 @@ const withTemplateList =  <T extends WithTemplateListProps = WithTemplateListPro
 		}), [props.items]);
 
 
-		return <WrappedComponent {...props} list={list}></WrappedComponent>
+		return <WrappedComponent {...props} list={list} key={'component' + Math.floor(Math.random() * 100)}></WrappedComponent>
 	};
 }
 

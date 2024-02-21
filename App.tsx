@@ -7,6 +7,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { Text } from '@rneui/base';
 import { useTranslation } from 'react-i18next';
 import RecordDataProvider from '@/context/StaticDataContext';
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 
 
 SplashScreen.preventAutoHideAsync().catch((err) => console.log(err));
@@ -50,11 +51,13 @@ export default function App() {
 		return;
 	}
 	return (
-		<RecordDataProvider>
-			<View style={styles.container} onLayout={onLayoutRootView}>
-				<CustomRootNavigator/>
-			</View>
-		</RecordDataProvider>
+		<ActionSheetProvider>
+			<RecordDataProvider>
+				<View style={styles.container} onLayout={onLayoutRootView}>
+					<CustomRootNavigator/>
+				</View>
+			</RecordDataProvider>
+		</ActionSheetProvider>
 	)
 }
 

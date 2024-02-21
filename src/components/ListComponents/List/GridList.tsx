@@ -1,44 +1,93 @@
-import React, { useState } from "react";
-import { Image, ImageBackground, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import React, { useRef, useState } from "react";
+import { ImageBackground, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View, findNodeHandle, TextStyle, ViewStyle } from 'react-native';
 import { themeColors } from '@/constants/app.constants';
-import { MainListItemProps } from '@/components/ListComponents/List/SwipeRow';
 import WithTemplateList, { WithTemplateListProps } from '@/hoc/withTemplateList';
 import commonStyle from '@/utils/common.style';
-import { ListItemModel, RecordModelExtended, SelectColorItemModel } from '@/utils/models';
-import { Entypo, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
+import { RecordModelExtended } from '@/utils/models';
+import { FontAwesome5, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import PreviewCreatedItem from '@/components/CreateNewRecord/PreviewCreatedItem/PreviewCreatedItem';
+import { useActionSheet } from '@expo/react-native-action-sheet';
+import { LongPressGestureHandler, State } from 'react-native-gesture-handler';
+import { HandlerStateChangeEvent } from 'react-native-gesture-handler/lib/typescript/handlers/gestureHandlerCommon';
+import { useTranslation } from 'react-i18next';
 
 interface MainListItemProps1 extends WithTemplateListProps {
-	list: []
+	list: [];
+	deleteAction: (id: number) => void;
+	editAction: (iten: RecordModelExtended) => void;
 }
-const GridList = ({list}: MainListItemProps1) => {
+
+const GridList = ({list, deleteAction, editAction}: MainListItemProps1) => {
 	const [preview, setPreview] = useState<null | RecordModelExtended>(null);
+	const {showActionSheetWithOptions} = useActionSheet();
+	const {t} = useTranslation();
+	const options = useRef([t('search:actions.preview'),
+		t('search:actions.edit'),
+		t('search:actions.delete'),
+		t('search:actions.cancel')]).current;
+
+	const onLongPress = (event: HandlerStateChangeEvent, item: RecordModelExtended) => {
+
+		if ( event.nativeEvent.state === State.ACTIVE ) {
+			showActionSheetWithOptions({
+				options,
+				cancelButtonIndex: 3,
+				destructiveButtonIndex: 2,
+				icons: [<FontAwesome name='trash-o' size={30} color={themeColors.header}/>, <FontAwesome name={'edit'} size={30} color={themeColors.header}/>]
+			}, (selectedIndex: number | undefined) => {
+				switch (selectedIndex) {
+					case 0:
+						setPreview(item);
+						break;
+
+					case 1:
+						editAction(item);
+						break;
+
+					case 2:
+						deleteAction(item.id ?? 0);
+				}
+			});
+		}
+	};
 
 	return (
-		<>{
-			(list ?? []).map((line: [], index: number) => {
-				return <View style={{...commonStyle.containerList, backgroundColor: 'white'}} key={`line${index}`}>
-					{
-						line.map((item: RecordModelExtended, index) =>
-							<TouchableWithoutFeedback onPress={() => setPreview(item)} key={`gridList${index}`}>
-								<View style={{...s.lineContainer}}>
-									<ImageBackground source={{uri: item.imgUri}} style={s.image}>
-										<View style={{...s.infoBar, ...s.infoBarPreview}}>
-											<MaterialIcons name="zoom-out-map" size={30} color={themeColors.header}/>
-										</View>
-										<View style={{ ...s.infoBar, ...s.infoBarBox}}>
-											<FontAwesome5 name="box-open" size={24} color={themeColors.secondary} style={s.boxIcon}>
-												<Text style={{color: 'white', marginLeft: 5, fontSize: 40}}>{item.containerIdentifier}</Text>
-											</FontAwesome5>
-										</View>
-									</ImageBackground>
-								</View>
-							</TouchableWithoutFeedback>
-						)
-					}
-				</View>
-			})
-		}
+		<>
+			{
+				(list ?? []).map((line: [], i: number) => {
+					return <View style={{...commonStyle.containerList, backgroundColor: 'white'}} key={`line${i}`}>
+						{
+							line.map((item: RecordModelExtended, ii) =>
+								<TouchableWithoutFeedback onPress={() => setPreview(item)} key={'linecolumn' + ii + '-' + 'i'}>
+									<View style={{...s.lineContainer}} key={'column' + ii + '-' + 'i'}>
+										<ImageBackground source={{uri: item.imgUri}} key={'column4' + ii + '-' + 'i'}>
+											<LongPressGestureHandler
+												onHandlerStateChange={(event) => onLongPress(event, item)}
+												minDurationMs={500}
+												maxDist={20}
+											>
+												<View style={s.image} key={'column1' + ii + '-' + 'i'}>
+													<View style={{...s.infoBar, ...s.infoBarPreview}}>
+														<MaterialIcons name="zoom-out-map" size={30} color={themeColors.header}/>
+													</View>
+
+													<View style={{...s.infoBar, ...s.infoBarBox}}>
+														<FontAwesome5 name="box-open" size={24} color={themeColors.secondary} style={s.boxIcon}>
+															<Text style={{color: 'white', marginLeft: 5, fontSize: 40}}>{item.containerIdentifier}</Text>
+														</FontAwesome5>
+													</View>
+												</View>
+											</LongPressGestureHandler>
+										</ImageBackground>
+
+									</View>
+								</TouchableWithoutFeedback>
+							)
+						}
+					</View>
+				})
+			}
+
 			<PreviewCreatedItem isVisible={preview != null}
 								formValues={{
 									colorsInfo: preview?.colorsInfo,

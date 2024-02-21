@@ -17,7 +17,7 @@ export interface RecordModel {
 	id?: number;
 	colors?: string;
 	categories?: string;
-	imgUri?: string;
+	imgUri: string;
 	description?: string;
 	userId?: number;
 	containerIdentifier?: string;

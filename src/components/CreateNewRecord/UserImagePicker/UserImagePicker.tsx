@@ -12,16 +12,16 @@ import * as MediaLibrary from 'expo-media-library';
 import Loading from '@/components/Loading/Loading';
 
 interface UserImagePickerProps {
-	onSaveData: (value: string) => void
+	onSaveData: (value: string) => void,
+	imgUri?: string
 }
 
-const UserImagePicker = ({onSaveData}: UserImagePickerProps) => {
-	const [image, setImage] = useState<string | null>();
+const UserImagePicker = ({onSaveData, imgUri}: UserImagePickerProps) => {
+	const [image, setImage] = useState<string | undefined>(imgUri);
 	const [cameraPermission, reqCameraPermission] = useCameraPermissions();
 	const [mediaPermission, reqMediaPermission] = MediaLibrary.usePermissions();
 	const [loading, setLoading] = useState(false);
 	const [t] = useTranslation();
-
 
 	const takePicture = async () => {
 		let permission: PermissionStatus | undefined = cameraPermission?.status;

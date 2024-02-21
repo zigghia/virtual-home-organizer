@@ -95,6 +95,10 @@ const MainScreen = (props: any) => {
 		}
 	}
 
+	const editAction = async (item: RecordModelExtended) => {
+		await props.navigation.navigate('Record', {edit: item});
+	}
+
 	const deleteAction = (id: number | undefined) => {
 		if ( !id ) {
 			return;
@@ -104,7 +108,7 @@ const MainScreen = (props: any) => {
 	}
 
 	const navigateTpAddNew = async () => {
-		await props.navigation.navigate('Create');
+		await props.navigation.navigate('Record');
 	}
 
 	const renderItem = ({item, index}: { item: RecordModel, index: number }): any => {
@@ -116,7 +120,7 @@ const MainScreen = (props: any) => {
 						 index={index}
 						 deleteAction={deleteAction}
 						 editAction={(id) => {
-				}}/>
+						 }}/>
 
 	}
 
@@ -129,7 +133,7 @@ const MainScreen = (props: any) => {
 		<>
 			<GestureHandlerRootView style={{flex: 1}}>
 				<SearchBar onSearch={search} placeholder={t('search:searchPlaceholder')}/>
-				<View style={{flexDirection: 'row', marginVertical: 10, alignItems: 'center', justifyContent: 'space-between'}}>
+				<View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
 					<TouchableOpacity style={s.button1} onPress={navigateTpAddNew}>
 						<View style={s.buttonContainer1}>
 							<Ionicons name="footsteps-outline" size={24} color={themeColors.header}/>
@@ -138,11 +142,11 @@ const MainScreen = (props: any) => {
 					</TouchableOpacity>
 
 					<View style={s.buttonContainer2}>
-						<TouchableOpacity style={[s.button1, {justifyContent: 'center'}]} onPress={() => setIsList(!isList)}>
-							<Ionicons name={isList ? "list-outline" : 'grid-outline'} size={24} color="black"/>
+						<TouchableOpacity style={s.button1} onPress={() => setIsList(!isList)}>
+							<Ionicons name={isList ? 'grid-outline' : "list-outline"} size={30} color="black"/>
 						</TouchableOpacity>
-						<TouchableOpacity style={{height: 60, borderRadius: 0, justifyContent: 'center', paddingLeft: 10}} disabled>
-							<Ionicons name='filter-outline' size={24} color="black" disabled/>
+						<TouchableOpacity style={{...s.button1, paddingLeft: 10}} disabled>
+							<Ionicons name="options" size={30} color="black"/>
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -154,7 +158,7 @@ const MainScreen = (props: any) => {
 							  keyExtractor={(_item, index) => `list${index}`}
 					/> :
 					<ScrollView>
-						<GridList items={filteredData}/>
+						<GridList items={filteredData} deleteAction={deleteAction} editAction={editAction}/>
 					</ScrollView>
 				}
 			</GestureHandlerRootView>
@@ -186,12 +190,12 @@ export const s = StyleSheet.create({
 		alignItems: 'flex-end',
 		justifyContent: 'flex-end',
 		alignContent: 'center',
-		padding: 10
+		paddingHorizontal: 10
 	},
 	buttonText: {
 		color: themeColors.header,
 		fontWeight: 'bold',
-		padding: 5
+		padding: 5,
 	},
 	buttonContainer1: {
 		alignContent: 'center',
@@ -202,9 +206,9 @@ export const s = StyleSheet.create({
 	},
 	button1: {
 		height: 60,
-		borderRightWidth: StyleSheet.hairlineWidth,
 		paddingHorizontal: 10,
-		borderColor: 'black'
+		paddingTop: 5,
+		justifyContent: 'center'
 	},
 	separator: {
 		backgroundColor: 'rgb(200, 199, 204)',

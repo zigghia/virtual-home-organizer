@@ -27,7 +27,7 @@ type animType = 'slideInUp' | 'slideOutDown' | 'slideInDown';
 const withModal = <P extends object>(WrappedComponent: React.ComponentType<P>, mp: ModalProps) => {
 	return (props: any) => {
 		const closeModal = () => {
-			setTimeout(() => props.closeModal(), 100);
+			 props.closeModal();
 		}
 
 		return <Modal

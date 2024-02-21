@@ -17,26 +17,7 @@ interface SwipeableRowProps {
 }
 
 export default class SwipeableItem extends Component<PropsWithChildren<SwipeableRowProps>> {
-	private renderLeftActions = (_progress: Animated.AnimatedInterpolation<number>, dragX: Animated.AnimatedInterpolation<number>) => {
-		const trans = dragX.interpolate({
-			inputRange: [0, 50, 100, 101],
-			outputRange: [-20, 0, 0, 1],
-			extrapolate: 'clamp',
-		});
-		return (
-			<RectButton style={styles.leftAction} onPress={this.close}>
-				<Animated.Text
-					style={[
-						styles.actionText,
-						{
-							transform: [{translateX: trans}],
-						},
-					]}>
-					Archive
-				</Animated.Text>
-			</RectButton>
-		);
-	};
+
 	private renderRightAction = (
 		text: string,
 		color: string,

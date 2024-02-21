@@ -1,14 +1,10 @@
 import React, { useState } from "react";
-import { Button, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Feather, MaterialIcons } from '@expo/vector-icons';
+import { ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import { themeColors } from '@/constants/app.constants';
 import SwipeableItem from '@/components/ListComponents/List/SwipeItem';
-import { ListItemModel, RecordModel, RecordModelExtended, SelectColorItemModel } from '@/utils/models';
+import { RecordModelExtended} from '@/utils/models';
 import 'react-native-gesture-handler';
-import { s as st } from '@/components/CreateNewRecord/SelectColors/SelectColors.style';
-import withTemplateList, { WithTemplateListProps, WithTemplateListPropsSimple } from '@/hoc/withTemplateList';
-import commonStyle from '@/utils/common.style';
-import { BackgroundImage } from '@rneui/base';
 import RenderColors from '@/components/RenderColorsBullet/RenderColors';
 
 export interface MainListItemProps {
@@ -32,18 +28,19 @@ const SwipeRow = ({deleteAction, editAction, item, index}: MainListItemProps) =>
 					<View>
 						<ImageBackground source={{uri: item.imgUri}} style={s.image}>
 							<View style={s.boxContainer}>
-								<Text style={s.boxText}>{item.containerIdentifier}</Text>
+								<FontAwesome5 name="box-open" size={24} color={themeColors.secondary} style={s.boxIcon}>
+									<Text style={{color: 'white', marginLeft: 5, fontSize: 40}}>{item.containerIdentifier}</Text>
+								</FontAwesome5>
 							</View>
 						</ImageBackground>
 					</View>
 
-					{(index == 0) && <MaterialIcons name="swipe-left" size={24} color={themeColors.header} style={s.icon}/> }
+					{(index == 0) && <MaterialIcons name="swipe-left" size={24} color={themeColors.primary} style={s.icon}/> }
 
-					<View style={{flex: 1, paddingHorizontal: 20, borderLeftWidth: 2, left: 5, borderColor: themeColors.disabled}}>
-						{item.description && <Text style={s.titleText}>{item.description}</Text>}
+					<View style={{flex: 1, paddingHorizontal: 20}}>
+						{item?.colorsInfo?.[0] &&  <RenderColors items={item.colorsInfo ?? []}/>}
 						{item.categories && <Text style={s.contentText}>{item.categories.replaceAll(',', ' | ')}</Text>}
-						{item?.colorsInfo?.[0] &&  <RenderColors items={item.colorsInfo ?? []}/>
-						}
+						{item.description && <Text style={s.titleText}>{item.description}</Text>}
 					</View>
 				</View>
 			</SwipeableItem>
@@ -56,6 +53,11 @@ const SwipeRow = ({deleteAction, editAction, item, index}: MainListItemProps) =>
 }
 
 export const s = StyleSheet.create({
+	boxIcon: {
+		verticalAlign: 'bottom',
+		alignItems: 'center',
+		alignSelf: 'center'
+	},
 	icon: {
 		position: 'absolute',
 		right: 10,
@@ -68,10 +70,10 @@ export const s = StyleSheet.create({
 		alignItems: 'flex-end',
 	},
 	boxContainer: {
-		backgroundColor: themeColors.secondary,
+		backgroundColor: themeColors.header,
 	 	paddingVertical: 10,
-		opacity: 0.95,
-		minWidth: '80%',
+		opacity: 0.75,
+		minWidth: '100%',
 		alignItems: 'center',
 		justifyContent: 'center',
 		alignContent: 'center'

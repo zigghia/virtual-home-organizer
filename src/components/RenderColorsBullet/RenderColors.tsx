@@ -7,11 +7,11 @@ import React from 'react';
 const RenderColors = withTemplateList(({list} : WithTemplateListPropsSimple) => {
 	return	<>
 		{
-			(list ?? []).map((line: [], index: number) => {
-				return <View style={s.colorsContainer} key={'colors'+index}>
+			(list ?? []).map((line: [], i: number) => {
+				return <View style={s.colorsContainer} key={'colors'+i}>
 					{line.map((c: SelectColorItemModel, i) =>
-						(c?.plural ?? '').toLowerCase() === 'mix' ? <Text key={'color' + c.id + index}>mix</Text> :
-							<View key={'color' + c?.id + index}
+						(c?.plural ?? '').toLowerCase() === 'mix' ? <Text key={'colorLine' + c.id + i}>mix</Text> :
+							<View key={'color_' + (c?.id ?? '' + Math.random()) + i}
 								  style={{
 									  ...s.colorBullet,
 									  borderColor: themeColors.darkGrey, borderWidth: StyleSheet.hairlineWidth,
