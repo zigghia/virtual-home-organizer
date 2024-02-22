@@ -1,8 +1,9 @@
 import { createContext, useEffect, useReducer, useState } from 'react';
-import { ListItemModel, PropertiesDatabaseRecord, ReducerPayload, SelectColorItemModel } from '@/utils/models';
+import { ListItemModel, PropertiesDatabaseRecord, ReducerPayload, SelectColorItemModel, User } from '@/utils/models';
 import { SQLResultSet } from 'expo-sqlite';
 import { fetchAllData, loadPropertiedData, Tables } from '@/utils/databases';
 import { useTranslation } from 'react-i18next';
+import Users from '@/components/SettingsComponents/Users';
 
 
 export type dataType = {
@@ -13,13 +14,13 @@ export type dataType = {
 export const DataContext = createContext<{
 	data: dataType,
 	init: boolean,
-	reloadData: () => void,
+	loadData: () => void,
 	dispatch: React.Dispatch<ReducerPayload>;
 } | null>(null);
 
 
 const getModifiedCopy = (records: SelectColorItemModel[], val: string | number, unique = false) => {
-	const index = records.findIndex(rec => rec.id === val || rec.name == val);
+	const index = records.findIndex(rec => rec.id === val || rec.name?.toLowerCase() == val.toString().toLowerCase());
 
 	if ( unique ) {
 		const cpRec = [...records.map(r => ({...r, selected: false}))];
@@ -28,7 +29,7 @@ const getModifiedCopy = (records: SelectColorItemModel[], val: string | number, 
 	}
 
 	if ( index == -1 ) {
-		return [];
+		return records;
 	}
 
 	const cpRec = [...records];
@@ -76,13 +77,12 @@ const reducer = (state: dataType, action: ReducerPayload) => {
 		case 'recalculate': {
 			const payload = (action?.payload as { data: PropertiesDatabaseRecord[], type: 'categories' | 'descriptions' });
 
-			const key  = payload.type == 'categories' ? 'category' : 'description';
+			const key = payload.type == 'categories' ? 'category' : 'description';
 
 			const arr = state[payload.type];
 			const selectedIds = arr.filter(el => el.selected).map(el => (el.id));
-			const n = ((payload.data ?? []) as PropertiesDatabaseRecord[]).filter(el => el.type ==  key);
+			const n = ((payload.data ?? []) as PropertiesDatabaseRecord[]).filter(el => el.type == key);
 			const ref = n.map(((type: PropertiesDatabaseRecord) => constr(type))) ?? [];
-
 
 			return {
 				...state,
@@ -96,9 +96,7 @@ const reducer = (state: dataType, action: ReducerPayload) => {
 const RecordDataProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
 	const [data, dispatch] = useReducer(reducer, {colors: [], descriptions: [], categories: []});
 	const [init, setInit] = useState(true);
-	const [reloadData, setReloadData] = useState(true);
 	const {i18n} = useTranslation();
-
 	const loadData = async (where: string = '') => {
 		setInit(true);
 		const loadedData = await loadPropertiedData(i18n.language).catch(err => alert(err));
@@ -110,13 +108,11 @@ const RecordDataProvider: React.FC<{ children: React.ReactNode }> = ({children})
 	};
 
 	useEffect(() => {
-		if (reloadData) {
-			loadData();
-		}
-	}, [reloadData])
+		loadData();
+	}, [])
 
 
-	return <DataContext.Provider value={{data, init, dispatch, reloadData: () => setReloadData(true)}}>
+	return <DataContext.Provider value={{data, init, dispatch, loadData}}>
 		{children}
 	</DataContext.Provider>
 }

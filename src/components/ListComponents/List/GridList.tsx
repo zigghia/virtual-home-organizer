@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { ImageBackground, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View, findNodeHandle, TextStyle, ViewStyle } from 'react-native';
+import { ImageBackground, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View, findNodeHandle, TextStyle, ViewStyle, ScrollView } from 'react-native';
 import { themeColors } from '@/constants/app.constants';
 import WithTemplateList, { WithTemplateListProps } from '@/hoc/withTemplateList';
 import commonStyle from '@/utils/common.style';
@@ -10,21 +10,21 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import { LongPressGestureHandler, State } from 'react-native-gesture-handler';
 import { HandlerStateChangeEvent } from 'react-native-gesture-handler/lib/typescript/handlers/gestureHandlerCommon';
 import { useTranslation } from 'react-i18next';
+import Loading from '@/components/Loading/Loading';
 
 interface MainListItemProps1 extends WithTemplateListProps {
 	list: [];
 	deleteAction: (id: number) => void;
-	editAction: (iten: RecordModelExtended) => void;
+	editAction: (item: RecordModelExtended) => void;
 }
-
 const GridList = ({list, deleteAction, editAction}: MainListItemProps1) => {
 	const [preview, setPreview] = useState<null | RecordModelExtended>(null);
 	const {showActionSheetWithOptions} = useActionSheet();
 	const {t} = useTranslation();
-	const options = useRef([t('search:actions.preview'),
-		t('search:actions.edit'),
-		t('search:actions.delete'),
-		t('search:actions.cancel')]).current;
+	const options = useRef([t('common:actions.preview'),
+		t('common:actions.edit'),
+		t('common:actions.delete'),
+		t('common:actions.cancel')]).current;
 
 	const onLongPress = (event: HandlerStateChangeEvent, item: RecordModelExtended) => {
 
@@ -51,22 +51,26 @@ const GridList = ({list, deleteAction, editAction}: MainListItemProps1) => {
 		}
 	};
 
+	if (!list.length) {
+		return <Loading/>
+	}
+
 	return (
-		<>
+		<ScrollView>
 			{
 				(list ?? []).map((line: [], i: number) => {
 					return <View style={{...commonStyle.containerList, backgroundColor: 'white'}} key={`line${i}`}>
 						{
 							line.map((item: RecordModelExtended, ii) =>
-								<TouchableWithoutFeedback onPress={() => setPreview(item)} key={'linecolumn' + ii + '-' + 'i'}>
-									<View style={{...s.lineContainer}} key={'column' + ii + '-' + 'i'}>
-										<ImageBackground source={{uri: item.imgUri}} key={'column4' + ii + '-' + 'i'}>
+								<TouchableWithoutFeedback onPress={() => setPreview(item)} key={'linecolumn' + ii}>
+									<View style={{...s.lineContainer}}>
+										<ImageBackground source={{uri: item.imgUri}} style={s.image} resizeMethod={'resize'}>
 											<LongPressGestureHandler
 												onHandlerStateChange={(event) => onLongPress(event, item)}
 												minDurationMs={500}
 												maxDist={20}
 											>
-												<View style={s.image} key={'column1' + ii + '-' + 'i'}>
+												<View  style={s.image}>
 													<View style={{...s.infoBar, ...s.infoBarPreview}}>
 														<MaterialIcons name="zoom-out-map" size={30} color={themeColors.header}/>
 													</View>
@@ -98,9 +102,9 @@ const GridList = ({list, deleteAction, editAction}: MainListItemProps1) => {
 								categories={preview?.categories?.length ? preview.categories.split(',') : []}
 								cancelText='OK'
 								closeModal={() => setPreview(null)}/>
-		</>
+		</ScrollView>
 	);
-}
+};
 
 
 export const s = StyleSheet.create({

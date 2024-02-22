@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { themeDefaults } from "@/constants/app.constants";
+import { themeColors, themeDefaults } from "@/constants/app.constants";
 
 export const s = StyleSheet.create({
 	container: {
@@ -38,5 +38,17 @@ export const s = StyleSheet.create({
 		borderTopWidth: 1,
 		borderTopColor: '#ccc',
 		borderStyle: 'solid'
+	},
+	seasonButton: {
+		minWidth: 120,
+		marginVertical: 5
+	},
+	seasonButtonText: {
+		color: 'white',
+		marginRight: 5,
+		fontSize: 16
+	},
+	seasonButtonSelected: {
+		backgroundColor: themeColors.disabled
 	}
 });

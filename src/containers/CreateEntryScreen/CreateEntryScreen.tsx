@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { s } from './CreateEntry.style';
 import { Animated, View, Text } from 'react-native';
 import UserImagePicker from '@/components/CreateNewRecord/UserImagePicker/UserImagePicker';
@@ -13,7 +13,7 @@ import EntryCard from '@/containers/CreateEntryScreen/EntryCard';
 import CategoryComponent from '@/components/CreateNewRecord/CategoryComponent/CategoryComponent';
 import CreateNewCategory from '@/components/CreateNewRecord/CreateNewCategory/CreateNewCategory';
 import { DataContext } from '@/context/StaticDataContext';
-import { fetchAllData, insertProduct, insertProperty, Tables } from '@/utils/databases';
+import { fetchAllData, insertProduct, insertProperty, Tables, updateProduct } from '@/utils/databases';
 import { SQLResultSet } from 'expo-sqlite';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { appConstants, themeColors } from '@/constants/app.constants';
@@ -23,6 +23,7 @@ import { CustomRootNavigatorParamList } from '@/navigation/HomeRootNavigator';
 import Location from '@/components/CreateNewRecord/LocationComponent/Location';
 import SelectColorsModal from '@/components/CreateNewRecord/SelectColors/SelectColorsModal';
 import Loading from '@/components/Loading/Loading';
+import { Entypo, FontAwesome, FontAwesome5, Ionicons } from '@expo/vector-icons';
 
 type Props = NativeStackScreenProps<CustomRootNavigatorParamList, 'Record'>;
 const imageDir = FileSystem.documentDirectory + 'appImages/';
@@ -50,34 +51,45 @@ const saveFile = async (imgUri: string) => {
 
 const CreateEntryScreen = ({route, navigation}: Props) => {
 	const [formValues, setFormValues] = useState<RecordModel>({} as RecordModel);
-	const {data, dispatch, reloadData} = React.useContext(DataContext)!;
+	const {data, dispatch, init, loadData} = React.useContext(DataContext)!;
 	const [showPreviewModal, setShowPreviewModal] = useState(false);
 	const [showCreateNewCategoryModal, setshowCreateNewCategoryModal] = useState(false);
 	const [showColorsModal, setShowColorsModal] = useState(false);
 	const {t, i18n} = useTranslation();
+	const [selectedSeason, setSelectedSeason] = useState<number | null>(null);
 	const [loading, setLoading] = useState(true);
-	const getDisplayColors = useCallback(() => {
+	const getDisplayColors = () => {
 		const def = data.colors.filter(c => c.default);
 		const sel = data.colors.filter(c => c.selected && !c.default);
 		return [...def.slice(0, def.length - sel.length), ...sel];
-	}, [data.colors]);
-
-	useEffect(() => console.log('loading effect', formValues.id), [loading]);
+	};
 
 	useEffect(() => {
-		console.log('containerIdentifier', formValues.containerIdentifier, formValues.id);
-		setLoading(false);
-		console.log('loading', loading);
-	}, [formValues.containerIdentifier, formValues.id]);
+		if ( formValues.id ) {
+			setLoading(false);
+		}
+	}, [formValues.id]);
 
 	useEffect(() => {
-		console.log('effect1 ', route.params?.edit.id);
 		if ( route.params?.edit?.id ) {
-			const {id, imgUri, containerIdentifier} = route.params.edit;
-			setFormValues({id, imgUri, containerIdentifier});
+			const params = route.params.edit;
+			const {id, imgUri, containerIdentifier, description} = params;
+
+			(params.colorsInfo ?? []).forEach(c => dispatch({type: 'update', payload: {key: 'colors', id: c.id}}));
+			((params.categories ?? '').split(',') ?? []).forEach(c => dispatch({type: 'update', payload: {key: 'categories', name: c}}));
+
+			if ( params.description ) {
+				dispatch({type: 'update', payload: {key: 'descriptions', name: params.description, unique: true}});
+			}
+			setFormValues({id, imgUri, containerIdentifier, description, oldImgUri: imgUri});
+		} else {
+			setLoading(false);
 		}
 
-	}, [route.params?.edit?.id]);
+		return () => {
+			loadData();
+		}
+	}, [])
 
 	const saveRecord = async () => {
 		const cu = await CURRENT_USER(t('common:defaultNickname'));
@@ -91,45 +103,53 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 			userId,
 			containerIdentifier: formValues.containerIdentifier,
 			description: formValues.description?.toLowerCase(),
+			season: formValues.season ?? '',
 			categories: data.categories.filter(c => c.selected).map(c => [c.name, c?.plural ?? ''].filter(el => el?.length)).join().toLowerCase(),
 			imgUri: formValues.imgUri,
 		};
 
 		record.searchKeys = [record.categories,
+			record.season,
 			data.colors.filter(c => c.selected).map(c => ([c.name, c.plural ?? ''] ?? []).filter(el => el?.length)).join().toLowerCase(),
 			record.description].filter(el => el?.length).join(',');
 
 
+		formValues?.oldImgUri?.length && formValues?.oldImgUri != formValues.imgUri && (await FileSystem.deleteAsync(formValues?.oldImgUri ?? '', {idempotent: true}));
+
 		const savedFile = await saveFile(formValues.imgUri);
+		savedFile && (record.imgUri = savedFile);
 
-		if ( savedFile ) {
-			record.imgUri = savedFile;
-
-			await insertProduct(record)
-				.catch(error => {
-					alert(t('common:defaultDBError', {code: '001'}));
-					console.log(error);
-				});
-
-			if ( record.description?.length ) {
-				//check if saving description too
-				const {rows}: SQLResultSet = await fetchAllData(Tables.PROPERTIES, ` WHERE lang=? and name= ? and type='description'`,
-					[i18n.language, record.description as string])
-				if ( !rows.length ) {
-					await insertProperty(record.description ?? 'name', i18n.language, 'description');
-				}
+		if ( record.description?.length ) {
+			//check if saving description too
+			const {rows}: SQLResultSet = await fetchAllData(Tables.PROPERTIES, ` WHERE lang=? and name= ? and type='description'`,
+				[i18n.language, record.description as string])
+			if ( !rows.length ) {
+				await insertProperty(record.description ?? 'name', i18n.language, 'description');
 			}
-			reloadData();
-			navigation.navigate('Search');
 		}
+
+		if ( formValues.id != null) {
+			await updateProduct(record).catch(error => {
+				alert(t('common:defaultDBError', {code: '001'}));
+				console.log(error);
+			});
+		} else {
+			await insertProduct(record).catch(error => {
+				alert(t('common:defaultDBError', {code: '001'}));
+				console.log(error);
+			});
+
+		}
+
+		navigation.navigate('Search');
 	}
 
 	const updateRecordData = (key: keyof RecordModel, data: string | number) => {
-		 setFormValues({...formValues, [key]: data});
+		setFormValues({...formValues, [key]: data});
 	};
 
 	useEffect(() => {
-		if (loading) {
+		if ( loading ) {
 			return;
 		}
 		const selectedDescription = data.descriptions.find(d => d.selected);
@@ -137,7 +157,7 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 	}, [data.descriptions]);
 
 
-	if (loading) {
+	if ( loading || init ) {
 		return <Loading text/>
 	}
 
@@ -145,7 +165,7 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 			<ScrollView>
 				<View style={s.container}>
 					<EntryCard title={t('createEntry:picture.title')}>
-						<UserImagePicker onSaveData={(value: string) => updateRecordData('imgUri', value)} imgUri={formValues.imgUri}/>
+						<UserImagePicker onSaveData={(value: string) => updateRecordData('imgUri', value)} imgUri={formValues.imgUri} oldImgUri={formValues.oldImgUri}/>
 					</EntryCard>
 					<EntryCard title={t('createEntry:container.title')}
 							   tooltipText={t('createEntry:container:tooltip')}
@@ -164,19 +184,45 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 							   subtitle={t('createEntry:colors.subtitle')}>
 						<SelectColors items={getDisplayColors()}/>
 					</EntryCard>
-					<EntryCard title={t('createEntry:description.title')}
-							   subtitle={t('createEntry:description.subtitle')}>
-						<Location items={data.descriptions}
-								  onValueSaved={(value: string) => updateRecordData('description', value)}
-								  value={formValues.description}/>
-					</EntryCard>
 					<EntryCard title={t('createEntry:category.title')}
-							   containerStyle={{marginBottom: 100}}
 							   tooltipText={t('createEntry:category:tooltip')}
 							   footerText={t('createEntry:category.footer', {max: appConstants.maxCategoriesAllowed})}
 							   buttonDisabled={data.categories.length >= appConstants.maxCategoriesAllowed}
 							   buttonHandler={() => setshowCreateNewCategoryModal(true)}>
 						<CategoryComponent items={data.categories}/>
+					</EntryCard>
+					<EntryCard title={t('createEntry:description.title')}
+							   tooltipText={t('createEntry:description:tooltip')}
+							   subtitle={t('createEntry:description.subtitle')}>
+						<Location items={data.descriptions}
+								  onValueSaved={(value: string) => updateRecordData('description', value)}
+								  value={formValues.description}/>
+					</EntryCard>
+					<EntryCard title={t('createEntry:season.title')}
+							   tooltipText={t('createEntry:season:tooltip')}
+							   containerStyle={{marginBottom: 100}}>
+						<View style={{flex:1, flexWrap: 'wrap', flexDirection: 'row'}}>
+							{
+								['winter:snow-sharp', 'spring:flower-outline', 'summer:sunny-sharp', 'autumn:rainy'].map((key, index) => {
+									const [season, icon] = key.split(':');
+									const style = index === selectedSeason ? s.seasonButtonSelected : {};
+									return <Button  buttonStyle = {{...s.seasonButton, ...style, marginRight: index%2 == 0 ? 5 : 0}}
+												   onPress={() =>
+												   {
+													   if (selectedSeason == index) {
+														   updateRecordData('season','');
+														   setSelectedSeason(null);
+														   return;
+													   }
+													   setSelectedSeason(index);
+													   updateRecordData('season', t(`createEntry:season.${season}`).toLowerCase());
+												   }}>
+												<Text style={s.seasonButtonText}>{t(`createEntry:season.${season}`)}</Text>
+												<Ionicons name={icon as 'snow-sharp' | 'flower-outline' | 'sunny-sharp' | 'rainy'} size={24} color="white" />
+											</Button>
+								})
+							}
+						</View>
 					</EntryCard>
 				</View>
 			</ScrollView>

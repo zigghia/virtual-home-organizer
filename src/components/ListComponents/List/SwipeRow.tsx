@@ -8,7 +8,7 @@ import 'react-native-gesture-handler';
 import RenderColors from '@/components/RenderColorsBullet/RenderColors';
 
 export interface MainListItemProps {
-	editAction: (id: number | undefined) => void;
+	editAction: (item: RecordModelExtended) => void;
 	deleteAction: (id: number | undefined) => void;
 	item: RecordModelExtended;
 	index?: number
@@ -21,7 +21,7 @@ const SwipeRow = ({deleteAction, editAction, item, index}: MainListItemProps) =>
 	return (
 		<>
 			<SwipeableItem
-				onEdit={() => editAction && editAction(item?.id)}
+				onEdit={() => editAction && editAction(item)}
 				onDelete={() => deleteAction && deleteAction(item?.id)}>
 				<View style={s.container}>
 

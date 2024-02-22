@@ -41,7 +41,6 @@ const CreateNewCategory = (props: CreateNewCategoryProps) => {
 	};
 
 	const setCategory = (value: unknown) =>  {
-		console.log(value);
 		setData( '' + (value ?? ''));
 	}
 

@@ -18,6 +18,7 @@ export interface RecordModel {
 	colors?: string;
 	categories?: string;
 	imgUri: string;
+	oldImgUri?: string;
 	description?: string;
 	userId?: number;
 	containerIdentifier?: string;
@@ -26,7 +27,8 @@ export interface RecordModel {
 }
 
 export interface RecordModelExtended extends  RecordModel{
-	colorsInfo?: SelectColorItemModel[]
+	colorsInfo?: SelectColorItemModel[],
+	categoriesInfo?: ListItemModel[];
 }
 
 export interface PropertiesDatabaseRecord {

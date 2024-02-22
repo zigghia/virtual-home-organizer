@@ -119,8 +119,7 @@ const MainScreen = (props: any) => {
 						 item={item}
 						 index={index}
 						 deleteAction={deleteAction}
-						 editAction={(id) => {
-						 }}/>
+						 editAction={editAction}/>
 
 	}
 
@@ -157,12 +156,9 @@ const MainScreen = (props: any) => {
 							  renderItem={renderItem}
 							  keyExtractor={(_item, index) => `list${index}`}
 					/> :
-					<ScrollView>
 						<GridList items={filteredData} deleteAction={deleteAction} editAction={editAction}/>
-					</ScrollView>
 				}
 			</GestureHandlerRootView>
-
 			{
 				<AlertComponent
 					isVisible={showDeleteModal}

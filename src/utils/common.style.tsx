@@ -5,7 +5,6 @@ const commonStyle = StyleSheet.create({
 	containerList: {
 		flex: 1,
 		flexDirection: 'row',
-		//width: '100%',
 	},
 	containerListItem: {
 		minWidth: 80,
@@ -17,6 +16,19 @@ const commonStyle = StyleSheet.create({
 		alignItems: 'center',
 		fontWeight: 'bold',
 		borderRadius: 10
+	},
+	input: {
+		fontSize: 25,
+		textAlign: 'center',
+		borderWidth: 1,
+		margin: 0,
+		paddingRight: 0,
+		paddingLeft: 10,
+		paddingVertical: 15,
+		borderRadius: 20,
+		borderColor: themeColors.secondary,
+		backgroundColor: '#fff',
+		height: 60
 	},
 	shadow: {
 		// shadowColor: "#444",

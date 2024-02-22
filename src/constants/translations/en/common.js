@@ -25,5 +25,11 @@ export default {
       no: "No",
       yes: "OK"
     }
+  },
+  actions: {
+    delete: 'Delete',
+    edit: 'Edit',
+    preview: 'Preview',
+    cancel: 'Cancel'
   }
 };

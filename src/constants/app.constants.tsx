@@ -20,10 +20,18 @@ export enum themeDefaults {
 export enum appConstants {
 	maxCategoriesAllowed = 15,
 	maxCategoryCharsAllowed = 10,
-	maxBoxIdentifierLength=3
+	maxBoxIdentifierLength=3,
+	maxUserLength= 10,
+	minUserLength= 2,
+	maxUsersNo = 5
 }
 
-
+export enum seasons {
+	SPRING,
+	SUMMER,
+	AUTUMN,
+	WINTER
+}
 export enum errorCodes {
 	"001", //inserare un produs in baza de date,
 	"002", //categoria nu a fost adaugata in baza de date

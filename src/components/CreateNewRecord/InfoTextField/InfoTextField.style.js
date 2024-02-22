@@ -11,19 +11,6 @@ export const s = StyleSheet.create({
 		marginHorizontal: 5,
 		justifyContent: 'justify-start'
 	},
-	input: {
-		fontSize: 25,
-		textAlign: 'center',
-		borderWidth: 1,
-		margin: 0,
-		paddingRight: 0,
-		paddingLeft: 10,
-		paddingVertical: 15,
-		borderRadius: 20,
-		borderColor: themeColors.secondary,
-		backgroundColor: '#fff',
-		height: 60
-	},
 	text: {
 		height: 60,
 		backgroundColor: themeColors.lightGrey,

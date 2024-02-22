@@ -20,7 +20,7 @@ const SelectColorItem = ({item, onItemPress}: SelectColorItemProps) => {
 	let content = <Text>{item?.name}</Text>;
 
 
-	return <Pressable onPress={onItemPress} style={({pressed}) => ([commonStyle.containerListItem, pressed && s.pressed])}>
+	return <Pressable onPress={onItemPress} style={({pressed}) => ([commonStyle.containerListItem,  pressed && s.pressed])}>
 
 		<View style={[s.color, {height: 30, backgroundColor: item?.bgColor}]}>
 			{

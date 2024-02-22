@@ -22,7 +22,7 @@ const SelectColors = ({list}: SelectColorProps) => {
 		<View>
 			{
 				(list ?? []).map((line: SelectColorItemModel[], index: number) => {
-					return <View style={commonStyle.containerList} key={`line${index}`}>
+					return <View style={{...commonStyle.containerList, 	width: '100%'}} key={`line${index}`}>
 						{
 							line.map(color => <SelectColorItem key={`selectColor${color.id}`} item={color} onItemPress={() => updateData(color)}/>)
 						}

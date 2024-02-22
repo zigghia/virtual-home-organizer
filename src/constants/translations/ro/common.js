@@ -24,5 +24,11 @@ export default {
 			no: "Nu",
 			yes: "OK"
 		}
+	},
+	actions: {
+		delete: 'Sterge',
+		edit: 'Editeaza',
+		cancel: 'Inchide',
+		preview: 'Previzualizare'
 	}
 };

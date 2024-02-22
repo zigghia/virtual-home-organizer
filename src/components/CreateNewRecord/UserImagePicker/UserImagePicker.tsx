@@ -13,7 +13,8 @@ import Loading from '@/components/Loading/Loading';
 
 interface UserImagePickerProps {
 	onSaveData: (value: string) => void,
-	imgUri?: string
+	imgUri?: string;
+	oldImgUri?: string;
 }
 
 const UserImagePicker = ({onSaveData, imgUri}: UserImagePickerProps) => {
@@ -61,6 +62,7 @@ const UserImagePicker = ({onSaveData, imgUri}: UserImagePickerProps) => {
 
 
 		if ( result?.canceled ) {
+			setLoading(false);
 			return;
 		}
 
@@ -107,6 +109,7 @@ const UserImagePicker = ({onSaveData, imgUri}: UserImagePickerProps) => {
 		});
 
 		if ( result?.canceled ) {
+			setLoading(false);
 			return;
 		}
 

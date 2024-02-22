@@ -26,6 +26,13 @@ const dropTables = async (table?: Tables): Promise<any> => {
 const createTables = async (userNicknameDefault: string): Promise<unknown> => {
 
 	return database.transactionAsync(async tx => {
+		await tx.executeSqlAsync(`CREATE TABLE IF NOT EXISTS ${Tables.SETTINGS}
+                                  (
+                                      id INTEGER PRIMARY KEY AUTOINCREMENT
+                                      NOT NULL,
+                                      dbversion TEXT NOT NULL
+                                  )`, []);
+
 		await tx.executeSqlAsync(`CREATE TABLE IF NOT EXISTS ${Tables.PROPERTIES}
                                   (
                                       id INTEGER PRIMARY KEY AUTOINCREMENT
@@ -146,6 +153,21 @@ export const insertProduct = async (data: RecordModel) => {
 	}, false);
 }
 
+export const updateProduct = async (data: RecordModel) => {
+	if (data.id == null) {
+		return;
+	}
+	return await database.transactionAsync(async tx => {
+
+		const {colors = '', userId = 1, categories = '', containerIdentifier = '', description = '', imgUri = '', searchKeys = '', season = '', id} = data;
+		await tx.executeSqlAsync(`UPDATE ${Tables.PRODUCTS}
+                                             SET  colors = ?, userId = ?, categories =?, containerIdentifier =? , description = ?, imgUri = ?, searchKeys = ?, season = ?
+											 WHERE id =?`,
+			[colors, userId, categories, containerIdentifier, description, imgUri, searchKeys, season, id ?? 0]);
+
+	}, false);
+}
+
 export const initDatabase = async (userNicknameDefault: string): Promise<void> => {
 
 	try {
@@ -171,6 +193,49 @@ export const insertProperty = (name: string, language: string, type= 'category')
 			);
 		})
 	);
+}
+
+export const insertUser= (name: string): Promise<SQLResultSet> => {
+	return new Promise((resolve, reject) =>
+		database.transaction((tx) => {
+			tx.executeSql(
+				`INSERT INTO ${Tables.USERS} (nickname)
+                 VALUES (?)`,
+				[name],
+				(tr, resultSet) => resolve(resultSet),
+				(tr: SQLTransaction, error): any => {
+					reject(error)
+				}
+			);
+		})
+	);
+}
+
+export const updateUser = async (id: number, name: string) => {
+	try {
+		await database.transactionAsync(async tx => {
+			const {rows} = await tx.executeSqlAsync(`UPDATE  ${Tables.USERS}
+													 SET nickname = ?
+                                                     WHERE id = ?`, [name, id]);
+		}, false);
+	}
+	catch (err) {
+		throw err;
+	}
+}
+
+export const deleteUser = async (id: number) => {
+	try {
+		await database.transactionAsync(async tx => {
+			const {rows} = await tx.executeSqlAsync(`DELETE
+                                                     FROM ${Tables.USERS}
+                                                     WHERE id = ?
+                                                     AND isDefault == 0`, [id]);
+		}, false);
+	}
+	catch (err) {
+		throw err;
+	}
 }
 
 export const deleteCategory = async (name: string, lang: string) => {

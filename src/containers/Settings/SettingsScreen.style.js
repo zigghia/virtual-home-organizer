@@ -9,12 +9,12 @@ export const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'space-between',
-		marginBottom: 30,
-		marginTop: 30
+		marginVertical: 10
 	},
 	title: {
 		color: '#444',
 		fontSize: 28,
-		fontWeight: '600'
+		fontWeight: '600',
+		marginBottom: 10
 	}
 });

@@ -1,5 +1,6 @@
 export default {
 	categories: {
+		buttonText: 'Sterge categorie',
 		title: 'Sterge din categorii',
 		alert: {
 			title: 'Confirmare stergere',
@@ -11,10 +12,24 @@ export default {
 		}
 	},
 	descriptions: {
-		title: 'Sterge tipuri descriere',
+		buttonText: 'Sterge',
+		title: 'Sterge locatii depozitare',
 		alert: {
 			title: 'Confirmare stergere',
 			message: 'Dupa stergere, nu vei mai putea selecta aceasta descriere',
+			error: {
+				title: 'UNKNOWN ERROR',
+				message: 'Elementul selectat nu a putut fi sters {{code}}'
+			}
+		}
+	},
+	users: {
+		addButtonText: 'Adauga',
+		editButtonText: 'Salveaza',
+		title: 'Familia ta',
+		alert: {
+			title: 'Confirmare stergere',
+			message: 'Sigur membru familie?',
 			error: {
 				title: 'UNKNOWN ERROR',
 				message: 'Elementul selectat nu a putut fi sters {{code}}'

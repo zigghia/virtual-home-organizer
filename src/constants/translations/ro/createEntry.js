@@ -12,6 +12,7 @@ export default {
 	},
 	description: {
 		title: 'Locatie',
+		tooltip: "Nu este obigatoriu si poti dezactiva din setari daca nu vrei sa mai apara",
 		subtitle: 'Daca depozitezi incaltamintea in mai multe locuri fizice, poti sa specifici aici:',
 		footer: 'Nu este obligatoriu, dar nu uita sa il validezi daca introduci text'
 	},
@@ -34,5 +35,13 @@ export default {
 	},
 	previewData: {
 		title: "Cam asa arata"
+	},
+	season: {
+		autumn: "Toamna",
+		spring: "Primavara",
+		winter: "Iarna",
+		summer: "Vara",
+		title:  "Anotimp",
+		tooltip: "Nu este obigatoriu si poti dezactiva din setari daca nu vrei sa mai apara"
 	}
 };

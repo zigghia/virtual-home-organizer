@@ -12,7 +12,8 @@ export default {
 	description: {
 		title: 'Some description',
 		subtitle: "Maybe you want to specify where the show box is located..like 'brown closet' or 'upstairs'",
-		footer: "Not mandatory, but needs validating if you entered a value"
+		footer: "Not mandatory, but needs validating if you entered a value",
+		tooltip: "Is not mandatory and you can deactivate it from settings"
 	},
 	container: {
 		tooltip: 'Note a number on box and write it down here',
@@ -33,5 +34,13 @@ export default {
 	},
 	previewData: {
 		title: "Your data"
+	},
+	season: {
+		autumn: "Autumn",
+		spring: "Spring",
+		winter: "Winter",
+		summer: "Summer",
+		title:  "Season",
+		tooltip: "Is not mandatory and you can deactivate it from settings"
 	}
 };

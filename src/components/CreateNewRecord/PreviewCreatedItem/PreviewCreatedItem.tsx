@@ -37,7 +37,7 @@ const PreviewCreatedItem = ({formValues, categories, colors, closeModal}: Previe
 				</Entypo>
 			</View>
 			{ formValues?.description && <View style={{paddingVertical: 10, paddingLeft: 5}}><Text style={s.text}>{formValues.description.toUpperCase()}</Text></View>}
-
+			{ formValues?.season && <View style={{paddingVertical: 5, paddingLeft: 5}}><Text style={s.text}>{formValues.season.toLowerCase()}</Text></View>}
 			{ categories.length ? <View style={s.categoriesContainer}>
 										{
 											categories.map((c, index) =>
@@ -48,7 +48,7 @@ const PreviewCreatedItem = ({formValues, categories, colors, closeModal}: Previe
 									</View>: null
 			}
 
-			{ <RenderColors items={coolors} /> }
+			{coolors.length ?  <RenderColors items={coolors} /> : null}
 
 			<Pressable style={[s.item, {justifyContent: 'center', marginVertical: 10}]} onPress={closeModal}>
 				{formValues?.imgUri?.length && <Image source={{uri: formValues.imgUri}} style={s.image}/>}

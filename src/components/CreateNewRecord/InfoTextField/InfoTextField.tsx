@@ -5,6 +5,7 @@ import { StyleSheet } from "react-native";
 import { Text } from '@rneui/base';
 import { Ionicons } from '@expo/vector-icons';
 import { themeColors } from '@/constants/app.constants';
+import commonStyle from '@/utils/common.style';
 
 interface CreateDescriptionProp {
 	value?: string;
@@ -123,7 +124,7 @@ const InfoTextField = ({value, onValueSaved, maxLen, isRequired, minLen, isValid
 						onFocus={() => setError(null)}
 						keyboardType={keyboardType || 'default'}
 						clearButtonMode='always'
-						style={s.input}
+						style={commonStyle.input}
 						maxLength={ml}
 						onChangeText={updateCurrentValue}
 						value={currentValue}
