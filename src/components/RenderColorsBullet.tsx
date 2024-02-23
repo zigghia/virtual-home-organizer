@@ -4,7 +4,7 @@ import { SelectColorItemModel } from '@/utils/models';
 import { themeColors } from '@/constants/app.constants';
 import React from 'react';
 
-const RenderColors = withTemplateList(({list} : WithTemplateListPropsSimple) => {
+const RenderColorsBullet = withTemplateList(({list} : WithTemplateListPropsSimple) => {
 	return	<>
 		{
 			(list ?? []).map((line: [], i: number) => {
@@ -42,4 +42,4 @@ export const s = StyleSheet.create({
 	}
 });
 
-export default RenderColors;
+export default RenderColorsBullet;

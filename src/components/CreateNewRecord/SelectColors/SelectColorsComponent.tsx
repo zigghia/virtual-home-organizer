@@ -5,7 +5,7 @@ import withTemplateList, { WithTemplateListProps } from '@/hoc/withTemplateList'
 import { SelectColorItemModel } from '@/utils/models';
 import commonStyle from '@/utils/common.style';
 import { DataContext } from '@/context/StaticDataContext';
-import Loading from '@/components/Loading/Loading';
+import Loading from '@/components/Loading';
 
 interface SelectColorProps extends WithTemplateListProps{
 	list?: []

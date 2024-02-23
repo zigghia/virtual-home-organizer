@@ -20,7 +20,7 @@ import * as FileSystem from 'expo-file-system';
 import { CustomRootNavigatorParamList } from '@/navigation/HomeRootNavigator';
 import LocationComponent from '@/components/CreateNewRecord/LocationComponent';
 import SelectColorsModal from '@/components/CreateNewRecord/SelectColors/SelectColorsModal';
-import Loading from '@/components/Loading/Loading';
+import Loading from '@/components/Loading';
 import { useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SeasonComponent from '@/components/CreateNewRecord/SeasonComponent';

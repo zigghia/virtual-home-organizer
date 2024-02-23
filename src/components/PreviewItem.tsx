@@ -8,7 +8,7 @@ import { themeColors, themeDefaults } from '@/constants/app.constants';
 import { DataContext } from '@/context/StaticDataContext';
 import { s as st } from '@/components/CreateNewRecord/SelectColors/SelectColors.style';
 import { Entypo } from '@expo/vector-icons';
-import RenderColors from '@/components/RenderColorsBullet/RenderColors';
+import RenderColors from '@/components/RenderColorsBullet';
 
 interface PreviewItemProps {
 	colors?: SelectColorItemModel[],

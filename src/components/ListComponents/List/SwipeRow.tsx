@@ -5,7 +5,7 @@ import { themeColors } from '@/constants/app.constants';
 import SwipeableItem from '@/components/ListComponents/List/SwipeItem';
 import { RecordModelExtended} from '@/utils/models';
 import 'react-native-gesture-handler';
-import RenderColors from '@/components/RenderColorsBullet/RenderColors';
+import RenderColors from '@/components/RenderColorsBullet';
 
 export interface MainListItemProps {
 	editAction: (item: RecordModelExtended) => void;
@@ -15,7 +15,6 @@ export interface MainListItemProps {
 }
 
 const SwipeRow = ({deleteAction, editAction, item, index}: MainListItemProps) => {
-
 	const [imgPreview, setImgPreview] = useState(false);
 
 	return (

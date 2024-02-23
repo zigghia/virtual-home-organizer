@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { themeDefaults } from '@/constants/app.constants';
 import { useCameraPermissions } from 'expo-camera/next';
 import * as MediaLibrary from 'expo-media-library';
-import Loading from '@/components/Loading/Loading';
+import Loading from '@/components/Loading';
 
 interface UserImagePickerProps {
 	onSaveData: (value: string) => void,

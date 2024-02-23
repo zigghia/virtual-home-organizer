@@ -3,7 +3,7 @@ import withTemplateList from "@/hoc/withTemplateList";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { ListItemModel } from '@/utils/models';
 import commonStyle from '@/utils/common.style'
-import Loading from '@/components/Loading/Loading';
+import Loading from '@/components/Loading';
 import { DataContext } from '@/context/StaticDataContext';
 
 const CategoryComponent = ({list, context}: any) => {

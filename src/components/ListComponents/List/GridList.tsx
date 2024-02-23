@@ -10,7 +10,7 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import { LongPressGestureHandler, State } from 'react-native-gesture-handler';
 import { HandlerStateChangeEvent } from 'react-native-gesture-handler/lib/typescript/handlers/gestureHandlerCommon';
 import { useTranslation } from 'react-i18next';
-import Loading from '@/components/Loading/Loading';
+import Loading from '@/components/Loading';
 
 interface MainListItemProps1 extends WithTemplateListProps {
 	list: [];

@@ -15,7 +15,7 @@ import AlertComponent from '@/components/AlertComponent';
 import ErrorComponent from '@/components/ErrorComponent';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { DataContext, RecordsNumberContext } from '@/context/StaticDataContext';
-import Loading from '@/components/Loading/Loading';
+import Loading from '@/components/Loading';
 import GridList from '@/components/ListComponents/List/GridList';
 
 const MainScreen = (props: any) => {
