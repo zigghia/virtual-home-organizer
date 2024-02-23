@@ -5,7 +5,7 @@ import WithTemplateList, { WithTemplateListProps } from '@/hoc/withTemplateList'
 import commonStyle from '@/utils/common.style';
 import { RecordModelExtended } from '@/utils/models';
 import { FontAwesome5, FontAwesome, MaterialIcons } from '@expo/vector-icons';
-import PreviewCreatedItem from '@/components/CreateNewRecord/PreviewCreatedItem/PreviewCreatedItem';
+import PreviewItem from '@/components/PreviewItem';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { LongPressGestureHandler, State } from 'react-native-gesture-handler';
 import { HandlerStateChangeEvent } from 'react-native-gesture-handler/lib/typescript/handlers/gestureHandlerCommon';
@@ -92,7 +92,7 @@ const GridList = ({list, deleteAction, editAction}: MainListItemProps1) => {
 				})
 			}
 
-			<PreviewCreatedItem isVisible={preview != null}
+			<PreviewItem isVisible={preview != null}
 								formValues={{
 									colorsInfo: preview?.colorsInfo,
 									containerIdentifier: preview?.containerIdentifier,

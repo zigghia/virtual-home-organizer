@@ -10,14 +10,14 @@ import { s as st } from '@/components/CreateNewRecord/SelectColors/SelectColors.
 import { Entypo } from '@expo/vector-icons';
 import RenderColors from '@/components/RenderColorsBullet/RenderColors';
 
-interface PreviewCreatedItemProps {
+interface PreviewItemProps {
 	colors?: SelectColorItemModel[],
 	categories: string [],
 	formValues: RecordModelExtended,
 	closeModal: () => void
 }
 
-const PreviewCreatedItem = ({formValues, categories, colors, closeModal}: PreviewCreatedItemProps) => {
+const PreviewItem = ({formValues, categories, colors, closeModal}: PreviewItemProps) => {
 	const [coolors, setColors] = useState<SelectColorItemModel[]>([]);
 
 	useEffect(() => {
@@ -123,4 +123,4 @@ export const s = StyleSheet.create({
 	},
 });
 
-export default withModal(PreviewCreatedItem, {position: 'full'});
+export default withModal(PreviewItem, {position: 'full'});

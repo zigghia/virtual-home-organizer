@@ -34,7 +34,6 @@ const MainScreen = (props: any) => {
 
 	const setListData = (data: RecordModelExtended[]) =>  {
 		setFilteredData(data);
-		console.log(data.length);
 		setTotal(data.length ?? 0);
 	}
 

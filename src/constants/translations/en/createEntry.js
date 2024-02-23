@@ -35,6 +35,10 @@ export default {
 	previewData: {
 		title: "Your data"
 	},
+	users: {
+		title:  "Belongs to",
+		tooltip: "Is not mandatory and you can deactivate it from settings"
+	},
 	season: {
 		autumn: "Autumn",
 		spring: "Spring",

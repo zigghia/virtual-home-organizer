@@ -19,7 +19,7 @@ export default {
 	container: {
 		tooltip: 'Scrie intai numarul pe cutie si apoi noteaza-l aici',
 		title: 'Numar pe cutie',
-		subtitle: 'Este obligatoriu! Introdu  pe care l-ai scris pe cutie',
+		subtitle: 'Este obligatoriu! Introdu numarul pe care l-ai scris pe cutie',
 		footer: 'Apasa butonul de confirmare pentru validare dupa ce introduci valoarea dorita'
 	},
 	colors : {
@@ -35,6 +35,10 @@ export default {
 	},
 	previewData: {
 		title: "Cam asa arata"
+	},
+	users: {
+		title:  "Apartine lui",
+		tooltip: "Nu este obigatoriu si poti dezactiva din setari daca nu vrei sa mai apara"
 	},
 	season: {
 		autumn: "Toamna",

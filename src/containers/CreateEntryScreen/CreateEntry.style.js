@@ -1,19 +1,8 @@
 import { StyleSheet } from "react-native";
-import { themeColors, themeDefaults } from "@/constants/app.constants";
 
 export const s = StyleSheet.create({
 	container: {
-		minHeight: 200,
-		marginTop: 15
-	},
-	fonts: {
-		marginBottom: 20,
-		fontSize: themeDefaults.fontSize,
-		justifyContent: 'space-evenly'
-	},
-	user: {
-		flexDirection: 'row',
-		marginBottom: 6,
+		marginBottom: 100
 	},
 	image: {
 		width: 30,
@@ -23,9 +12,6 @@ export const s = StyleSheet.create({
 	name: {
 		fontSize: 16,
 		marginTop: 5,
-	},
-	divider: {
-		marginTop: 20
 	},
 	bottomButtons: {
 		flex: 1,
@@ -38,17 +24,5 @@ export const s = StyleSheet.create({
 		borderTopWidth: 1,
 		borderTopColor: '#ccc',
 		borderStyle: 'solid'
-	},
-	seasonButton: {
-		minWidth: 120,
-		marginVertical: 5
-	},
-	seasonButtonText: {
-		color: 'white',
-		marginRight: 5,
-		fontSize: 16
-	},
-	seasonButtonSelected: {
-		backgroundColor: themeColors.disabled
 	}
 });

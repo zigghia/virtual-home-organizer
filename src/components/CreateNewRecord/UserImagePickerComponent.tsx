@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Alert, Image, Linking, Platform, Text, View } from 'react-native';
+import { Alert, Image, Linking, Platform, StyleSheet, Text, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { launchCameraAsync, launchImageLibraryAsync, PermissionStatus } from 'expo-image-picker';
-import { s } from './UserImagePicker.style';
 import { MaterialIcons } from '@expo/vector-icons';
 import Button from '@/components/Button/Button';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +16,7 @@ interface UserImagePickerProps {
 	oldImgUri?: string;
 }
 
-const UserImagePicker = ({onSaveData, imgUri}: UserImagePickerProps) => {
+const UserImagePickerComponent = ({onSaveData, imgUri}: UserImagePickerProps) => {
 	const [image, setImage] = useState<string | undefined>(imgUri);
 	const [cameraPermission, reqCameraPermission] = useCameraPermissions();
 	const [mediaPermission, reqMediaPermission] = MediaLibrary.usePermissions();
@@ -153,4 +152,19 @@ const openSettings = async () => {
 	}
 };
 
-export default UserImagePicker;
+export const s = StyleSheet.create({
+	container: {
+		flex: 1
+	},
+	buttons: {
+		flexDirection: 'row',
+		justifyContent: 'space-around',
+		marginTop: 20
+	},
+	image: {
+		height: 200,
+		width: '100%'
+	}
+});
+
+export default UserImagePickerComponent;

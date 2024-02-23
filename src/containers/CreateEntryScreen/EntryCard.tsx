@@ -1,7 +1,6 @@
 import React, { PropsWithChildren } from "react";
 import { Card, Text, TooltipProps } from '@rneui/base';
-import { s } from '@/containers/CreateEntryScreen/CreateEntry.style';
-import { View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import Button from '@/components/Button/Button';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { RecordModel } from '@/utils/models';
@@ -81,5 +80,22 @@ const EntryCard = ({title, subtitle, footerText, buttonHandler, containerStyle, 
 		</Card>
 	);
 }
+
+
+export const s = StyleSheet.create({
+	container: {
+		minHeight: 200,
+		marginTop: 15,
+		paddingBottom: 20
+	},
+	divider: {
+		marginTop: 20
+	},
+	fonts: {
+		marginBottom: 20,
+		fontSize: themeDefaults.fontSize,
+		justifyContent: 'space-evenly'
+	},
+})
 
 export default EntryCard;

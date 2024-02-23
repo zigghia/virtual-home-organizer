@@ -12,7 +12,7 @@ export default {
 		}
 	},
 	descriptions: {
-		title: 'Delete descriptions',
+		title: 'Delete location',
 		buttonText: 'Delete',
 		alert: {
 			title: 'Please confirm',
@@ -35,5 +35,12 @@ export default {
 				message: 'Elementul selectat nu a putut fi sters {{code}}'
 			}
 		}
+	},
+	other: {
+		title: "Other",
+		location: "Without location when add/edit",
+		users: "Without family member when add/edit",
+		categories: "Without categories when add/edit",
+		season: "Without season when add/edit"
 	}
 };

@@ -50,3 +50,13 @@ export interface ReducerPayload {
 	type: string,
 	payload?: unknown
 }
+
+
+export interface otherSettingsProps {
+	location?: boolean,
+	categories?: boolean,
+	users?: boolean,
+	season?: boolean
+}
+
+export type otherSettingsKeys = keyof otherSettingsProps;

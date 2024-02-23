@@ -11,7 +11,7 @@ interface SelectColorProps extends WithTemplateListProps{
 	list?: []
 }
 
-const SelectColors = ({list}: SelectColorProps) => {
+const SelectColorsComponent = ({list}: SelectColorProps) => {
 
 	const { dispatch } = React.useContext(DataContext)!;
 
@@ -34,6 +34,6 @@ const SelectColors = ({list}: SelectColorProps) => {
 	)
 }
 
-export default withTemplateList(SelectColors, 3);
+export default withTemplateList(SelectColorsComponent, 3);
 
 

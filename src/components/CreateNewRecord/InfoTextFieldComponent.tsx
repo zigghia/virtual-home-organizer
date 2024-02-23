@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { GestureResponderEvent, Keyboard, KeyboardAvoidingView, KeyboardType, Platform, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { s } from './InfoTextField.style';
 import { StyleSheet } from "react-native";
 import { Text } from '@rneui/base';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,7 +24,7 @@ const validation = {
 }
 
 
-const InfoTextField = ({value, onValueSaved, maxLen, isRequired, minLen, isValid, keyboardType, editDisabled}: CreateDescriptionProp) => {
+const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen, isValid, keyboardType, editDisabled}: CreateDescriptionProp) => {
 	const [error, setError] = useState<null | string>(null);
 	const [currentValue, setCurrentValue] = useState('');
 	const [editMode, setEditMode] = useState(true);
@@ -135,6 +134,45 @@ const InfoTextField = ({value, onValueSaved, maxLen, isRequired, minLen, isValid
 				</View>
 			</TouchableWithoutFeedback>
 		</KeyboardAvoidingView>
+
 	);
 }
-export default InfoTextField;
+
+export const s = StyleSheet.create({
+	container: {
+		flex: 1,
+		flexDirection: 'row',
+	},
+	inner: {
+		flex: 1,
+		marginHorizontal: 5,
+		justifyContent: 'flex-start'
+	},
+	text: {
+		height: 60,
+		backgroundColor: themeColors.lightGrey,
+		padding: 10,
+		borderRadius: 20,
+		flexDirection: 'row',
+		alignItems: 'center',
+		flex: 1
+	},
+	error: {
+		color: '#cc0000',
+		marginTop: 20
+	},
+	closeIcon: {
+		justifyContent: 'flex-end',
+		position: "absolute",
+		right: 10,
+		top: -20
+	},
+	checkmark: {
+		justifyContent: 'flex-end',
+		right: 0,
+		top: 0,
+		width: 30
+	}
+});
+
+export default InfoTextFieldComponent;

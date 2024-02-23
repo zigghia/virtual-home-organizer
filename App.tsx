@@ -8,6 +8,7 @@ import { Text } from '@rneui/base';
 import { useTranslation } from 'react-i18next';
 import RecordDataProvider from '@/context/StaticDataContext';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 SplashScreen.preventAutoHideAsync().catch((err) => console.log(err));
@@ -22,6 +23,11 @@ export default function App() {
 		const init = async () => {
 			try {
 				await initDatabase(t('common:defaultNickname'));
+				let k = await AsyncStorage.getItem('vho-settings-other');
+				if ( k === null ) {
+					const k = {location: true, categories: true, users: true, season: true};
+					await AsyncStorage.setItem('vho-settings-other', JSON.stringify(k));
+				}
 			} catch (err) {
 				console.log('Error init database ', err);
 				setAppIsReady({...appIsReady, err: true});

@@ -35,5 +35,12 @@ export default {
 				message: 'Elementul selectat nu a putut fi sters {{code}}'
 			}
 		}
+	},
+	other: {
+		title: "Altele",
+		location: "Fara camp locatii depozitare la adaugare/editare",
+		users: "Fara membri familie la adaugare/editare",
+		categories: "Fara tip e incaltaminte la adaugare/editare",
+		season: "Fara selectie sezon la adaugare/editare"
 	}
 };

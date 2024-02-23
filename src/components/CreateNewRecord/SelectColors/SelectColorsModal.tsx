@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import SelectColors from '@/components/CreateNewRecord/SelectColors/SelectColors';
+import SelectColors from '@/components/CreateNewRecord/SelectColors/SelectColorsComponent';
 import withModal from '@/hoc/withModal';
 import { useTranslation } from 'react-i18next';
 import { DataContext } from '@/context/StaticDataContext';

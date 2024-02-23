@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import InfoTextField from '@/components/CreateNewRecord/InfoTextField/InfoTextField';
+import InfoTextFieldComponent from '@/components/CreateNewRecord/InfoTextFieldComponent';
 import { useTranslation } from 'react-i18next';
 import commonStyle from '@/utils/common.style';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -14,7 +14,7 @@ interface LocationProps extends WithTemplateListProps {
 	onValueSaved: (value: string) => void
 }
 
-const Location = ({list, value, onValueSaved}: LocationProps) => {
+const LocationComponent = ({list, value, onValueSaved}: LocationProps) => {
 	const [t] = useTranslation();
 	const {data, dispatch} = React.useContext(DataContext)!;
 	const [readOnly, setReadOnly] = useState(false);
@@ -59,7 +59,7 @@ const Location = ({list, value, onValueSaved}: LocationProps) => {
 			})
 		}
 			<View style={{marginTop: 10}}>
-				<InfoTextField value={value}
+				<InfoTextFieldComponent value={value}
 							   editDisabled={readOnly}
 							   onValueSaved={updateByNameHandler}
 							   maxLen={{message: t('common:errors.maxLen', {max: 10}), value: 10}}/>
@@ -83,4 +83,4 @@ const s = StyleSheet.create({
 	}
 });
 
-export default withTemplateList(Location, 3);
+export default withTemplateList(LocationComponent, 3);

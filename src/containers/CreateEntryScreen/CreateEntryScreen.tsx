@@ -1,17 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { s } from './CreateEntry.style';
 import { Animated, View, Text } from 'react-native';
-import UserImagePicker from '@/components/CreateNewRecord/UserImagePicker/UserImagePicker';
-import SelectColors from '@/components/CreateNewRecord/SelectColors/SelectColors';
+import UserImagePickerComponent from '@/components/CreateNewRecord/UserImagePickerComponent';
+import SelectColors from '@/components/CreateNewRecord/SelectColors/SelectColorsComponent';
 import ScrollView = Animated.ScrollView;
 import Button from '@/components/Button/Button';
-import { RecordModel, ReducerPayload, SelectColorItemModel, User } from '@/utils/models';
-import PreviewCreatedItem from '@/components/CreateNewRecord/PreviewCreatedItem/PreviewCreatedItem';
-import InfoTextField from '@/components/CreateNewRecord/InfoTextField/InfoTextField';
+import { otherSettingsProps, RecordModel} from '@/utils/models';
+import InfoTextFieldComponent from '@/components/CreateNewRecord/InfoTextFieldComponent';
 import { useTranslation } from 'react-i18next';
 import EntryCard from '@/containers/CreateEntryScreen/EntryCard';
-import CategoryComponent from '@/components/CreateNewRecord/CategoryComponent/CategoryComponent';
-import CreateNewCategory from '@/components/CreateNewRecord/CreateNewCategory/CreateNewCategory';
+import CategoryComponent from '@/components/CreateNewRecord/CategoryComponent';
 import { DataContext } from '@/context/StaticDataContext';
 import { fetchAllData, insertProduct, insertProperty, Tables, updateProduct } from '@/utils/databases';
 import { SQLResultSet } from 'expo-sqlite';
@@ -20,10 +18,14 @@ import { appConstants, themeColors } from '@/constants/app.constants';
 import { CURRENT_USER } from '@/constants/IMLocalize';
 import * as FileSystem from 'expo-file-system';
 import { CustomRootNavigatorParamList } from '@/navigation/HomeRootNavigator';
-import Location from '@/components/CreateNewRecord/LocationComponent/Location';
+import LocationComponent from '@/components/CreateNewRecord/LocationComponent';
 import SelectColorsModal from '@/components/CreateNewRecord/SelectColors/SelectColorsModal';
 import Loading from '@/components/Loading/Loading';
-import { Entypo, FontAwesome, FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { useIsFocused } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import SeasonComponent from '@/components/CreateNewRecord/SeasonComponent';
+import PreviewItem from '@/components/PreviewItem';
+import CreateNewCategoryComponent from '@/components/CreateNewRecord/CreateNewCategoryComponent';
 
 type Props = NativeStackScreenProps<CustomRootNavigatorParamList, 'Record'>;
 const imageDir = FileSystem.documentDirectory + 'appImages/';
@@ -58,11 +60,34 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 	const {t, i18n} = useTranslation();
 	const [selectedSeason, setSelectedSeason] = useState<number | null>(null);
 	const [loading, setLoading] = useState(true);
+	const displayable = useRef<otherSettingsProps>({});
+	const isFocused = useIsFocused();
+
 	const getDisplayColors = () => {
 		const def = data.colors.filter(c => c.default);
 		const sel = data.colors.filter(c => c.selected && !c.default);
 		return [...def.slice(0, def.length - sel.length), ...sel];
 	};
+
+	useEffect(() => {
+		//vho-settings-other
+		if ( isFocused ) {
+			setLoading(true);
+			const readStorage = async () => {
+				try {
+					let k = await AsyncStorage.getItem('vho-settings-other');
+					displayable.current = (k == null) ? {location: true, users: true, categories: true, season: true} : JSON.parse(k);
+					setLoading(false);
+				} catch (err) {
+					console.log('err read storage', err);
+				}
+			}
+
+			readStorage().catch(err => console.log(err));
+
+		}
+
+	}, [isFocused]);
 
 	useEffect(() => {
 		if ( formValues.id ) {
@@ -128,7 +153,7 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 			}
 		}
 
-		if ( formValues.id != null) {
+		if ( formValues.id != null ) {
 			await updateProduct(record).catch(error => {
 				alert(t('common:defaultDBError', {code: '001'}));
 				console.log(error);
@@ -161,16 +186,44 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 		return <Loading text/>
 	}
 
+	const location = displayable.current.location ? <EntryCard title={t('createEntry:description.title')}
+															   tooltipText={t('createEntry:description:tooltip')}
+															   subtitle={t('createEntry:description.subtitle')}>
+		<LocationComponent items={data.descriptions}
+				  onValueSaved={(value: string) => updateRecordData('description', value)}
+				  value={formValues.description}/>
+	</EntryCard> : null;
+
+	const category = displayable.current.categories ? <EntryCard title={t('createEntry:category.title')}
+																 tooltipText={t('createEntry:category:tooltip')}
+																 footerText={t('createEntry:category.footer', {max: appConstants.maxCategoriesAllowed})}
+																 buttonDisabled={data.categories.length >= appConstants.maxCategoriesAllowed}
+																 buttonHandler={() => setshowCreateNewCategoryModal(true)}>
+														  <CategoryComponent items={data.categories}/>
+													 </EntryCard> : null;
+
+	const season = displayable.current?.season ? <SeasonComponent selectedSeason={selectedSeason}
+																  updateRecordData={(value, valueIndex) => {
+																							updateRecordData('season', value);
+																							setSelectedSeason(valueIndex);
+																						}}/> : null;
+
+	const users = displayable.current?.users ? <EntryCard title={t('createEntry:users.title')}
+														  tooltipText={t('createEntry:season:tooltip')}>
+												</EntryCard> : null
+
 	return (<>
 			<ScrollView>
 				<View style={s.container}>
 					<EntryCard title={t('createEntry:picture.title')}>
-						<UserImagePicker onSaveData={(value: string) => updateRecordData('imgUri', value)} imgUri={formValues.imgUri} oldImgUri={formValues.oldImgUri}/>
+						<UserImagePickerComponent onSaveData={(value: string) => updateRecordData('imgUri', value)}
+												  imgUri={formValues.imgUri}
+												  oldImgUri={formValues.oldImgUri}/>
 					</EntryCard>
 					<EntryCard title={t('createEntry:container.title')}
 							   tooltipText={t('createEntry:container:tooltip')}
 							   subtitle={t('createEntry:container.subtitle')}>
-						<InfoTextField
+						<InfoTextFieldComponent
 							value={formValues.containerIdentifier}
 							onValueSaved={(value: any) => updateRecordData('containerIdentifier', value)}
 							keyboardType='numeric'
@@ -184,46 +237,10 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 							   subtitle={t('createEntry:colors.subtitle')}>
 						<SelectColors items={getDisplayColors()}/>
 					</EntryCard>
-					<EntryCard title={t('createEntry:category.title')}
-							   tooltipText={t('createEntry:category:tooltip')}
-							   footerText={t('createEntry:category.footer', {max: appConstants.maxCategoriesAllowed})}
-							   buttonDisabled={data.categories.length >= appConstants.maxCategoriesAllowed}
-							   buttonHandler={() => setshowCreateNewCategoryModal(true)}>
-						<CategoryComponent items={data.categories}/>
-					</EntryCard>
-					<EntryCard title={t('createEntry:description.title')}
-							   tooltipText={t('createEntry:description:tooltip')}
-							   subtitle={t('createEntry:description.subtitle')}>
-						<Location items={data.descriptions}
-								  onValueSaved={(value: string) => updateRecordData('description', value)}
-								  value={formValues.description}/>
-					</EntryCard>
-					<EntryCard title={t('createEntry:season.title')}
-							   tooltipText={t('createEntry:season:tooltip')}
-							   containerStyle={{marginBottom: 100}}>
-						<View style={{flex:1, flexWrap: 'wrap', flexDirection: 'row'}}>
-							{
-								['winter:snow-sharp', 'spring:flower-outline', 'summer:sunny-sharp', 'autumn:rainy'].map((key, index) => {
-									const [season, icon] = key.split(':');
-									const style = index === selectedSeason ? s.seasonButtonSelected : {};
-									return <Button  buttonStyle = {{...s.seasonButton, ...style, marginRight: index%2 == 0 ? 5 : 0}}
-												   onPress={() =>
-												   {
-													   if (selectedSeason == index) {
-														   updateRecordData('season','');
-														   setSelectedSeason(null);
-														   return;
-													   }
-													   setSelectedSeason(index);
-													   updateRecordData('season', t(`createEntry:season.${season}`).toLowerCase());
-												   }}>
-												<Text style={s.seasonButtonText}>{t(`createEntry:season.${season}`)}</Text>
-												<Ionicons name={icon as 'snow-sharp' | 'flower-outline' | 'sunny-sharp' | 'rainy'} size={24} color="white" />
-											</Button>
-								})
-							}
-						</View>
-					</EntryCard>
+					{category}
+					{location}
+					{users}
+					{season}
 				</View>
 			</ScrollView>
 
@@ -234,7 +251,7 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 						text={t('common:save')}/>
 				<Button onPress={() => setShowPreviewModal(true)} isSecondary text={t('createEntry:preview')}/>
 			</View>
-			<PreviewCreatedItem
+			<PreviewItem
 				isVisible={showPreviewModal}
 				formValues={formValues}
 				categories={data.categories.filter(c => c.selected).map(c => c.name ?? '')}
@@ -242,7 +259,7 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 				cancelText='OK'
 				closeModal={() => setShowPreviewModal(false)}
 			/>
-			<CreateNewCategory
+			<CreateNewCategoryComponent
 				isVisible={showCreateNewCategoryModal}
 				saveData={({name, insertId}: { name: string, insertId: number }) => {
 					setshowCreateNewCategoryModal(false);

@@ -1,7 +1,7 @@
-import React, { useRef, useState } from "react";
-import { Animated, Keyboard, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import React, { useState } from "react";
+import {  Keyboard, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import withModal from '@/hoc/withModal';
-import InfoTextField from '@/components/CreateNewRecord/InfoTextField/InfoTextField';
+import InfoTextFieldComponent from '@/components/CreateNewRecord/InfoTextFieldComponent';
 import Button from '@/components/Button/Button';
 import { useTranslation } from 'react-i18next';
 import { appConstants, themeColors, themeDefaults } from '@/constants/app.constants';
@@ -14,7 +14,7 @@ interface CreateNewCategoryProps {
 	closeModal: () => void,
 }
 
-const CreateNewCategory = (props: CreateNewCategoryProps) => {
+const CreateNewCategoryComponent = (props: CreateNewCategoryProps) => {
 	const [data, setData] = useState<string>('');
 	const {t, i18n} = useTranslation();
 	const [warning, setWaring] = useState(false);
@@ -61,7 +61,7 @@ const CreateNewCategory = (props: CreateNewCategoryProps) => {
 							<Text style={{color: themeColors.error}}>{t('createEntry:category.addWarning')}</Text>
 						</View>
 					</Fade>
-					<InfoTextField
+					<InfoTextFieldComponent
 						value = {data ?? ''}
 						onValueSaved={setCategory}
 						maxLen={{message: t('common:errors.maxLen', {max: appConstants.maxCategoryCharsAllowed}), value: 10}}
@@ -87,4 +87,4 @@ const st = StyleSheet.create({
 	}
 });
 
-export default withModal(CreateNewCategory, {position: 'bottom', height: 400});
+export default withModal(CreateNewCategoryComponent, {position: 'bottom', height: 400});
