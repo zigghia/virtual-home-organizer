@@ -97,7 +97,8 @@ const GridList = ({list, deleteAction, editAction}: MainListItemProps1) => {
 									colorsInfo: preview?.colorsInfo,
 									containerIdentifier: preview?.containerIdentifier,
 									description: preview?.description,
-									imgUri: preview?.imgUri
+									imgUri: preview?.imgUri,
+									season: preview?.season
 								}}
 								categories={preview?.categories?.length ? preview.categories.split(',') : []}
 								cancelText='OK'

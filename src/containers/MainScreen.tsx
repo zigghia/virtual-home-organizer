@@ -14,13 +14,13 @@ import { Ionicons } from '@expo/vector-icons';
 import AlertComponent from '@/components/AlertComponent';
 import ErrorComponent from '@/components/ErrorComponent';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { DataContext } from '@/context/StaticDataContext';
+import { DataContext, RecordsNumberContext } from '@/context/StaticDataContext';
 import Loading from '@/components/Loading/Loading';
 import GridList from '@/components/ListComponents/List/GridList';
 
 const MainScreen = (props: any) => {
 	const [dbData, setDbData] = useState<RecordModelExtended[]>([]);
-	const [filteredData, setListData] = useState<RecordModelExtended[]>([]);
+	const [filteredData, setFilteredData] = useState<RecordModelExtended[]>([]);
 	const [error, setError] = useState<string | null>(null);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [toBeDeleted, setToBeDeleted] = useState<null | number>(null);
@@ -29,7 +29,14 @@ const MainScreen = (props: any) => {
 	const [loading, setLoading] = useState(init ?? false);
 	const isFocus = useIsFocused();
 	const [t] = useTranslation();
+	const {setTotal} = useContext(RecordsNumberContext)!;
 
+
+	const setListData = (data: RecordModelExtended[]) =>  {
+		setFilteredData(data);
+		console.log(data.length);
+		setTotal(data.length ?? 0);
+	}
 
 	const getList = async () => {
 		try {

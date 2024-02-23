@@ -15,8 +15,14 @@ export const DataContext = createContext<{
 	data: dataType,
 	init: boolean,
 	loadData: () => void,
-	dispatch: React.Dispatch<ReducerPayload>;
+	dispatch: React.Dispatch<ReducerPayload>
 } | null>(null);
+
+
+export const RecordsNumberContext = createContext<{
+	total: number,
+	setTotal: (t: number) => void ;
+} | null >(null);
 
 
 const getModifiedCopy = (records: SelectColorItemModel[], val: string | number, unique = false) => {

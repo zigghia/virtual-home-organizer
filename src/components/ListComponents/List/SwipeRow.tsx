@@ -47,7 +47,6 @@ const SwipeRow = ({deleteAction, editAction, item, index}: MainListItemProps) =>
 			{
 				imgPreview && <></>
 			}
-
 		</>
 	)
 }
