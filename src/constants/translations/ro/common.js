@@ -30,5 +30,11 @@ export default {
 		edit: 'Editeaza',
 		cancel: 'Inchide',
 		preview: 'Previzualizare'
+	},
+	seasons: {
+		autumn: "Toamna",
+		spring: "Primavara",
+		winter: "Iarna",
+		summer: "Vara",
 	}
 };

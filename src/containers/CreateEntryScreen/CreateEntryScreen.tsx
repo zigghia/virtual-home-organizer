@@ -5,7 +5,7 @@ import UserImagePickerComponent from '@/components/CreateNewRecord/UserImagePick
 import SelectColors from '@/components/CreateNewRecord/SelectColors/SelectColorsComponent';
 import ScrollView = Animated.ScrollView;
 import Button from '@/components/Button/Button';
-import { otherSettingsProps, RecordModel} from '@/utils/models';
+import { OtherSettingsProps, RecordModel, User } from '@/utils/models';
 import InfoTextFieldComponent from '@/components/CreateNewRecord/InfoTextFieldComponent';
 import { useTranslation } from 'react-i18next';
 import EntryCard from '@/containers/CreateEntryScreen/EntryCard';
@@ -26,6 +26,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import SeasonComponent from '@/components/CreateNewRecord/SeasonComponent';
 import PreviewItem from '@/components/PreviewItem';
 import CreateNewCategoryComponent from '@/components/CreateNewRecord/CreateNewCategoryComponent';
+import SettingsCheckbox from '@/components/SettingsComponents/SettingsCheckbox';
 
 type Props = NativeStackScreenProps<CustomRootNavigatorParamList, 'Record'>;
 const imageDir = FileSystem.documentDirectory + 'appImages/';
@@ -47,20 +48,19 @@ const saveFile = async (imgUri: string) => {
 	} catch (err) {
 		console.log(err);
 	}
-
 	return source;
 };
 
 const CreateEntryScreen = ({route, navigation}: Props) => {
 	const [formValues, setFormValues] = useState<RecordModel>({} as RecordModel);
-	const {data, dispatch, init, loadData} = React.useContext(DataContext)!;
+	const {data, dispatch, init, loadData, users} = React.useContext(DataContext)!;
 	const [showPreviewModal, setShowPreviewModal] = useState(false);
 	const [showCreateNewCategoryModal, setshowCreateNewCategoryModal] = useState(false);
 	const [showColorsModal, setShowColorsModal] = useState(false);
 	const {t, i18n} = useTranslation();
 	const [selectedSeason, setSelectedSeason] = useState<number | null>(null);
 	const [loading, setLoading] = useState(true);
-	const displayable = useRef<otherSettingsProps>({});
+	const [displayable, setDisplayable] = useState<OtherSettingsProps>({});
 	const isFocused = useIsFocused();
 
 	const getDisplayColors = () => {
@@ -70,21 +70,19 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 	};
 
 	useEffect(() => {
-		//vho-settings-other
 		if ( isFocused ) {
 			setLoading(true);
-			const readStorage = async () => {
+			const initData = async () => {
 				try {
 					let k = await AsyncStorage.getItem('vho-settings-other');
-					displayable.current = (k == null) ? {location: true, users: true, categories: true, season: true} : JSON.parse(k);
+					setDisplayable((k == null) ? {location: true, users: true, categories: true, season: true} : JSON.parse(k));
 					setLoading(false);
 				} catch (err) {
 					console.log('err read storage', err);
 				}
 			}
 
-			readStorage().catch(err => console.log(err));
-
+			initData().catch(err => console.log(err));
 		}
 
 	}, [isFocused]);
@@ -98,7 +96,7 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 	useEffect(() => {
 		if ( route.params?.edit?.id ) {
 			const params = route.params.edit;
-			const {id, imgUri, containerIdentifier, description} = params;
+			const {id, imgUri, containerIdentifier, description, season} = params;
 
 			(params.colorsInfo ?? []).forEach(c => dispatch({type: 'update', payload: {key: 'colors', id: c.id}}));
 			((params.categories ?? '').split(',') ?? []).forEach(c => dispatch({type: 'update', payload: {key: 'categories', name: c}}));
@@ -106,9 +104,7 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 			if ( params.description ) {
 				dispatch({type: 'update', payload: {key: 'descriptions', name: params.description, unique: true}});
 			}
-			setFormValues({id, imgUri, containerIdentifier, description, oldImgUri: imgUri});
-		} else {
-			setLoading(false);
+			setFormValues({id, imgUri, containerIdentifier, description, oldImgUri: imgUri, season});
 		}
 
 		return () => {
@@ -171,10 +167,10 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 
 	const updateRecordData = (key: keyof RecordModel, data: string | number) => {
 		setFormValues({...formValues, [key]: data});
-	};
+	}
 
 	useEffect(() => {
-		if ( loading ) {
+		if ( loading || init ) {
 			return;
 		}
 		const selectedDescription = data.descriptions.find(d => d.selected);
@@ -186,30 +182,42 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 		return <Loading text/>
 	}
 
-	const location = displayable.current.location ? <EntryCard title={t('createEntry:description.title')}
-															   tooltipText={t('createEntry:description:tooltip')}
-															   subtitle={t('createEntry:description.subtitle')}>
-		<LocationComponent items={data.descriptions}
-				  onValueSaved={(value: string) => updateRecordData('description', value)}
-				  value={formValues.description}/>
+	const locationComponent = displayable.location ? <EntryCard title={t('createEntry:description.title')}
+																tooltipText={t('createEntry:description:tooltip')}
+																subtitle={t('createEntry:description.subtitle')}>
+			<LocationComponent items={data.descriptions}
+							   onValueSaved={(value: string) => updateRecordData('description', value)}
+							   value={formValues.description}
+			/>
+		</EntryCard>
+		: null;
+
+	const categoryComponent = displayable.categories ? <EntryCard title={t('createEntry:category.title')}
+																  tooltipText={t('createEntry:category:tooltip')}
+																  footerText={t('createEntry:category.footer', {max: appConstants.maxCategoriesAllowed})}
+																  buttonDisabled={data.categories.length >= appConstants.maxCategoriesAllowed}
+																  buttonHandler={() => setshowCreateNewCategoryModal(true)}>
+		<CategoryComponent items={data.categories}/>
 	</EntryCard> : null;
 
-	const category = displayable.current.categories ? <EntryCard title={t('createEntry:category.title')}
-																 tooltipText={t('createEntry:category:tooltip')}
-																 footerText={t('createEntry:category.footer', {max: appConstants.maxCategoriesAllowed})}
-																 buttonDisabled={data.categories.length >= appConstants.maxCategoriesAllowed}
-																 buttonHandler={() => setshowCreateNewCategoryModal(true)}>
-														  <CategoryComponent items={data.categories}/>
-													 </EntryCard> : null;
+	const seasonComponent = displayable?.season ? <SeasonComponent selectedSeason={formValues.season}
+																   updateRecordData={(value, valueIndex) => {
+																	   updateRecordData('season', value);
+																	   setSelectedSeason(valueIndex);
+																   }}/> : null;
 
-	const season = displayable.current?.season ? <SeasonComponent selectedSeason={selectedSeason}
-																  updateRecordData={(value, valueIndex) => {
-																							updateRecordData('season', value);
-																							setSelectedSeason(valueIndex);
-																						}}/> : null;
-
-	const users = displayable.current?.users ? <EntryCard title={t('createEntry:users.title')}
+	const userComponent = displayable?.users ? <EntryCard title={t('createEntry:users.title')}
 														  tooltipText={t('createEntry:season:tooltip')}>
+															<View style={{flexWrap: 'wrap', flex: 1, flexDirection: 'row'}}>
+																{    users.map((user, index) => {
+																			return <SettingsCheckbox name={user.nickname}
+																									 key = {'user' + user.id}
+																									 id={user.id}
+																									 value={formValues.userId == user.id}
+																									 onValueChange={() => updateRecordData('userId', user.id)}></SettingsCheckbox>
+																		})
+																}
+															</View>
 												</EntryCard> : null
 
 	return (<>
@@ -237,10 +245,10 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 							   subtitle={t('createEntry:colors.subtitle')}>
 						<SelectColors items={getDisplayColors()}/>
 					</EntryCard>
-					{category}
-					{location}
-					{users}
-					{season}
+					{categoryComponent}
+					{locationComponent}
+					{userComponent}
+					{seasonComponent}
 				</View>
 			</ScrollView>
 
@@ -272,7 +280,6 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 				closeModal={() => setShowColorsModal(false)}
 			/>
 		</>
-
 	)
 }
 

@@ -52,11 +52,11 @@ export interface ReducerPayload {
 }
 
 
-export interface otherSettingsProps {
+export interface OtherSettingsProps {
 	location?: boolean,
 	categories?: boolean,
 	users?: boolean,
 	season?: boolean
 }
 
-export type otherSettingsKeys = keyof otherSettingsProps;
+export type otherSettingsKeys = keyof OtherSettingsProps;

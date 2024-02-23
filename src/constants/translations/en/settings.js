@@ -37,10 +37,10 @@ export default {
 		}
 	},
 	other: {
-		title: "Other",
-		location: "Without location when add/edit",
-		users: "Without family member when add/edit",
-		categories: "Without categories when add/edit",
-		season: "Without season when add/edit"
+		title: "Other (add/edit screen)",
+		location: "Display location",
+		users: "Display family member",
+		categories: "Display categories",
+		season: "Display season when"
 	}
 };

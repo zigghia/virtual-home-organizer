@@ -1,31 +1,31 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import Selector from '@/components/SettingsComponents/LanguageSelector';
 import { useTranslation } from 'react-i18next';
 import { MaterialIcons } from '@expo/vector-icons';
 import { styles } from '@/containers/Settings/SettingsScreen.style';
 import { fetchAllData, Tables } from '@/utils/databases';
-import { ListItemModel, otherSettingsKeys, otherSettingsProps } from '@/utils/models';
+import { ListItemModel, otherSettingsKeys, OtherSettingsProps } from '@/utils/models';
 import { useIsFocused } from '@react-navigation/native';
 import SettingsItemList from '@/components/SettingsComponents/SettingsItemList';
-import Users from '@/components/SettingsComponents/Users';
+import UserComponents from '@/components/SettingsComponents/UserComponents';
 import { Divider } from '@rneui/base';
 import SettingsCheckbox from '@/components/SettingsComponents/SettingsCheckbox';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DataContext } from '@/context/StaticDataContext';
 
 export default function SettingsScreen({navigation}: any) {
 	const {t, i18n} = useTranslation();
+	const {loadData, data} = useContext(DataContext)!;
 	const [selectedLanguageCode, setselectedLanguageCode] = useState(i18n.language);
 	const [categories, setCategories] = useState<ListItemModel[]>([]);
-	const [descriptions, setDescriptions] = useState<ListItemModel[]>([]);
-	const [isLoading, setLoadData] = useState(true);
-	const [other, setOtherSettings] = useState<otherSettingsProps>({});
-	const isFocused = useIsFocused();
-	const updateOther = useCallback(async  (key: keyof otherSettingsProps, value: boolean) => {
+	const [other, setOtherSettings] = useState<OtherSettingsProps>({});
+	const updateOther = useCallback(async (key: keyof OtherSettingsProps, value: boolean) => {
 		const obj = {...other, [key]: value};
 		await AsyncStorage.setItem('vho-settings-other', JSON.stringify(obj));
 		setOtherSettings(obj);
 	}, [other]);
+	const isFocused = useIsFocused();
 
 	const onSelectLanguage = (code: string) => {
 		i18n.changeLanguage(code);
@@ -35,16 +35,6 @@ export default function SettingsScreen({navigation}: any) {
 
 
 	useEffect(() => {
-		const getList = async () => {
-			const {rows} = await fetchAllData(Tables.PROPERTIES, ` WHERE lang = ? and json_extract(properties,'$.deletable')=true`,
-				[i18n.language]);
-			const {_array} = rows ?? [];
-
-			setCategories(_array.filter(record => record.type == 'category'));
-			setDescriptions(_array.filter(record => record.type == 'description'));
-			setLoadData(false);
-		}
-
 		const setOtherSettingsValues = async () => {
 			try {
 				let k = await AsyncStorage.getItem('vho-settings-other');
@@ -59,12 +49,16 @@ export default function SettingsScreen({navigation}: any) {
 			}
 		}
 
-		if ( isFocused || isLoading ) {
-			getList().catch(err => console.log(err));
-			setOtherSettingsValues().catch(err => console.log('read storage for others keys', err));
-		}
+		setOtherSettingsValues().catch(err => console.log('read storage for others keys', err));
 
-	}, [isFocused, isLoading]);
+		return () => {
+			loadData();
+		}
+	}, []);
+
+	useEffect(() => {
+		setCategories(data.categories.filter(c => c.deletable));
+	}, [isFocused, data.categories, data.descriptions])
 
 
 	return (
@@ -87,17 +81,17 @@ export default function SettingsScreen({navigation}: any) {
 										<Text style={styles.title}>{t('settings:categories.title')}</Text>
 										<MaterialIcons name="category" size={24} color="black"/>
 									</View>
-									<SettingsItemList items={categories} type={'categories'} deleted={(value: boolean) => setLoadData(value)}/>
+									<SettingsItemList items={categories} type={'categories'} deleted={(value: boolean) => {}}/>
 									<Divider/>
 								</> : null
 							}
 							{
-								descriptions.length ? <>
+								data.descriptions.length ? <>
 									<View style={styles.row}>
 										<Text style={styles.title}>{t('settings:descriptions.title')}</Text>
 										<MaterialIcons name="blinds-closed" size={24} color="black"/>
 									</View>
-									<SettingsItemList items={descriptions} deleted={(value: boolean) => setLoadData(value)} type={'descriptions'}/>
+									<SettingsItemList items={data.descriptions} deleted={(value: boolean) => {}} type={'descriptions'}/>
 									<Divider/>
 								</> : null
 							}
@@ -105,7 +99,7 @@ export default function SettingsScreen({navigation}: any) {
 								<Text style={styles.title}>{t('settings:users.title')}</Text>
 								<MaterialIcons name="supervised-user-circle" size={24} color="black"/>
 							</View>
-							<Users/>
+							<UserComponents/>
 							<Divider style={{marginVertical: 20}}/>
 							<View style={styles.row}>
 								<Text style={styles.title}>{t('settings:other.title')}</Text>
@@ -115,15 +109,15 @@ export default function SettingsScreen({navigation}: any) {
 								{
 									(Object.keys(other) ?? [])
 										.map((key, index) =>
-											<View  key={'checkboxOther'+index}
-											        style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
-												   <SettingsCheckbox id={index}
-																  name = ''
+											<View key={'checkboxOther' + index}
+												  style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+												<SettingsCheckbox id={index}
+																  name=''
 																  onValueChange={(value) => updateOther(key as otherSettingsKeys, value)}
 																  value={other?.[key as otherSettingsKeys] ?? false}/>
-													<View style={{flex: 1}}>
-														 <Text> {t(`settings:other.${key}`)}</Text>
-													</View>
+												<View style={{flex: 1}}>
+													<Text> {t(`settings:other.${key}`)}</Text>
+												</View>
 											</View>)
 								}
 

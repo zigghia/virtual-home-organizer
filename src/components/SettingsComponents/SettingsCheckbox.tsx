@@ -5,7 +5,7 @@ import React from 'react';
 
 interface SettingsCheckboxProps {
 	id: number;
-	name: string;
+	name?: string;
 	onValueChange: (v: boolean) => void,
 	value: boolean
 }
@@ -21,11 +21,21 @@ const SettingsCheckbox = (item: SettingsCheckboxProps) => {
 						  onValueChange={item.onValueChange}
 						  color={item.value ? themeColors.secondary : undefined}
 				/>
-		<Text style={styles.paragraph}>{item.name}</Text>
+		{
+			item.name ?
+		     <View style={styles.textContainer}>
+				 <Text style={styles.paragraph}>{item.name}</Text>
+			 </View>
+			: null
+		}
+
 	</View>
 }
 
 const styles = StyleSheet.create({
+	textContainer: {
+		paddingHorizontal: 10
+	},
 	section: {
 		flexDirection: 'row',
 		alignItems: 'center',

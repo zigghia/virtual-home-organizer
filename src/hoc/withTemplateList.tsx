@@ -30,13 +30,14 @@ const withTemplateList = <T extends WithTemplateListProps = WithTemplateListProp
 				}, {a: [], i: -1}).a
 			};
 
-			setLines(fc([...props.items]));
+			setLines(fc([...props.items ?? []]));
 
 		}), [props.items]);
 
-       if (!props.items.length) {
-		   return null;
+       if (props.items == null || !props.items?.length) {
+		   return [];
 	   }
+
 		return <WrappedComponent {...props} list={list}></WrappedComponent>
 	};
 }

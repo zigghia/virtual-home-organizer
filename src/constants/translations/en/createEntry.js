@@ -40,10 +40,6 @@ export default {
 		tooltip: "Is not mandatory and you can deactivate it from settings"
 	},
 	season: {
-		autumn: "Autumn",
-		spring: "Spring",
-		winter: "Winter",
-		summer: "Summer",
 		title:  "Season",
 		tooltip: "Is not mandatory and you can deactivate it from settings"
 	}

@@ -41,10 +41,6 @@ export default {
 		tooltip: "Nu este obigatoriu si poti dezactiva din setari daca nu vrei sa mai apara"
 	},
 	season: {
-		autumn: "Toamna",
-		spring: "Primavara",
-		winter: "Iarna",
-		summer: "Vara",
 		title:  "Anotimp",
 		tooltip: "Nu este obigatoriu si poti dezactiva din setari daca nu vrei sa mai apara"
 	}

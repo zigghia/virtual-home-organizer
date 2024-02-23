@@ -37,10 +37,10 @@ export default {
 		}
 	},
 	other: {
-		title: "Altele",
-		location: "Fara camp locatii depozitare la adaugare/editare",
-		users: "Fara membri familie la adaugare/editare",
-		categories: "Fara tip e incaltaminte la adaugare/editare",
-		season: "Fara selectie sezon la adaugare/editare"
+		title: "Ecran adaugare/ editare",
+		location: "Afiseaza camp locatii depozitare",
+		users: "Afiseaza membri familie",
+		categories: "Afiseaza tip e incaltaminte",
+		season: "Afiseaza selectie sezon"
 	}
 };

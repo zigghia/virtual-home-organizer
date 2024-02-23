@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 ;
 
 type SeasonComponentProps  = {
-	selectedSeason:  number | null,
+	selectedSeason:  string | undefined,
 	updateRecordData:  (value: string, valueId: number | null) => void
 }
 const SeasonComponent = ({selectedSeason, updateRecordData} : SeasonComponentProps) => {
@@ -20,19 +20,23 @@ const SeasonComponent = ({selectedSeason, updateRecordData} : SeasonComponentPro
 				   tooltipText={t('createEntry:season:tooltip')}>
 			<View style={{flex:1, flexWrap: 'wrap', flexDirection: 'row'}}>
 				{
-					['winter:snow-sharp', 'spring:flower-outline', 'summer:sunny-sharp', 'autumn:rainy'].map((key, index) => {
+					[`${t('common:seasons.winter').toLowerCase()}:snow-sharp`,
+						`${t('common:seasons.spring').toLowerCase()}:flower-outline`,
+						`${t('common:seasons.summer').toLowerCase()}:sunny-sharp`,
+						`${t('common:seasons.autumn').toLowerCase()}:rainy`].map((key, index) => {
 						const [season, icon] = key.split(':');
-						const style = index === selectedSeason ? s.seasonButtonSelected : {};
+
+						const style = season === selectedSeason ? s.seasonButtonSelected : {};
 						return <Button  buttonStyle = {{...s.seasonButton, ...style, marginRight: index%2 == 0 ? 5 : 0}} key={'season'+index}
 										onPress={() =>
 										{
-											if (selectedSeason == index) {
+											if (selectedSeason == season) {
 												updateRecordData('', null);
 												return;
 											}
-											updateRecordData(t(`createEntry:season.${season}`).toLowerCase(), index);
+											updateRecordData(season, index);
 										}}>
-							<Text style={s.seasonButtonText}>{t(`createEntry:season.${season}`)}</Text>
+							<Text style={s.seasonButtonText}>{season}</Text>
 							<Ionicons name={icon as 'snow-sharp' | 'flower-outline' | 'sunny-sharp' | 'rainy'} size={24} color="white" />
 						</Button>
 					})
@@ -51,7 +55,8 @@ export const s = StyleSheet.create({
 	seasonButtonText: {
 		color: 'white',
 		marginRight: 5,
-		fontSize: 16
+		fontSize: 16,
+		textTransform: 'capitalize'
 	},
 	seasonButtonSelected: {
 		backgroundColor: themeColors.disabled

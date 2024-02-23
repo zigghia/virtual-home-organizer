@@ -40,6 +40,7 @@ const LocationComponent = ({list, value, onValueSaved}: LocationProps) => {
 		onValueSaved(v);
 	}
 
+
 	return (
 		<>{
 			(list ?? []).map((line: [], index: number) => {
@@ -83,4 +84,4 @@ const s = StyleSheet.create({
 	}
 });
 
-export default withTemplateList(LocationComponent, 3);
+export default withTemplateList(LocationComponent, 2);

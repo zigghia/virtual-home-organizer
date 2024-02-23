@@ -141,7 +141,7 @@ const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen
 export const s = StyleSheet.create({
 	container: {
 		flex: 1,
-		flexDirection: 'row',
+		flexDirection: 'row'
 	},
 	inner: {
 		flex: 1,

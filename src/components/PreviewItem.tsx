@@ -42,7 +42,7 @@ const PreviewItem = ({formValues, categories, colors, closeModal}: PreviewItemPr
 										{
 											categories.map((c, index) =>
 												<View key={'category' + index} style={s.categoriesStyle}>
-													<Text lineBreakMode={'clip'} style={[s.text, {padding: 10}]}>{c}</Text>
+													<Text lineBreakMode={'clip'} style={[s.text, {padding: 5}]}>{c}</Text>
 												</View>)
 										}
 									</View>: null

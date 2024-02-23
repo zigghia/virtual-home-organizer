@@ -12,7 +12,7 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import AlertComponent from '@/components/AlertComponent';
 
 
-const Users = () => {
+const UserComponents = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [value, setValue] = useState('');
 	const [users, setUsers] = useState<User[]>([]);
@@ -198,4 +198,4 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default Users;
+export default UserComponents;

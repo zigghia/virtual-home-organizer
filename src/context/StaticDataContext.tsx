@@ -1,18 +1,19 @@
-import { createContext, useEffect, useReducer, useState } from 'react';
-import { ListItemModel, PropertiesDatabaseRecord, ReducerPayload, SelectColorItemModel, User } from '@/utils/models';
+import { createContext, useEffect, useReducer, useRef, useState } from 'react';
+import { ListItemModel, OtherSettingsProps, PropertiesDatabaseRecord, ReducerPayload, SelectColorItemModel, User } from '@/utils/models';
 import { SQLResultSet } from 'expo-sqlite';
 import { fetchAllData, loadPropertiedData, Tables } from '@/utils/databases';
 import { useTranslation } from 'react-i18next';
-import Users from '@/components/SettingsComponents/Users';
+import UserComponents from '@/components/SettingsComponents/UserComponents';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-export type dataType = {
+export type DataType = {
 	colors: SelectColorItemModel[],
 	categories: ListItemModel[],
 	descriptions: ListItemModel[]
 };
 export const DataContext = createContext<{
-	data: dataType,
+	data: DataType,
+	users: User[],
 	init: boolean,
 	loadData: () => void,
 	dispatch: React.Dispatch<ReducerPayload>
@@ -21,8 +22,8 @@ export const DataContext = createContext<{
 
 export const RecordsNumberContext = createContext<{
 	total: number,
-	setTotal: (t: number) => void ;
-} | null >(null);
+	setTotal: (t: number) => void;
+} | null>(null);
 
 
 const getModifiedCopy = (records: SelectColorItemModel[], val: string | number, unique = false) => {
@@ -44,7 +45,7 @@ const getModifiedCopy = (records: SelectColorItemModel[], val: string | number, 
 };
 
 
-const reducer = (state: dataType, action: ReducerPayload) => {
+const reducer = (state: DataType, action: ReducerPayload) => {
 	const constr = (record: PropertiesDatabaseRecord) => {
 		const {id, name, properties} = record;
 		try {
@@ -101,11 +102,15 @@ const reducer = (state: dataType, action: ReducerPayload) => {
 
 const RecordDataProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
 	const [data, dispatch] = useReducer(reducer, {colors: [], descriptions: [], categories: []});
+	const [users, setUsers] = useState<User[]>([]);
 	const [init, setInit] = useState(true);
 	const {i18n} = useTranslation();
 	const loadData = async (where: string = '') => {
 		setInit(true);
 		const loadedData = await loadPropertiedData(i18n.language).catch(err => alert(err));
+
+		const {rows} = await fetchAllData(Tables.USERS);
+		setUsers(rows._array);
 
 		if ( loadedData ) {
 			dispatch({type: 'init', payload: loadedData});
@@ -118,7 +123,7 @@ const RecordDataProvider: React.FC<{ children: React.ReactNode }> = ({children})
 	}, [])
 
 
-	return <DataContext.Provider value={{data, init, dispatch, loadData}}>
+	return <DataContext.Provider value={{data, init, dispatch, loadData, users}}>
 		{children}
 	</DataContext.Provider>
 }

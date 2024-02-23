@@ -31,5 +31,11 @@ export default {
     edit: 'Edit',
     preview: 'Preview',
     cancel: 'Cancel'
+  },
+  seasons: {
+    autumn: "Autumn",
+    spring: "Spring",
+    winter: "Winter",
+    summer: "Summer",
   }
 };
