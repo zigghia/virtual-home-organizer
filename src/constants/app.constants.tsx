@@ -1,11 +1,30 @@
+import { createTheme } from '@rneui/themed';
+
+export const theme = createTheme({
+	mode: 'light',
+	lightColors: {
+		primary: '#ff0080',
+		secondary: '#59b300',
+		grey0: '#C8C7CD',
+		grey1: '#e1e1ea',
+		grey2: '#444',
+		searchBg: 'red',
+		error: '#cc0000'
+		// disabled: string;
+		// divider: string;
+	}
+});
 export enum themeColors {
-	secondary= '#4fb09d',
-	primary=  '#A20373',
+	secondary1= '#4fb09d',
+	secondary= '#59b300',
+	primary1=  '#ff9900',
+	primary=  '#ff0080',
 	disabled = '#e0e0e0',
 	darkGrey = '#C8C7CD',
 	header= '#444',
-	lightGrey = '#F8F8F8',
-	error =  '#cc0000'
+	lightGrey = '#e1e1ea',
+	error =  '#cc0000',
+	white = '#ffffff'
 }
 
 export enum themeDefaults {

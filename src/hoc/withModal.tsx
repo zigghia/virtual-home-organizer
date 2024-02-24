@@ -1,8 +1,7 @@
-import React, { Component, ComponentProps, ComponentType, ReactComponentElement, useEffect, useRef, useState } from "react";
-import { Dimensions, Platform, View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
+import React from "react";
+import { Dimensions, Platform, View, StyleSheet, TouchableOpacity } from 'react-native';
 import Modal from "react-native-modal";
 import { Ionicons } from '@expo/vector-icons';
-import * as animatable from 'react-native-animatable';
 import { themeColors } from '@/constants/app.constants';
 
 const deviceWidth = Dimensions.get("window").width;
@@ -17,9 +16,11 @@ const animations = {
 	full: {in: 'slideInUp', out: 'slideOutDown'},
 	bottom: {in: 'slideInUp', out: 'slideOutDown'},
 	alert: {in: 'slideInDown', out: 'slideOutDown'},
+	filter: {in: 'slideInDown', out: 'slideOutDown'},
+
 }
 export type ModalProps = {
-	position: 'full' | 'bottom' | 'alert',
+	position: 'full' | 'bottom' | 'alert' | 'filter';
 	height?: number
 }
 
@@ -103,6 +104,9 @@ const styles = StyleSheet.create({
 		margin: 0,
 		borderTopRightRadius: 20,
 		borderTopLeftRadius: 20
+	},
+	filter: {
+
 	}
 });
 

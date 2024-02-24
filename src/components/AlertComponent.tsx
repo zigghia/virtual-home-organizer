@@ -4,9 +4,11 @@ import { View, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Button from '@/components/Button/Button';
 import { themeColors, themeDefaults } from '@/constants/app.constants';
+import { useTheme } from '@rneui/themed';
 
 const AlertComponent = ({message, title, closeModal, onPressOK}: ComponentProps<any>) => {
 	const [t] = useTranslation();
+	const theme = useTheme();
 	return (
 		<>
 			<View style={{alignItems: 'center'}}>

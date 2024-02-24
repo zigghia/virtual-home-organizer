@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { GestureResponderEvent, Keyboard, KeyboardAvoidingView, KeyboardType, Platform, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { StyleSheet } from "react-native";
 import { Text } from '@rneui/base';
-import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { themeColors } from '@/constants/app.constants';
 import commonStyle from '@/utils/common.style';
 
@@ -26,10 +26,12 @@ const validation = {
 
 const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen, isValid, keyboardType, editDisabled}: CreateDescriptionProp) => {
 	const [error, setError] = useState<null | string>(null);
-	const [currentValue, setCurrentValue] = useState('');
+	const [currentValue, setCurrentValue] = useState(value);
 	const [editMode, setEditMode] = useState(true);
+	const [autoFocus, setAutofocus] = useState(false);
 	const isTouched = useRef(false);
 	const ml = maxLen?.value ?? 100;
+
 	const validate = (v: string) => {
 
 		if ( v.length && maxLen?.message && maxLen?.value && !validation.maxLen(v, Number(maxLen.value)) ) {
@@ -50,10 +52,15 @@ const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen
 	};
 
 	useEffect(() => {
-		if ( value != undefined ) {
-			setCurrentValue(value);
+		if ( value?.length ) {
+			setEditMode(false);
 		}
-		setEditMode(value?.length == 0);
+	}, []);
+
+	useEffect(() => {
+		if ( value == undefined ) {
+			return;
+		}
 		validate(value ?? '');
 		isValid && isValid(error == null);
 
@@ -61,17 +68,19 @@ const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen
 
 	const finishEdit = (event?: GestureResponderEvent) => {
 
-		validate(currentValue);
-		if ( error ) {
+		validate(currentValue ?? '');
+		if ( error || !currentValue) {
 			return;
 		}
 		currentValue.length && setEditMode(false);
+		setAutofocus(false);
 		isValid && isValid(true);
 		onValueSaved && onValueSaved(currentValue);
 	}
 
 	const editValue = () => {
 		setEditMode(true);
+		setAutofocus(true);
 		setError(null);
 		isValid && isValid(false);
 	}
@@ -85,25 +94,29 @@ const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen
 
 	if ( !editMode ) {
 		return (
-			<View style={{
-				flexDirection: 'row',
-				flex: 1
-			}}>
-				<View style={s.text}>
-					<View style={{
-						paddingHorizontal: 15,
-						alignItems: 'center',
-						flex: 1
-					}}>
-						<Text style={{fontSize: 25}}> {currentValue}</Text>
+			<TouchableOpacity onPress={editValue} disabled={editDisabled}>
+				<View style={{
+					flexDirection: 'row',
+					// flex: 1,
+					width: '100%'
+				}}>
+
+					<View style={s.text}>
+						<View style={{
+							paddingHorizontal: 15,
+							alignItems: 'center',
+							flex: 1
+						}}>
+							<Text style={{fontSize: 25}}> {currentValue}</Text>
+						</View>
+
+						<FontAwesome name="pencil-square" size={40} color={editDisabled ? themeColors.disabled : themeColors.secondary}/>
 					</View>
-					<TouchableOpacity onPress={editValue} disabled={editDisabled}>
-						<Ionicons name="add-circle" size={40} color={editDisabled ? themeColors.disabled : themeColors.secondary}/>
-					</TouchableOpacity>
 				</View>
-			</View>
+			</TouchableOpacity>
 		);
 	}
+
 
 	return (
 		<KeyboardAvoidingView
@@ -111,14 +124,14 @@ const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen
 			style={s.container}
 		>
 			<TouchableWithoutFeedback onPress={(event) => {
-
-					currentValue.length && setEditMode(false);
-					isValid && isValid(true);
-					onValueSaved && onValueSaved(currentValue);
+				currentValue?.length && setEditMode(false);
+				isValid && isValid(true);
+				onValueSaved && onValueSaved(currentValue);
 				Keyboard.dismiss();
 			}}>
-				<View style={s.inner} hitSlop={{top: 10, bottom: 30, left: 10, right: 10}}>
+				<View style={s.inner} hitSlop={{top: 30, bottom: 30, left: 10, right: 10}}>
 					<TextInput
+						autoFocus={autoFocus}
 						onBlur={(event) => finishEdit()}
 						onFocus={() => setError(null)}
 						keyboardType={keyboardType || 'default'}
@@ -150,7 +163,7 @@ export const s = StyleSheet.create({
 	},
 	text: {
 		height: 60,
-		backgroundColor: themeColors.lightGrey,
+		backgroundColor: themeColors.disabled,
 		padding: 10,
 		borderRadius: 20,
 		flexDirection: 'row',

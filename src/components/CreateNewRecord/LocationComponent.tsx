@@ -20,6 +20,7 @@ const LocationComponent = ({list, value, onValueSaved}: LocationProps) => {
 	const [readOnly, setReadOnly] = useState(false);
 
 	useEffect(() => {
+		console.log(value, 'the value');
 		setReadOnly(data.descriptions.some(d => d.selected));
 	}, [value]);
 

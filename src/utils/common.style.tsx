@@ -10,7 +10,7 @@ const commonStyle = StyleSheet.create({
 		minWidth: 80,
 		flex: 1,
 		flexDirection: 'row',
-		backgroundColor: themeColors.lightGrey,
+		backgroundColor: themeColors.disabled,
 		margin: 5,
 		height: 50,
 		alignItems: 'center',
@@ -31,16 +31,14 @@ const commonStyle = StyleSheet.create({
 		height: 60
 	},
 	shadow: {
-		// shadowColor: "#444",
-		// shadowOffset: {
-		// 	width: 0,
-		// 	height: 0.5,
-		// },
-		// shadowOpacity: 0.4,
-		// shadowRadius: 2.22,
-		// elevation: 10,
-		borderWidth: StyleSheet.hairlineWidth,
-		borderColor: '#444'
+		shadowColor: "#000000",
+		shadowOffset: {
+			width: 0,
+			height: 4,
+		},
+		shadowOpacity:  0.19,
+		shadowRadius: 5.62,
+		elevation: 6
 	},
 	containerListItemBackground: {
 		backgroundColor: themeColors.secondary

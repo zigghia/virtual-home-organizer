@@ -1,5 +1,6 @@
 export default {
 	preview: 'Cum arata?',
+	cancel: 'Renunta',
 	loadingDataError: 'EROARE NECUNOSCUTA - la citirea de date din baza de date.',
 	category: {
 		title: 'Selecteaza categoria',

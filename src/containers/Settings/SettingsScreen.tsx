@@ -10,9 +10,11 @@ import { useIsFocused } from '@react-navigation/native';
 import SettingsItemList from '@/components/SettingsComponents/SettingsItemList';
 import UserComponents from '@/components/SettingsComponents/UserComponents';
 import { Divider } from '@rneui/base';
-import SettingsCheckbox from '@/components/SettingsComponents/SettingsCheckbox';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DataContext } from '@/context/StaticDataContext';
+import { Switch } from '@rneui/themed';
+
+import { themeColors } from '@/constants/app.constants';
 
 export default function SettingsScreen({navigation}: any) {
 	const {t, i18n} = useTranslation();
@@ -30,7 +32,7 @@ export default function SettingsScreen({navigation}: any) {
 	const onSelectLanguage = (code: string) => {
 		i18n.changeLanguage(code);
 		setselectedLanguageCode(code);
-		navigation.navigate('Home', {screen: 'Search'});
+		navigation.navigate('Main', {screen: 'Main'});
 	}
 
 
@@ -81,7 +83,8 @@ export default function SettingsScreen({navigation}: any) {
 										<Text style={styles.title}>{t('settings:categories.title')}</Text>
 										<MaterialIcons name="category" size={24} color="black"/>
 									</View>
-									<SettingsItemList items={categories} type={'categories'} deleted={(value: boolean) => {}}/>
+									<SettingsItemList items={categories} type={'categories'} deleted={(value: boolean) => {
+									}}/>
 									<Divider/>
 								</> : null
 							}
@@ -91,7 +94,8 @@ export default function SettingsScreen({navigation}: any) {
 										<Text style={styles.title}>{t('settings:descriptions.title')}</Text>
 										<MaterialIcons name="blinds-closed" size={24} color="black"/>
 									</View>
-									<SettingsItemList items={data.descriptions} deleted={(value: boolean) => {}} type={'descriptions'}/>
+									<SettingsItemList items={data.descriptions} deleted={(value: boolean) => {
+									}} type={'descriptions'}/>
 									<Divider/>
 								</> : null
 							}
@@ -110,12 +114,13 @@ export default function SettingsScreen({navigation}: any) {
 									(Object.keys(other) ?? [])
 										.map((key, index) =>
 											<View key={'checkboxOther' + index}
-												  style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
-												<SettingsCheckbox id={index}
-																  name=''
-																  onValueChange={(value) => updateOther(key as otherSettingsKeys, value)}
-																  value={other?.[key as otherSettingsKeys] ?? false}/>
-												<View style={{flex: 1}}>
+												  style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 10}}>
+												<Switch
+													color={themeColors.secondary}
+													value={other?.[key as otherSettingsKeys] ?? false}
+													onValueChange={(value) => updateOther(key as otherSettingsKeys, value)}
+												/>
+												<View style={{flex: 1, marginLeft: 5}}>
 													<Text> {t(`settings:other.${key}`)}</Text>
 												</View>
 											</View>)

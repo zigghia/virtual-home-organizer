@@ -9,7 +9,8 @@ export default {
 	no: 'Nu',
 	route: {
 		search: "Lista ta",
-		create: "Adaugare item"
+		create: "Adaugare item",
+		settings: 'Setari'
 	},
 	errors: {
 		required: 'Campul este obligatoriu.',

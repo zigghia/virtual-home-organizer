@@ -62,8 +62,8 @@ export const s = StyleSheet.create({
 		top: 10,
 	},
 	image: {
-		height: 170,
-		width: 170,
+		height: 150,
+		width: 150,
 		justifyContent: 'flex-end',
 		alignItems: 'flex-end',
 	},

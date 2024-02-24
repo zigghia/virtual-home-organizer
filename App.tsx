@@ -1,6 +1,5 @@
 import { StyleSheet, View } from 'react-native';
 import './src/constants/IMLocalize';
-import CustomRootNavigator from '@/navigation/CustomRootNavigation';
 import { useCallback, useEffect, useState } from 'react';
 import { initDatabase, } from '@/utils/databases';
 import * as SplashScreen from 'expo-splash-screen';
@@ -9,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import RecordDataProvider from '@/context/StaticDataContext';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import AppNavigator from '@/navigation/AppNavigator';
 
 
 SplashScreen.preventAutoHideAsync().catch((err) => console.log(err));
@@ -60,7 +60,7 @@ export default function App() {
 		<ActionSheetProvider>
 			<RecordDataProvider>
 				<View style={styles.container} onLayout={onLayoutRootView}>
-					<CustomRootNavigator/>
+					<AppNavigator/>
 				</View>
 			</RecordDataProvider>
 		</ActionSheetProvider>
@@ -72,6 +72,6 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: '#fff',
 		justifyContent: 'space-between',
-		padding: 10,
+		padding: 0,
 	},
 });

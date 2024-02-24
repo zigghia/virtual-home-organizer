@@ -8,7 +8,8 @@ export default {
   defaultNickname: 'Me',
   route: {
      search: "Your List",
-     create: "Create"
+     create: "Create",
+    settings: 'Settings'
   },
   defaultDBError: 'UNKNOWN ERROR, code {{code}}',
   errors: {

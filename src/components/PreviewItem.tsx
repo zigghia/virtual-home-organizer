@@ -1,13 +1,9 @@
 import React, {  useEffect, useState } from "react";
-import { Text } from "@rneui/base";
-import { Image, Pressable, StyleSheet, View } from "react-native";
+import { Image, Pressable, StyleSheet, View, Text } from "react-native";
 import withModal from '@/hoc/withModal';
-import { ListItemModel, RecordModel, RecordModelExtended, SelectColorItemModel } from '@/utils/models';
-import { themeColors, themeDefaults } from '@/constants/app.constants';
-
-import { DataContext } from '@/context/StaticDataContext';
-import { s as st } from '@/components/CreateNewRecord/SelectColors/SelectColors.style';
-import { Entypo } from '@expo/vector-icons';
+import { RecordModelExtended, SelectColorItemModel } from '@/utils/models';
+import { themeColors } from '@/constants/app.constants';
+import { FontAwesome5 } from '@expo/vector-icons';
 import RenderColors from '@/components/RenderColorsBullet';
 
 interface PreviewItemProps {
@@ -31,10 +27,9 @@ const PreviewItem = ({formValues, categories, colors, closeModal}: PreviewItemPr
 	return (
 		<View style={s.container}>
 			<View style={{backgroundColor: themeColors.secondary}}>
-				<Entypo name="price-tag" size={80} color='white'
-						style={s.priceTag}>
+				<FontAwesome5 name="box-open" size={80} color='white' style={s.boxNo}>
 					<Text style={{color: 'white', fontSize: 80,}}>{formValues?.containerIdentifier ?? '?'}</Text>
-				</Entypo>
+				</FontAwesome5>
 			</View>
 			{ formValues?.description && <View style={{paddingVertical: 10, paddingLeft: 5}}><Text style={s.text}>{formValues.description.toUpperCase()}</Text></View>}
 			{ formValues?.season && <View style={{paddingVertical: 5, paddingLeft: 5}}><Text style={s.text}>{formValues.season.toLowerCase()}</Text></View>}
@@ -70,7 +65,7 @@ export const s = StyleSheet.create({
 		margin: 10,
 		padding: 10
 	},
-	priceTag :{
+	boxNo :{
 		verticalAlign: 'bottom',
 		alignItems: 'center',
 		alignSelf: 'center',
@@ -93,34 +88,13 @@ export const s = StyleSheet.create({
 		fontSize: 25,
 		color: themeColors.header
 	},
-	textContainer: {
-		flexDirection: 'row'
-	},
-	boxTitle: {
-		fontSize: themeDefaults.fontHeader1,
-		textAlign: 'center',
-		color: '#fff',
-		fontWeight: 'bold'
-	},
-	boxContainer: {
-		textAlignVertical: 'center',
-	},
-	textContainerTitle: {
-		textAlign: 'center',
-		padding: 20,
-		backgroundColor: themeColors.secondary,
-		borderRadius: 10
-	},
 	image: {
 		minHeight: 250,
 	},
 	item: {
 		backgroundColor: '#fefefe',
 
-	},
-	title: {
-		fontSize: themeDefaults.fontHeader3,
-	},
+	}
 });
 
 export default withModal(PreviewItem, {position: 'full'});

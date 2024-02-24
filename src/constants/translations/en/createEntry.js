@@ -1,5 +1,6 @@
 export default {
 	preview: 'Preview',
+	cancel: 'Cancel',
 	category: {
 		title: 'Select category:',
 		tooltip: 'You\'ll search your items by selected type (ex: red shoes).',

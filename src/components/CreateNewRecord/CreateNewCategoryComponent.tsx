@@ -67,7 +67,7 @@ const CreateNewCategoryComponent = (props: CreateNewCategoryProps) => {
 						maxLen={{message: t('common:errors.maxLen', {max: appConstants.maxCategoryCharsAllowed}), value: 10}}
 						isRequired={{message: t('common:errors.required')}}/>
 
-					<Button buttonStyle={{maxHeight: 60}} text={t('common:save')} onPress={insertNewCategory} disabled={!data}/>
+					<Button buttonStyle={{maxHeight: 60, marginTop: 20}} text={t('common:save')} onPress={insertNewCategory} disabled={!data}/>
 				</View>
 			</TouchableWithoutFeedback>
 		</View>

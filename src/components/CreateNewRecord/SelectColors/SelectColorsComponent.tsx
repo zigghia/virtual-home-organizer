@@ -29,7 +29,6 @@ const SelectColorsComponent = ({list}: SelectColorProps) => {
 					</View>
 				})
 			}
-
 		</View>
 	)
 }

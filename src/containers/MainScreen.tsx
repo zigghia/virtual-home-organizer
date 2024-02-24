@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, ListRenderItemInfo, ScrollView } from 'react-native';
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { View, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { RecordModel, RecordModelExtended, SelectColorItemModel } from '@/utils/models';
 import { useIsFocused } from '@react-navigation/native';
 import { CURRENT_USER } from '@/constants/IMLocalize';
@@ -8,31 +8,35 @@ import { deleteFromTable, fetchAllData, Tables } from '@/utils/databases';
 import * as FileSystem from 'expo-file-system';
 import SwipeRow from '@/components/ListComponents/List/SwipeRow';
 import { useTranslation } from 'react-i18next';
-import SearchBar from '@/components/ListComponents/SearchBar';
-import { themeColors } from '@/constants/app.constants';
-import { Ionicons } from '@expo/vector-icons';
+import { theme, themeColors } from '@/constants/app.constants';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import AlertComponent from '@/components/AlertComponent';
 import ErrorComponent from '@/components/ErrorComponent';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { DataContext, RecordsNumberContext } from '@/context/StaticDataContext';
 import Loading from '@/components/Loading';
 import GridList from '@/components/ListComponents/List/GridList';
+import Filters from '@/components/MainScreen/Filters';
+import { SearchBar } from '@rneui/themed';
+import commonStyle from '@/utils/common.style';
 
 const MainScreen = (props: any) => {
 	const [dbData, setDbData] = useState<RecordModelExtended[]>([]);
 	const [filteredData, setFilteredData] = useState<RecordModelExtended[]>([]);
 	const [error, setError] = useState<string | null>(null);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
+	const [showFilters, setShowFilters] = useState<boolean | null>(null);
 	const [toBeDeleted, setToBeDeleted] = useState<null | number>(null);
 	const {data, init} = useContext(DataContext)!;
+	const [search, setSearch] = useState<string | undefined>("");
 	const [isList, setIsList] = useState(true);
 	const [loading, setLoading] = useState(init ?? false);
 	const isFocus = useIsFocused();
 	const [t] = useTranslation();
 	const {setTotal} = useContext(RecordsNumberContext)!;
+	const ref = useRef(null);
 
-
-	const setListData = (data: RecordModelExtended[]) =>  {
+	const setListData = (data: RecordModelExtended[]) => {
 		setFilteredData(data);
 		setTotal(data.length ?? 0);
 	}
@@ -81,8 +85,9 @@ const MainScreen = (props: any) => {
 		}
 	}
 
-	const search = (value: string) => {
-		if ( !value ) {
+	const searchData = (value: string) => {
+		setSearch(value);
+		if ( value.length == 0 ) {
 			setListData(dbData);
 			return;
 		}
@@ -113,9 +118,6 @@ const MainScreen = (props: any) => {
 		setShowDeleteModal(true);
 	}
 
-	const navigateTpAddNew = async () => {
-		await props.navigation.navigate('Record');
-	}
 
 	const renderItem = ({item, index}: { item: RecordModel, index: number }): any => {
 		if ( !item ) {
@@ -133,48 +135,58 @@ const MainScreen = (props: any) => {
 		return <Loading/>
 	}
 
+	const showFiltersPAnel = () => {
+		//if ()
+	}
+
+	const icon = () => {
+		return <Ionicons name='search' size={24} color="black" />
+	}
 
 	return (
 		<>
-			<GestureHandlerRootView style={{flex: 1}}>
-				<SearchBar onSearch={search} placeholder={t('search:searchPlaceholder')}/>
-				<View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
-					<TouchableOpacity style={s.button1} onPress={navigateTpAddNew}>
-						<View style={s.buttonContainer1}>
-							<Ionicons name="footsteps-outline" size={24} color={themeColors.header}/>
-							<Text style={s.buttonText}>{t('search:add')}</Text>
-						</View>
-					</TouchableOpacity>
-
+			<GestureHandlerRootView style={{flex: 1, backgroundColor: themeColors.white}}>
+				<SearchBar
+					lightTheme
+					searchIcon = {icon()}
+					rightIconContainerStyle = {s.searchClear}
+					inputStyle = {s.searchInput}
+					inputContainerStyle =  {s.searchInputContainer}
+					containerStyle =  {s.searchContainer}
+					placeholder={t('search:searchPlaceholder')}
+					onChangeText={searchData}
+					value={search}
+				/>
+				<View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end'}}>
 					<View style={s.buttonContainer2}>
 						<TouchableOpacity style={s.button1} onPress={() => setIsList(!isList)}>
 							<Ionicons name={isList ? 'grid-outline' : "list-outline"} size={30} color="black"/>
 						</TouchableOpacity>
-						<TouchableOpacity style={{...s.button1, paddingLeft: 10}} disabled>
-							<Ionicons name="options" size={30} color="black"/>
+						<TouchableOpacity style={{...s.button1, paddingLeft: 10}} onPress={() => setShowFilters(!showFilters)}>
+							<Ionicons name="options" size={30} color="black" ref={ref}/>
 						</TouchableOpacity>
 					</View>
 				</View>
+				{<Filters isVisible={showFilters}/>}
 				{isList ?
-					<FlatList style={{flex: 1, zIndex: 200}}
+					<FlatList style={{flex: 1, padding: 10}}
 							  data={filteredData}
 							  ItemSeparatorComponent={() => <View style={s.separator}/>}
 							  renderItem={renderItem}
 							  keyExtractor={(_item, index) => `list${index}`}
 					/> :
-						<GridList items={filteredData} deleteAction={deleteAction} editAction={editAction}/>
+					<GridList items={filteredData} deleteAction={deleteAction} editAction={editAction}/>
 				}
 			</GestureHandlerRootView>
-			{
-				<AlertComponent
-					isVisible={showDeleteModal}
-					closeModal={() => {
-						setShowDeleteModal(false)
-					}}
-					message={t('search:deleteMessage')}
-					title={t('search:deleteTitle')}
-					onPressOK={deleteRecord}/>
-			}
+
+			<AlertComponent
+				isVisible={showDeleteModal}
+				closeModal={() => {
+					setShowDeleteModal(false)
+				}}
+				message={t('search:deleteMessage')}
+				title={t('search:deleteTitle')}
+				onPressOK={deleteRecord}/>
 
 			{error && <ErrorComponent transparent
 									  message={error}
@@ -186,6 +198,26 @@ const MainScreen = (props: any) => {
 }
 
 export const s = StyleSheet.create({
+	searchContainer: {
+		backgroundColor: 'white',
+		paddingVertical: 5,
+		paddingHorizontal: 5,
+		borderBottomColor: 'white'
+	},
+	searchInputContainer: {
+		backgroundColor: themeColors.disabled,
+		padding:2,
+		borderRadius: 10,
+		...commonStyle.shadow
+	},
+	searchInput: {
+		backgroundColor: 'white',
+		padding: 3,
+		borderRadius: 3},
+	searchClear : {
+		width: 24,
+		padding: 5
+	},
 	buttonContainer2: {
 		flex: 1,
 		flexDirection: 'row',
@@ -193,18 +225,6 @@ export const s = StyleSheet.create({
 		justifyContent: 'flex-end',
 		alignContent: 'center',
 		paddingHorizontal: 10
-	},
-	buttonText: {
-		color: themeColors.header,
-		fontWeight: 'bold',
-		padding: 5,
-	},
-	buttonContainer1: {
-		alignContent: 'center',
-		alignItems: 'center',
-		justifyContent: 'center',
-		flex: 1,
-		minWidth: 50
 	},
 	button1: {
 		height: 60,

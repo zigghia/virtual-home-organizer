@@ -10,8 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { deleteFromTable, loadPropertiedData, Tables } from '@/utils/databases';
 import AlertComponent from '@/components/AlertComponent';
 import { DataContext } from '@/context/StaticDataContext';
-import { ListItemCheckBox } from '@rneui/base/dist/ListItem/ListItem.CheckBox';
-import SettingsCheckbox from '@/components/SettingsComponents/SettingsCheckbox';
+import { CheckBox } from '@rneui/themed';
 
 interface CLProps extends WithTemplateListProps {
 	list: [];
@@ -26,9 +25,9 @@ const SettingsItemsList = ({list, deleted, type}: CLProps) => {
 	const [showAlertModal, setShowAlert] = useState(false);
 	const {dispatch} = useContext(DataContext)!;
 
-	const check = (value: boolean, id: number) => {
+	const check = (id: number) => {
 
-		const newVal = {...checked, [id]: value};
+		const newVal = {...checked, [id]: !checked[id]};
 		setChecked(newVal);
 		setButtonDisabled(!Object.keys(newVal).some((k) => newVal[Number(k)]));
 	}
@@ -58,11 +57,13 @@ const SettingsItemsList = ({list, deleted, type}: CLProps) => {
 			(list ?? []).map((line: ListItemModel[], index: number) => {
 				return <View style={commonStyle.containerList} key={`line${index}`}>
 					{line.map((item, i) =>
-						        <SettingsCheckbox key={'settingsItemList'+type + i}
-							  		 onValueChange={value => check(value, Number(item.id))}
-									 name = {item.name ?? ''}
-						             id = {item.id}
-						             value = {checked[item.id] ?? false}/>)}
+								<CheckBox checked={checked[item.id] ?? false}
+									  onPress={_ => check(item.id)}
+									  title= {item.name ?? ''}
+									  key={'settingsItemList'+type + i} size={32}
+									  checkedColor={themeColors.secondary}/>
+					          )
+					}
 				</View>
 			})
 		}
