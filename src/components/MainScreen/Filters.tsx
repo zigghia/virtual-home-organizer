@@ -43,12 +43,11 @@ const Filters = (props: any) => {
 		setSelectedSeason(null);
 	}
 	const setSearch = () => {
-      props.search(
-		  [data.colors.filter(c => c.selected).map(c=> c.name).join(' '),
-			  users.find(u=> u.id == selectedUserIndex)?.nickname,
-			  selectedSeason?.toLowerCase()].join().toLowerCase());
+		const colors = data.colors.filter(c => c.selected).map(c=> c.name).join(' ').trim();
+		const user =  users.find(u=> u.id == selectedUserIndex)?.nickname ;
+		const season =  selectedSeason?.toLowerCase() ?? '';
+      props.search([colors, user, season].filter(e => e).join(' ').trim().toLowerCase());
 	}
-
 
 	const DATA = [{
 		title: 'Culori',
@@ -87,10 +86,16 @@ const Filters = (props: any) => {
 								  </>
 							  }}
 					/>
-					<View style={{ paddingVertical: 20}}>
-						<Pressable onPress={reset}>
-							<Text style={{textDecorationLine: 'underline', fontSize: themeDefaults.fontHeader4, marginBottom: 20}}> Reset filters </Text>
-						</Pressable>
+					<View style={{ paddingVertical: 10}}>
+						<View style={{flex:1, flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20,  marginBottom: 10}}>
+							<Pressable onPress={reset}>
+								<Text style={{textDecorationLine: 'underline', fontSize: themeDefaults.fontHeader4}}> Reset filters </Text>
+							</Pressable>
+							<Pressable onPress={props.cancel}>
+								<Text style={{textDecorationLine: 'underline', fontSize: themeDefaults.fontHeader4}}> Renunta </Text>
+							</Pressable>
+						</View>
+						<Divider style={s.divider}/>
 						<Button  text={t('common:OK')} isLeft onPress={setSearch}/>
 					</View>
 				</View>

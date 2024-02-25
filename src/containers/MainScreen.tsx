@@ -172,7 +172,9 @@ const MainScreen = (props: any) => {
 				</View>
 			</View>
 
-			<Filters isVisible={showFilters} search={(value: string) => {
+			<Filters isVisible={showFilters}
+					 cancel = {() => setShowFilters(false)}
+					 search={(value: string) => {
 															searchData(value);
 															setShowFilters(false);
 														}}/>
