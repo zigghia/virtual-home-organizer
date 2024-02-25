@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { View, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
-import { RecordModel, RecordModelExtended, SelectColorItemModel } from '@/utils/models';
+import { FlatList, StyleSheet, TouchableOpacity, View, Text } from 'react-native';
+import { RecordModel, RecordModelExtended } from '@/utils/models';
 import { useIsFocused } from '@react-navigation/native';
 import { CURRENT_USER } from '@/constants/IMLocalize';
 import { SQLResultSet } from 'expo-sqlite';
@@ -8,8 +8,8 @@ import { deleteFromTable, fetchAllData, Tables } from '@/utils/databases';
 import * as FileSystem from 'expo-file-system';
 import SwipeRow from '@/components/ListComponents/List/SwipeRow';
 import { useTranslation } from 'react-i18next';
-import { theme, themeColors } from '@/constants/app.constants';
-import { Feather, Ionicons } from '@expo/vector-icons';
+import { themeColors } from '@/constants/app.constants';
+import { Ionicons } from '@expo/vector-icons';
 import AlertComponent from '@/components/AlertComponent';
 import ErrorComponent from '@/components/ErrorComponent';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -61,6 +61,7 @@ const MainScreen = (props: any) => {
 
 	useEffect(() => {
 		if ( !isFocus || init ) {
+			setShowFilters(false);
 			return;
 		}
 
@@ -140,37 +141,45 @@ const MainScreen = (props: any) => {
 	}
 
 	const icon = () => {
-		return <Ionicons name='search' size={24} color="black" />
+		return <Ionicons name='search' size={24} color="black"/>
 	}
 
 	return (
-		<>
-			<GestureHandlerRootView style={{flex: 1, backgroundColor: themeColors.white}}>
-				<SearchBar
-					lightTheme
-					searchIcon = {icon()}
-					rightIconContainerStyle = {s.searchClear}
-					inputStyle = {s.searchInput}
-					inputContainerStyle =  {s.searchInputContainer}
-					containerStyle =  {s.searchContainer}
-					placeholder={t('search:searchPlaceholder')}
-					onChangeText={searchData}
-					value={search}
-				/>
-				<View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end'}}>
-					<View style={s.buttonContainer2}>
-						<TouchableOpacity style={s.button1} onPress={() => setIsList(!isList)}>
-							<Ionicons name={isList ? 'grid-outline' : "list-outline"} size={30} color="black"/>
-						</TouchableOpacity>
-						<TouchableOpacity style={{...s.button1, paddingLeft: 10}} onPress={() => setShowFilters(!showFilters)}>
-							<Ionicons name="options" size={30} color="black" ref={ref}/>
-						</TouchableOpacity>
-					</View>
+		<View style={{flex: 1, backgroundColor: 'white'}}>
+			<SearchBar
+				lightTheme
+				searchIcon={icon()}
+				rightIconContainerStyle={s.searchClear}
+				inputStyle={s.searchInput}
+				inputContainerStyle={s.searchInputContainer}
+				containerStyle={s.searchContainer}
+				placeholder={t('search:searchPlaceholder')}
+				onChangeText={searchData}
+				value={search}
+			/>
+			<View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end'}}>
+				<View style={s.buttonContainer2}>
+					<TouchableOpacity style={s.button1} disabled={showFilters == true}
+									  onPress={() => setIsList(!isList)}>
+						<Ionicons name={isList ? 'grid-outline' : "list-outline"} size={28} color={showFilters ? themeColors.disabled : themeColors.header}/>
+						<Text>{!isList ? t('search:list') : t('search:grid')}</Text>
+					</TouchableOpacity>
+					<TouchableOpacity style={{...s.button1, paddingLeft: 10}}
+									  onPress={() => setShowFilters(!showFilters)}>
+						<Ionicons name="options" size={30} color="black" ref={ref}/>
+						<Text>{t('search:filters')}</Text>
+					</TouchableOpacity>
 				</View>
-				{<Filters isVisible={showFilters}/>}
+			</View>
+
+			<Filters isVisible={showFilters} search={(value: string) => {
+															searchData(value);
+															setShowFilters(false);
+														}}/>
+
+			<GestureHandlerRootView>
 				{isList ?
-					<FlatList style={{flex: 1, padding: 10}}
-							  data={filteredData}
+					<FlatList data={filteredData}
 							  ItemSeparatorComponent={() => <View style={s.separator}/>}
 							  renderItem={renderItem}
 							  keyExtractor={(_item, index) => `list${index}`}
@@ -178,6 +187,7 @@ const MainScreen = (props: any) => {
 					<GridList items={filteredData} deleteAction={deleteAction} editAction={editAction}/>
 				}
 			</GestureHandlerRootView>
+
 
 			<AlertComponent
 				isVisible={showDeleteModal}
@@ -193,7 +203,7 @@ const MainScreen = (props: any) => {
 									  cancelText='OK'
 									  closeModal={() => setError(null)}/>
 			}
-		</>
+		</View>
 	);
 }
 
@@ -206,15 +216,16 @@ export const s = StyleSheet.create({
 	},
 	searchInputContainer: {
 		backgroundColor: themeColors.disabled,
-		padding:2,
+		padding: 2,
 		borderRadius: 10,
 		...commonStyle.shadow
 	},
 	searchInput: {
 		backgroundColor: 'white',
 		padding: 3,
-		borderRadius: 3},
-	searchClear : {
+		borderRadius: 3
+	},
+	searchClear: {
 		width: 24,
 		padding: 5
 	},
@@ -230,7 +241,8 @@ export const s = StyleSheet.create({
 		height: 60,
 		paddingHorizontal: 10,
 		paddingTop: 5,
-		justifyContent: 'center'
+		justifyContent: 'center',
+		alignItems: 'center'
 	},
 	separator: {
 		backgroundColor: 'rgb(200, 199, 204)',

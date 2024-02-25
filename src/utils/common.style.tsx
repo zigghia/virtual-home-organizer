@@ -10,12 +10,13 @@ const commonStyle = StyleSheet.create({
 		minWidth: 80,
 		flex: 1,
 		flexDirection: 'row',
-		backgroundColor: themeColors.disabled,
+		backgroundColor: themeColors.lightGrey,
 		margin: 5,
-		height: 50,
 		alignItems: 'center',
+		paddingVertical: 5,
+		paddingRight: 15,
 		fontWeight: 'bold',
-		borderRadius: 10
+		borderRadius: 20
 	},
 	input: {
 		fontSize: 25,

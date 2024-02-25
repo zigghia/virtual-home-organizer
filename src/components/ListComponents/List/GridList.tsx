@@ -56,7 +56,7 @@ const GridList = ({list, deleteAction, editAction}: MainListItemProps1) => {
 	}
 
 	return (
-		<ScrollView>
+		<ScrollView style={commonStyle.shadow}>
 			{
 				(list ?? []).map((line: [], i: number) => {
 					return <View style={{...commonStyle.containerList, backgroundColor: 'white'}} key={`line${i}`}>

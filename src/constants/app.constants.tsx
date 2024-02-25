@@ -22,7 +22,7 @@ export enum themeColors {
 	disabled = '#e0e0e0',
 	darkGrey = '#C8C7CD',
 	header= '#444',
-	lightGrey = '#e1e1ea',
+	lightGrey = '#f2f2f2',
 	error =  '#cc0000',
 	white = '#ffffff'
 }

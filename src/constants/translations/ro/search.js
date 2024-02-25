@@ -3,5 +3,7 @@ export default {
 	deleteTitle: 'Sigur stergi?',
 	add: 'Adauga',
 	filters: 'Filtre',
+	list: 'Lista',
+	grid: 'Tabel',
 	searchPlaceholder: 'Cauta'
 }

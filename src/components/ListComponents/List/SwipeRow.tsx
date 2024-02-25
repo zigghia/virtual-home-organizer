@@ -6,6 +6,7 @@ import SwipeableItem from '@/components/ListComponents/List/SwipeItem';
 import { RecordModelExtended} from '@/utils/models';
 import 'react-native-gesture-handler';
 import RenderColors from '@/components/RenderColorsBullet';
+import commonStyle from '@/utils/common.style';
 
 export interface MainListItemProps {
 	editAction: (item: RecordModelExtended) => void;
@@ -64,8 +65,10 @@ export const s = StyleSheet.create({
 	image: {
 		height: 150,
 		width: 150,
+		margin: 5,
 		justifyContent: 'flex-end',
 		alignItems: 'flex-end',
+		...commonStyle.shadow
 	},
 	boxContainer: {
 		backgroundColor: themeColors.header,

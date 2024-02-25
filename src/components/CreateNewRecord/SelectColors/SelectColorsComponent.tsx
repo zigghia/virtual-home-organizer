@@ -8,10 +8,11 @@ import { DataContext } from '@/context/StaticDataContext';
 import Loading from '@/components/Loading';
 
 interface SelectColorProps extends WithTemplateListProps{
-	list?: []
+	list?: [],
+	bulletSize?: number
 }
 
-const SelectColorsComponent = ({list}: SelectColorProps) => {
+const SelectColorsComponent = ({list, bulletSize}: SelectColorProps) => {
 
 	const { dispatch } = React.useContext(DataContext)!;
 
@@ -24,7 +25,10 @@ const SelectColorsComponent = ({list}: SelectColorProps) => {
 				(list ?? []).map((line: SelectColorItemModel[], index: number) => {
 					return <View style={{...commonStyle.containerList, 	width: '100%'}} key={`line${index}`}>
 						{
-							line.map(color => <SelectColorItem key={`selectColor${color.id}`} item={color} onItemPress={() => updateData(color)}/>)
+							line.map(color => <SelectColorItem  key={`selectColor${color.id}`}
+																bulletSize={bulletSize}
+																item={color}
+																onItemPress={() => updateData(color)}/>)
 						}
 					</View>
 				})

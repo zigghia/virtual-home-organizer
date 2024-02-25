@@ -3,6 +3,8 @@ export default {
 	deleteTitle: 'Are you sure?',
 	add: 'Add',
 	filters: 'Filters',
+	list: 'List',
+	grid: 'Grid',
 	searchPlaceholder: 'Search'
 }
 

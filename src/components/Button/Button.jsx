@@ -39,7 +39,7 @@ export const s = StyleSheet.create({
 		justifyContent: 'center',
 		paddingVertical: 10,
 		paddingHorizontal: 32,
-		borderRadius: 10,
+		borderRadius: 20,
 		flexDirection: 'row',
 		backgroundColor: themeColors.primary
 	},

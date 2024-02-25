@@ -1,67 +1,48 @@
 import React from "react";
-import { StyleSheet, Text, View } from 'react-native';
-import Button from '@/components/Button/Button';
-import { Ionicons } from '@expo/vector-icons';
-import EntryCard from '@/containers/CreateEntryScreen/EntryCard';
+import {  View } from 'react-native';
 import { themeColors } from '@/constants/app.constants';
 import { useTranslation } from 'react-i18next';
-
-;
+import { Chip } from '@rneui/themed';
 
 type SeasonComponentProps  = {
-	selectedSeason:  string | undefined,
-	updateRecordData:  (value: string, valueId: number | null) => void
+	selectedSeason?:  string | undefined | null,
+	updateData:  (value: string, valueId: number | null) => void
 }
-const SeasonComponent = ({selectedSeason, updateRecordData} : SeasonComponentProps) => {
+const SeasonComponent = ({selectedSeason, updateData} : SeasonComponentProps) => {
 	const {t} = useTranslation();
 
-	return (
-		<EntryCard title={t('createEntry:season.title')}
-				   tooltipText={t('createEntry:season:tooltip')}>
-			<View style={{flex:1, flexWrap: 'wrap', flexDirection: 'row'}}>
-				{
-					[`${t('common:seasons.winter').toLowerCase()}:snow-sharp`,
-						`${t('common:seasons.spring').toLowerCase()}:flower-outline`,
-						`${t('common:seasons.summer').toLowerCase()}:sunny-sharp`,
-						`${t('common:seasons.autumn').toLowerCase()}:rainy`].map((key, index) => {
-						const [season, icon] = key.split(':');
+	return <View style={{flexWrap: 'wrap', flexDirection: 'row', justifyContent: 'space-evenly'}}>
+		{
+			[`${t('common:seasons.winter').toLowerCase()}:snow-sharp`,
+				`${t('common:seasons.spring').toLowerCase()}:flower-outline`,
+				`${t('common:seasons.summer').toLowerCase()}:sunny-sharp`,
+				`${t('common:seasons.autumn').toLowerCase()}:rainy`].map((key, index) => {
+				const [season, icon] = key.split(':');
 
-						const style = season === selectedSeason ? s.seasonButtonSelected : {};
-						return <Button  buttonStyle = {{...s.seasonButton, ...style, marginRight: index%2 == 0 ? 5 : 0}} key={'season'+index}
-										onPress={() =>
-										{
-											if (selectedSeason == season) {
-												updateRecordData('', null);
-												return;
-											}
-											updateRecordData(season, index);
-										}}>
-							<Text style={s.seasonButtonText}>{season}</Text>
-							<Ionicons name={icon as 'snow-sharp' | 'flower-outline' | 'sunny-sharp' | 'rainy'} size={24} color="white" />
-						</Button>
-					})
-				}
-			</View>
-		</EntryCard>
-	);
+				const isCurrent = selectedSeason == season;
+				return <Chip
+					title={season}
+					key={'season' + index}
+					icon={{
+						name: icon,
+						type: 'ionicon',
+						size: 20,
+						color: isCurrent ? 'white' : themeColors.secondary,
+					}}
+					titleStyle={{color: isCurrent ? 'white' : themeColors.secondary, fontSize: 16}}
+					onPress={() => {
+						if ( isCurrent ) {
+							updateData('', null);
+							return;
+						}
+						updateData(season, index);
+					}}
+					type={isCurrent ? "solid" : "outline"}
+					color={themeColors.secondary}
+					containerStyle={{marginRight: index % 2 == 0 ? 5 : 0, marginTop: 10, borderWidth: 1, borderColor: themeColors.secondary, minWidth: 150}}
+				/>
+			})
+		}
+	</View>
 }
-
-
-export const s = StyleSheet.create({
-	seasonButton: {
-		minWidth: 120,
-		marginVertical: 5
-	},
-	seasonButtonText: {
-		color: 'white',
-		marginRight: 5,
-		fontSize: 16,
-		textTransform: 'capitalize'
-	},
-	seasonButtonSelected: {
-		backgroundColor: themeColors.disabled
-	}
-});
-
-
 export default SeasonComponent;

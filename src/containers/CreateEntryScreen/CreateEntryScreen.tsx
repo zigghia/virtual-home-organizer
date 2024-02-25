@@ -74,6 +74,7 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 	};
 
 	useEffect(() => {
+		console.log(!isFocused ? 'lost focus' : 'gain focus');
 		if ( isFocused ) {
 
 			setLoading(true);
@@ -100,7 +101,7 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 	}, [formValues.id]);
 
 	useEffect(() => {
-		console.log('daaaaaaaaaaaaa');
+
 		if ( route.params?.edit?.id ) {
 			setLoading(true);
 			const params = route.params.edit;
@@ -212,37 +213,41 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 																  footerText={t('createEntry:category.footer', {max: appConstants.maxCategoriesAllowed})}
 																  buttonDisabled={data.categories.length >= appConstants.maxCategoriesAllowed}
 																  buttonHandler={() => setshowCreateNewCategoryModal(true)}>
-															<CategoryComponent items={data.categories}/>
-														</EntryCard> : null;
+		<CategoryComponent items={data.categories}/>
+	</EntryCard> : null;
 
-	const seasonComponent = displayable?.season ? <SeasonComponent selectedSeason={formValues.season}
-																   updateRecordData={(value, valueIndex) => {
-																	   updateRecordData('season', value);
-																   }}/> : null;
+	const seasonComponent = displayable?.season ? <EntryCard title={t('createEntry:season.title')}
+															 tooltipText={t('createEntry:season:tooltip')}>
+																<SeasonComponent selectedSeason={formValues.season}
+																				 updateData={(value, valueIndex) => {
+																					 updateRecordData('season', value);
+																				 }}/>
+
+														</EntryCard> : null;
 
 	const userComponent = displayable?.users ? <EntryCard title={t('createEntry:users.title')}
 														  tooltipText={t('createEntry:season:tooltip')}>
-															<View style={{flexWrap: 'wrap', flex: 1, flexDirection: 'row'}}>
-																{users.map((user, index) => {
-																	return <CheckBox size={40}
-																					 title = {user.nickname}
-																					 checkedColor={themeColors.secondary}
-																					 key={'user' + user.id}
-																					 onPress={() => updateRecordData('userId', user.id)}
-																					 checked={formValues.userId == user.id}/>
-																		})
-																}
-															</View>
-														</EntryCard> : null
+		<View style={{flexWrap: 'wrap', flex: 1, flexDirection: 'row'}}>
+			{users.map((user, index) => {
+				return <CheckBox size={40}
+								 title={user.nickname}
+								 checkedColor={themeColors.secondary}
+								 key={'user' + user.id}
+								 onPress={() => updateRecordData('userId', user.id)}
+								 checked={formValues.userId == user.id}/>
+			})
+			}
+		</View>
+	</EntryCard> : null
 
 	return (<>
 			<FAB
 				visible
-				onPress = {() => setShowPreviewModal(true)}
+				onPress={() => setShowPreviewModal(true)}
 				style={{width: 120, position: 'absolute', alignSelf: 'center', top: -20, zIndex: 300, ...commonStyle.shadow}}
 				color={themeColors.primary}
 			>
-				<Ionicons name="eye-sharp" size={24} color="white" />
+				<Ionicons name="eye-sharp" size={24} color="white"/>
 			</FAB>
 			<ScrollView>
 				<View style={s.container}>

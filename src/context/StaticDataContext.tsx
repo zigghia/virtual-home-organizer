@@ -62,6 +62,12 @@ const reducer = (state: DataType, action: ReducerPayload) => {
 	}
 
 	switch (action.type) {
+		case 'reset' :
+			return {
+				descriptions: [...state.descriptions.map((d:ListItemModel) => ({...d, selected : false}))],
+				categories:  [...state.categories.map((d:ListItemModel) => ({...d, selected : false}))],
+				colors:  [...state.colors.map((d:ListItemModel) => ({...d, selected : false}))],
+			};
 		case 'init':
 			return {
 				descriptions: init('description'),
