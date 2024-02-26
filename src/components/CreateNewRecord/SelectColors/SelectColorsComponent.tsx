@@ -6,29 +6,31 @@ import { SelectColorItemModel } from '@/utils/models';
 import commonStyle from '@/utils/common.style';
 import { DataContext } from '@/context/StaticDataContext';
 import Loading from '@/components/Loading';
+import { appConstants } from '@/constants/app.constants';
 
-interface SelectColorProps extends WithTemplateListProps{
+interface SelectColorProps extends WithTemplateListProps {
 	list?: [],
-	bulletSize?: number
+	bulletSize?: number,
+	selectedIs: number [],
+	updateData: (v: number) => void
 }
 
-const SelectColorsComponent = ({list, bulletSize}: SelectColorProps) => {
+const SelectColorsComponent = ({list, bulletSize, selectedIs, updateData}: SelectColorProps) => {
 
-	const { dispatch } = React.useContext(DataContext)!;
-
-	const updateData = (color: any) => {
-		dispatch({type: 'update', payload: {key: 'colors', id: color.id}});
-	};
 	return (
 		<View>
 			{
 				(list ?? []).map((line: SelectColorItemModel[], index: number) => {
-					return <View style={{...commonStyle.containerList, 	width: '100%'}} key={`line${index}`}>
+					return <View style={{...commonStyle.containerList, width: '100%'}} key={`colorsLine${index}`}>
 						{
-							line.map(color => <SelectColorItem  key={`selectColor${color.id}`}
-																bulletSize={bulletSize}
-																item={color}
-																onItemPress={() => updateData(color)}/>)
+							line.map((color, index) => {
+								const isSelected = (selectedIs ?? []).includes(color.id);
+								return <SelectColorItem key={`selectColor${color.id}`}
+														bulletSize={bulletSize}
+														item={color}
+														isSelected={isSelected}
+														onItemPress={() => updateData(color.id)}/>
+							})
 						}
 					</View>
 				})

@@ -1,7 +1,7 @@
 import React, {  useEffect, useState } from "react";
 import { Image, Pressable, StyleSheet, View, Text } from "react-native";
 import withModal from '@/hoc/withModal';
-import { RecordModelExtended, SelectColorItemModel } from '@/utils/models';
+import { RecordModel, SelectColorItemModel } from '@/utils/models';
 import { themeColors } from '@/constants/app.constants';
 import { FontAwesome5 } from '@expo/vector-icons';
 import RenderColors from '@/components/RenderColorsBullet';
@@ -9,7 +9,7 @@ import RenderColors from '@/components/RenderColorsBullet';
 interface PreviewItemProps {
 	colors?: SelectColorItemModel[],
 	categories: string [],
-	formValues: RecordModelExtended,
+	formValues: RecordModel,
 	closeModal: () => void
 }
 

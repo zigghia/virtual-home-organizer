@@ -16,29 +16,23 @@ interface LocationProps extends WithTemplateListProps {
 
 const LocationComponent = ({list, value, onValueSaved}: LocationProps) => {
 	const [t] = useTranslation();
-	const {data, dispatch} = React.useContext(DataContext)!;
+
 	const [readOnly, setReadOnly] = useState(false);
 
-	useEffect(() => {
-		console.log(value, 'the value');
-		setReadOnly(data.descriptions.some(d => d.selected));
-	}, [value]);
 
 	const updateByIdHandler = (item: ListItemModel) => {
 		if ( !item?.name ) {
 			return;
 		}
-		dispatch({type: 'update', payload: {key: 'descriptions', id: item.id, unique: true}});
+		onValueSaved(value == item.name ? '' : item.name);
 	}
 
 	const updateByNameHandler = (value: string | undefined | number) => {
-		const v = (value ?? '').toString().toLowerCase();
-		const di =  data.descriptions.find(d => d.name == value);
-		if (di?.id) {
-			dispatch({type: 'update', payload: {key: 'descriptions', id: di.id, unique: true}});
+		if (!(value as string)) {
 			return;
 		}
-		onValueSaved(v);
+
+		onValueSaved('' + value ?? '');
 	}
 
 
@@ -48,11 +42,11 @@ const LocationComponent = ({list, value, onValueSaved}: LocationProps) => {
 				return <View style={commonStyle.containerList} key={`line${index}`}>
 					{
 						line.map((item: ListItemModel, index) =>
-							<View key={`type${index}`} style={[commonStyle.containerListItem, s.container, item.selected && s.background]}>
+							<View key={`type${index}`} style={[commonStyle.containerListItem, s.container, (item.name == value) && s.background]}>
 								<TouchableOpacity
 									onPress={() => updateByIdHandler(item)}
 									style={{flex: 1, alignItems: 'center', paddingVertical: 10}}>
-									<Text style={item.selected && s.textWhite}>{item?.name} </Text>
+									<Text style={(item.name == value) && s.textWhite}>{item?.name} </Text>
 								</TouchableOpacity>
 							</View>
 						)
@@ -61,7 +55,8 @@ const LocationComponent = ({list, value, onValueSaved}: LocationProps) => {
 			})
 		}
 			<View style={{marginTop: 10}}>
-				<InfoTextFieldComponent value={value}
+				<InfoTextFieldComponent
+					           value={value}
 							   editDisabled={readOnly}
 							   onValueSaved={updateByNameHandler}
 							   maxLen={{message: t('common:errors.maxLen', {max: 10}), value: 10}}/>

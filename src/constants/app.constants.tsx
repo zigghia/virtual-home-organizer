@@ -37,8 +37,11 @@ export enum themeDefaults {
 }
 
 export enum appConstants {
+	maxColorsSelected = 6,
 	maxCategoriesAllowed = 15,
+	maxLocationsAllowed = 5,
 	maxCategoryCharsAllowed = 10,
+	maxCategoryLocationAllowed = 10,
 	maxBoxIdentifierLength=3,
 	maxUserLength= 10,
 	minUserLength= 2,

@@ -21,7 +21,8 @@ const animations = {
 }
 export type ModalProps = {
 	position: 'full' | 'bottom' | 'alert' | 'filter';
-	height?: number
+	height?: number,
+	modal?: boolean
 }
 
 type animType = 'slideInUp' | 'slideOutDown' | 'slideInDown';
@@ -41,7 +42,7 @@ const withModal = <P extends object>(WrappedComponent: React.ComponentType<P>, m
 			animationOut={animations[mp.position]?.out as animType}
 			swipeDirection="down"
 			onSwipeComplete={closeModal}
-			onBackdropPress={closeModal}
+			onBackdropPress={mp.modal ? () => {} : closeModal}
 			avoidKeyboard={true}
 			deviceHeight={deviceHeight}
 			isVisible={props.isVisible}>

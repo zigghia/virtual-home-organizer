@@ -3,15 +3,22 @@ export default {
   loading: 'Loading...',
   save: 'Save',
   cancel: 'Cancel',
+  total: 'Total',
   yes: 'OK',
   no: 'No',
   defaultNickname: 'Me',
+  colors: 'Colors',
+  season: 'Season',
+  family: 'Family members',
   route: {
      search: "Your List",
      create: "Create",
     settings: 'Settings'
   },
   defaultDBError: 'UNKNOWN ERROR, code {{code}}',
+  warnings: {
+    tooManyColors: 'You can select {{max}} colors'
+  },
   errors: {
     required: 'Field is mandatory.',
     minLen: 'Minimum {{min}} length.',

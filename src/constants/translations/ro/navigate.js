@@ -1,4 +1,5 @@
 export default {
 	home: 'Home',
-	settings: 'Setari'
+	settings: 'Setari',
+	record: 'Preview'
 };

@@ -3,6 +3,10 @@ export default {
 	languageSelector: 'Selecteaza limba',
 	save: 'Salveaza',
 	cancel: 'Anuleaza',
+	total: 'Total',
+	colors: 'Culori',
+	season: 'Anotimp',
+	family: 'Membri familie',
 	defaultNickname: 'Eu',
 	defaultDBError: 'EROARE NECUNOSCUTA, \n cod {{code}}',
 	yes: 'OK',
@@ -11,6 +15,9 @@ export default {
 		search: "Lista ta",
 		create: "Adaugare item",
 		settings: 'Setari'
+	},
+	warnings: {
+		tooManyColors: 'Poti selecta maxim {{max}} culori'
 	},
 	errors: {
 		required: 'Campul este obligatoriu.',

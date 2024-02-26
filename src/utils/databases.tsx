@@ -58,23 +58,10 @@ const createTables = async (userNicknameDefault: string): Promise<unknown> => {
                                                                description			TEXT,
                                                                season  				TEXT,
                                                                searchKeys           TEXT,
-                                                               userID INTEGER CHECK (userID IN (0,1)) default 0      
+                                                               userID INTEGER  default 1      
                                                                
                                     )`,[]);
 
-
-		await tx.executeSqlAsync(`CREATE TABLE IF NOT EXISTS ${Tables.PRODUCTS} (
-    								  id INTEGER PRIMARY KEY  NOT NULL,
-                                      containerIdentifier TEXT,
-                                      colors TEXT,
-                                      categories TEXT,
-                                      season TEXT,
-                                      description TEXT,
-                                      imgUri TEXT,
-                                      searchKeys TEXT,
-                                      userID  NUMBER default 1
-
-                                  )`, []);
 
 
 		const {rows} = await tx.executeSqlAsync(`SELECT (SELECT count(*) FROM ${Tables.PROPERTIES}) as cp, (SELECT count(*) as count
@@ -112,7 +99,7 @@ const createTables = async (userNicknameDefault: string): Promise<unknown> => {
 				{id: 23, name: 'Gold', type: 'color', lang: 'en', properties: '{"bgColor": "#FFD700", "default":  false}'},
 				{id: 24, name: 'Mix color', type: 'color', lang: 'en', properties: '{"bgColor": "#ffffff", "default": false, "fontColor": "#800080"}'},
 				{id: 25, name: 'Alb', type: 'color', lang: 'ro', properties: '{"bgColor": "#ffffff", "default":  true, "plural":"albi,albe"}'},
-				{id: 26, name: 'Gri', type: 'color', lang: 'ro', properties: '{"bgColor": "#B1B1B1", "default": true, "plural":"grey"}'},
+				{id: 26, name: 'Gri', type: 'color', lang: 'ro', properties: '{"bgColor": "#B1B1B1", "default": true}'},
 				{id: 27, name: 'Negru', type: 'color', lang: 'ro', properties: '{"bgColor": "#000000", "fontColor": "#ffffff", "default":  true, "plural":"negri,negre"}'},
 				{id: 28, name: 'Crem', type: 'color', lang: 'ro', properties: '{"bgColor": "#e7d192", "default": true, "plural":"crem,creme"}'},
 				{id: 29, name: 'Maro', type: 'color', lang: 'ro', properties: '{"bgColor": "#b45f06", "default":  true, "plural":"maro"}'},
@@ -144,11 +131,11 @@ const createTables = async (userNicknameDefault: string): Promise<unknown> => {
 export const insertProduct = async (data: RecordModel) => {
 	return await database.transactionAsync(async tx => {
 
-		const {colors = '', userId = 1, categories = '', containerIdentifier = '', description = '', imgUri = '', searchKeys = '', season = ''} = data;
+		const {colors = '', userID = 1, categories = '', containerIdentifier = '', description = '', imgUri = '', searchKeys = '', season = ''} = data;
 		await tx.executeSqlAsync(`INSERT INTO ${Tables.PRODUCTS}
-                                      (colors, userId, categories, containerIdentifier, description, imgUri, searchKeys, season)
+                                      (colors, userID, categories, containerIdentifier, description, imgUri, searchKeys, season)
                                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-			[colors, userId, categories, containerIdentifier, description, imgUri, searchKeys, season]);
+			[colors, userID, categories, containerIdentifier, description, imgUri, searchKeys, season]);
 
 	}, false);
 }
@@ -159,11 +146,11 @@ export const updateProduct = async (data: RecordModel) => {
 	}
 	return await database.transactionAsync(async tx => {
 
-		const {colors = '', userId = 1, categories = '', containerIdentifier = '', description = '', imgUri = '', searchKeys = '', season = '', id} = data;
+		const {colors = '', userID = 1, categories = '', containerIdentifier = '', description = '', imgUri = '', searchKeys = '', season = '', id} = data;
 		await tx.executeSqlAsync(`UPDATE ${Tables.PRODUCTS}
-                                             SET  colors = ?, userId = ?, categories =?, containerIdentifier =? , description = ?, imgUri = ?, searchKeys = ?, season = ?
+                                             SET  colors = ?, userID = ?, categories =?, containerIdentifier =? , description = ?, imgUri = ?, searchKeys = ?, season = ?
 											 WHERE id =?`,
-			[colors, userId, categories, containerIdentifier, description, imgUri, searchKeys, season, id ?? 0]);
+			[colors, userID, categories, containerIdentifier, description, imgUri, searchKeys, season, id ?? 0]);
 
 	}, false);
 }
@@ -171,9 +158,9 @@ export const updateProduct = async (data: RecordModel) => {
 export const initDatabase = async (userNicknameDefault: string): Promise<void> => {
 
 	try {
-		//	await deleteCategory();
-		//await dropTables(Tables.PRODUCTS);
-		//await dropTables(Tables.PROPERTIES);
+		 // await dropTables(Tables.PRODUCTS);
+		 // await dropTables(Tables.PROPERTIES);
+		 // await dropTables(Tables.USERS);
 		await createTables(userNicknameDefault);
 	} catch (err: unknown) {
 		throw err;

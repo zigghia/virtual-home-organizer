@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
+import { Keyboard, ScrollView, Text,  TouchableWithoutFeedback, View } from 'react-native';
 import Selector from '@/components/SettingsComponents/LanguageSelector';
 import { useTranslation } from 'react-i18next';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -13,12 +13,14 @@ import { Divider } from '@rneui/base';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DataContext } from '@/context/StaticDataContext';
 import { Switch } from '@rneui/themed';
+import Animated, { FadeIn, SlideInDown, SlideInLeft, SlideInRight, SlideOutUp } from 'react-native-reanimated';
 
 import { themeColors } from '@/constants/app.constants';
 
 export default function SettingsScreen({navigation}: any) {
 	const {t, i18n} = useTranslation();
-	const {loadData, data} = useContext(DataContext)!;
+	const {loadConfigData, data} = useContext(DataContext)!;
+	const [loading, setLoading] = useState(true);
 	const [selectedLanguageCode, setselectedLanguageCode] = useState(i18n.language);
 	const [categories, setCategories] = useState<ListItemModel[]>([]);
 	const [other, setOtherSettings] = useState<OtherSettingsProps>({});
@@ -37,6 +39,7 @@ export default function SettingsScreen({navigation}: any) {
 
 
 	useEffect(() => {
+		setLoading(true);
 		const setOtherSettingsValues = async () => {
 			try {
 				let k = await AsyncStorage.getItem('vho-settings-other');
@@ -51,22 +54,21 @@ export default function SettingsScreen({navigation}: any) {
 			}
 		}
 
-		setOtherSettingsValues().catch(err => console.log('read storage for others keys', err));
 
-		return () => {
-			loadData();
-		}
-	}, []);
+		setOtherSettingsValues().catch(err => console.log('read storage for others keys', err));
+		setTimeout(() => {setLoading(false)}, 100);
+
+	}, [isFocused]);
 
 	useEffect(() => {
 		setCategories(data.categories.filter(c => c.deletable));
 	}, [isFocused, data.categories, data.descriptions])
 
-
+    if (loading) {
+		return null;
+	}
 	return (
-		<KeyboardAvoidingView
-			behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-			keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}>
+		<Animated.View  entering={FadeIn.duration(200)}>
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<ScrollView>
 					<View style={{flex: 1, backgroundColor: '#fff', flexDirection: 'column'}}>
@@ -83,8 +85,7 @@ export default function SettingsScreen({navigation}: any) {
 										<Text style={styles.title}>{t('settings:categories.title')}</Text>
 										<MaterialIcons name="category" size={24} color="black"/>
 									</View>
-									<SettingsItemList items={categories} type={'categories'} deleted={(value: boolean) => {
-									}}/>
+									<SettingsItemList items={categories} type={'categories'} deleted={loadConfigData}/>
 									<Divider/>
 								</> : null
 							}
@@ -94,8 +95,7 @@ export default function SettingsScreen({navigation}: any) {
 										<Text style={styles.title}>{t('settings:descriptions.title')}</Text>
 										<MaterialIcons name="blinds-closed" size={24} color="black"/>
 									</View>
-									<SettingsItemList items={data.descriptions} deleted={(value: boolean) => {
-									}} type={'descriptions'}/>
+									<SettingsItemList items={data.descriptions} deleted={loadConfigData} type={'descriptions'}/>
 									<Divider/>
 								</> : null
 							}
@@ -131,6 +131,6 @@ export default function SettingsScreen({navigation}: any) {
 					</View>
 				</ScrollView>
 			</TouchableWithoutFeedback>
-		</KeyboardAvoidingView>
+		</Animated.View>
 	);
 }

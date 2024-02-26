@@ -29,7 +29,7 @@ export default {
 		title: 'Familia ta',
 		alert: {
 			title: 'Confirmare stergere',
-			message: 'Sigur membru familie?',
+			message: 'Sigur stergi membru familie?',
 			error: {
 				title: 'UNKNOWN ERROR',
 				message: 'Elementul selectat nu a putut fi sters {{code}}'

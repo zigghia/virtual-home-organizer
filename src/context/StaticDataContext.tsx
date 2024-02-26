@@ -14,15 +14,9 @@ export type DataType = {
 export const DataContext = createContext<{
 	data: DataType,
 	users: User[],
-	init: boolean,
-	loadData: () => void,
+	loadingConfigData: boolean,
+	loadConfigData: () => void,
 	dispatch: React.Dispatch<ReducerPayload>
-} | null>(null);
-
-
-export const RecordsNumberContext = createContext<{
-	total: number,
-	setTotal: (t: number) => void;
 } | null>(null);
 
 
@@ -49,7 +43,7 @@ const reducer = (state: DataType, action: ReducerPayload) => {
 	const constr = (record: PropertiesDatabaseRecord) => {
 		const {id, name, properties} = record;
 		try {
-			return {id, name, ...JSON.parse(properties), selected: false};
+			return {id, name, ...JSON.parse(properties)};
 		} catch (err) {
 			return {id, name, selected: false}
 		}
@@ -109,10 +103,9 @@ const reducer = (state: DataType, action: ReducerPayload) => {
 const RecordDataProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
 	const [data, dispatch] = useReducer(reducer, {colors: [], descriptions: [], categories: []});
 	const [users, setUsers] = useState<User[]>([]);
-	const [init, setInit] = useState(true);
+	const [loadingConfigData, setLoading] = useState(true);
 	const {i18n} = useTranslation();
-	const loadData = async (where: string = '') => {
-		setInit(true);
+	const loadConfigData = async (where: string = '') => {
 		const loadedData = await loadPropertiedData(i18n.language).catch(err => alert(err));
 
 		const {rows} = await fetchAllData(Tables.USERS);
@@ -120,16 +113,16 @@ const RecordDataProvider: React.FC<{ children: React.ReactNode }> = ({children})
 
 		if ( loadedData ) {
 			dispatch({type: 'init', payload: loadedData});
-			setInit(false);
+			setLoading(false);
 		}
 	};
 
 	useEffect(() => {
-		loadData();
+		loadConfigData();
 	}, [])
 
 
-	return <DataContext.Provider value={{data, init, dispatch, loadData, users}}>
+	return <DataContext.Provider value={{data, loadingConfigData, dispatch, loadConfigData, users}}>
 		{children}
 	</DataContext.Provider>
 }

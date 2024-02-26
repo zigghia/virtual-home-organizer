@@ -5,6 +5,9 @@ export default {
 	filters: 'Filters',
 	list: 'List',
 	grid: 'Grid',
+	resetFilters: 'Clear filters',
+	cancelFilters: 'Back to list',
+	applyFilters: 'Apply',
 	searchPlaceholder: 'Search'
 }
 

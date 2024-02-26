@@ -12,9 +12,13 @@ export default {
 	},
 	description: {
 		title: 'Some description',
-		subtitle: "Maybe you want to specify where the show box is located..like 'brown closet' or 'upstairs'",
-		footer: "Not mandatory, but needs validating if you entered a value",
-		tooltip: "Is not mandatory and you can deactivate it from settings"
+		subtitle: "Maybe you want to specify where the show box is located...like 'brown closet' or 'upstairs'. But first, click add button to create one. Field is NOT mandatory.",
+		subtitle1: 'Choose or add a new location',
+		footer: "Create a new location",
+		tooltip: "Is not mandatory and you can deactivate it from settings",
+		createNewTitle: 'Create new location',
+		createNewSubtitle: 'Name your new location  - maximum {max} characters',
+
 	},
 	container: {
 		tooltip: 'Note a number on box and write it down here',

@@ -8,14 +8,12 @@ import { useTheme } from '@rneui/themed';
 
 const AlertComponent = ({message, title, closeModal, onPressOK}: ComponentProps<any>) => {
 	const [t] = useTranslation();
-	const theme = useTheme();
 	return (
 		<>
 			<View style={{alignItems: 'center'}}>
 				<Text style={{fontSize: themeDefaults.fontHeader3, color: themeColors.header, fontWeight: 'bold'}}>
 					{title.toUpperCase()}
 				</Text>
-
 			</View>
 			<View style={{padding: 10}}>
 				<Text style={{fontSize: themeDefaults.fontHeader4, textAlign: 'center'}}>{message}</Text>

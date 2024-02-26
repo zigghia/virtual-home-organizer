@@ -1,35 +1,31 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { s } from './CreateEntry.style';
-import { Animated, View } from 'react-native';
+import { ScrollView, View, Text } from 'react-native';
 import UserImagePickerComponent from '@/components/CreateNewRecord/UserImagePickerComponent';
 import SelectColors from '@/components/CreateNewRecord/SelectColors/SelectColorsComponent';
-import ScrollView = Animated.ScrollView;
 import Button from '@/components/Button/Button';
-import { OtherSettingsProps, RecordModel, User } from '@/utils/models';
+import { ListItemModel, OtherSettingsProps, RecordModel, SelectColorItemModel, User } from '@/utils/models';
 import InfoTextFieldComponent from '@/components/CreateNewRecord/InfoTextFieldComponent';
 import { useTranslation } from 'react-i18next';
 import EntryCard from '@/containers/CreateEntryScreen/EntryCard';
-import CategoryComponent from '@/components/CreateNewRecord/CategoryComponent';
 import { DataContext } from '@/context/StaticDataContext';
 import { fetchAllData, insertProduct, insertProperty, Tables, updateProduct } from '@/utils/databases';
 import { SQLResultSet } from 'expo-sqlite';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { appConstants, themeColors } from '@/constants/app.constants';
-import { CURRENT_USER } from '@/constants/IMLocalize';
 import * as FileSystem from 'expo-file-system';
-import { CustomRootNavigatorParamList } from '@/navigation/HomeRootNavigator';
-import LocationComponent from '@/components/CreateNewRecord/LocationComponent';
 import SelectColorsModal from '@/components/CreateNewRecord/SelectColors/SelectColorsModal';
-import Loading from '@/components/Loading';
 import { useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SeasonComponent from '@/components/CreateNewRecord/SeasonComponent';
 import PreviewItem from '@/components/PreviewItem';
-import CreateNewCategoryComponent from '@/components/CreateNewRecord/CreateNewCategoryComponent';
+import CreateNewCategoryComponent from '@/components/CreateNewRecord/CreateNewPropertyComponent';
 import { CheckBox, FAB } from '@rneui/themed';
 import { Ionicons } from '@expo/vector-icons';
-import { Text } from '@rneui/base';
 import commonStyle from '@/utils/common.style';
+import { CustomRootNavigatorParamList } from '@/navigation/AppNavigator';
+import Animated, { FadeIn } from 'react-native-reanimated';
+import ChipsComponent from '@/components/CreateNewRecord/ChipsComponent';
 
 type Props = NativeStackScreenProps<CustomRootNavigatorParamList, 'Record'>;
 
@@ -58,28 +54,20 @@ const saveFile = async (imgUri: string) => {
 const CreateEntryScreen = ({route, navigation}: Props) => {
 
 	const [formValues, setFormValues] = useState<RecordModel>({} as RecordModel);
-	const {data, dispatch, init, loadData, users} = React.useContext(DataContext)!;
+	const {data, loadConfigData, users} = React.useContext(DataContext)!;
+	const [colorsConfig, setColorsConfig] = useState(data.colors.filter(c => c.default));
 	const [showPreviewModal, setShowPreviewModal] = useState(false);
-	const [showCreateNewCategoryModal, setshowCreateNewCategoryModal] = useState(false);
+	const [showCreateFieldModal, setShowCreateFieldModal] = useState<string | null>(null);
 	const [showColorsModal, setShowColorsModal] = useState(false);
 	const {t, i18n} = useTranslation();
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 	const [displayable, setDisplayable] = useState<OtherSettingsProps>({});
 	const isFocused = useIsFocused();
 
-	const getDisplayColors = () => {
-		const def = data.colors.filter(c => c.default);
-		const sel = data.colors.filter(c => c.selected && !c.default);
-		return [...def.slice(0, def.length - sel.length), ...sel];
-	};
 
 	useEffect(() => {
-		console.log(!isFocused ? 'lost focus' : 'gain focus');
 		if ( isFocused ) {
-
 			setLoading(true);
-			const selectedDescription = data.descriptions.find(d => d.selected);
-			updateRecordData('description', selectedDescription?.name ?? '');
 			const initData = async () => {
 				try {
 					let k = await AsyncStorage.getItem('vho-settings-other');
@@ -89,72 +77,74 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 					console.log('err read storage', err);
 				}
 			}
-
 			initData().catch(err => console.log(err));
 		}
 	}, [isFocused]);
 
-	useEffect(() => {
-		if ( formValues.id ) {
-			setLoading(false);
-		}
-	}, [formValues.id]);
 
 	useEffect(() => {
 
 		if ( route.params?.edit?.id ) {
 			setLoading(true);
 			const params = route.params.edit;
+
 			const {id, imgUri, containerIdentifier, description, season} = params;
 
-			(params.colorsInfo ?? []).forEach(c => dispatch({type: 'update', payload: {key: 'colors', id: c.id}}));
-			((params.categories ?? '').split(',') ?? []).forEach(c => dispatch({type: 'update', payload: {key: 'categories', name: c}}));
-
-			if ( params.description ) {
-				dispatch({type: 'update', payload: {key: 'descriptions', name: params.description, unique: true}});
+			const getIds = (key: 'categories' | 'colors') => {
+				const obj = (params[key] ?? '').toLowerCase().split(',') ?? [];
+				return data[key].filter(c => obj.includes(c.name?.toLowerCase())).map(c => c.id);
 			}
-			setFormValues({id, imgUri, containerIdentifier, description, oldImgUri: imgUri, season});
+
+			const categoriesIds = getIds('categories');
+			const colorsIds = getIds('colors');
+
+			setFormValues({id, imgUri,
+				containerIdentifier,
+				userID: params.userID,
+				description, oldImgUri: imgUri, season,
+				colorsIds: colorsIds,
+				categoriesIds: categoriesIds, categories: params.categories});
+
+			const sel = data.colors.filter(c => colorsIds?.includes(c.id));
+			const def =  data.colors.filter(c => c.default && !colorsIds.includes(c.id));
+			setColorsConfig([...sel, ...def].slice(0,9));
+
 			setLoading(false);
 		}
+		else {}
 
 	}, [route.params]);
+	const setColors = (colorsIds: number[] = []) => {
+		const sel = data.colors.filter(c => colorsIds?.includes(c.id));
+		const def =  data.colors.filter(c => c.default && !colorsIds.includes(c.id));
+		setColorsConfig([...sel, ...def].slice(0,9));
+		setFormValues({...formValues, colorsIds: [...colorsIds]});
+		setShowColorsModal(false);
+	}
 
-
-	// useEffect(() => {
-	// 	if ( loading || init ) {
-	// 		return;
-	// 	}
-	// 	const selectedDescription = data.descriptions.find(d => d.selected);
-	// 	updateRecordData('description', selectedDescription?.name ?? '');
-	// }, [data.descriptions]);
 
 	const saveRecord = async () => {
-		const cu = await CURRENT_USER(t('common:defaultNickname'));
-		let userId = 1;
-		if ( cu.id ) {
-			userId = cu.id;
+		if ( !formValues.imgUri || !formValues.containerIdentifier ) {
+			return;
 		}
+		const selectedColors = data.colors.filter(c => (formValues.colorsIds??[]).includes(c.id));
 
 		let record: RecordModel = {
-			colors: data.colors.filter(c => c.selected).map(c => c.name).join().toLowerCase(),
-			userId,
+			colors: selectedColors.map(c => c.name).join().toLowerCase(),
+			userID: formValues.userID || 1,
 			containerIdentifier: formValues.containerIdentifier,
 			description: formValues.description?.toLowerCase(),
 			season: formValues.season ?? '',
-			categories: data.categories.filter(c => c.selected).map(c => [c.name, c?.plural ?? ''].filter(el => el?.length)).join().toLowerCase(),
+			categories: data.categories.filter(c => (formValues.categoriesIds??[]).includes(c.id)).map(c => c.name).join().toLowerCase(),
 			imgUri: formValues.imgUri,
 		};
 
-		record.searchKeys = [record.categories,
+		record.searchKeys = [
+			record.categories,
 			record.season,
-			data.colors.filter(c => c.selected).map(c => ([c.name, c.plural ?? ''] ?? []).filter(el => el?.length)).join().toLowerCase(),
-			record.description].filter(el => el?.length).join(',');
-
-
-		formValues?.oldImgUri?.length && formValues?.oldImgUri != formValues.imgUri && (await FileSystem.deleteAsync(formValues?.oldImgUri ?? '', {idempotent: true}));
-
-		const savedFile = await saveFile(formValues.imgUri);
-		savedFile && (record.imgUri = savedFile);
+			formValues.userID ? users.find(u => u.id == formValues.userID)?.nickname: '',
+			selectedColors.map(c => ([c.name, c.plural ?? ''] ?? []).filter(el => el?.length)).join(),
+			record.description].filter(el => el?.length).join().toLowerCase();
 
 		if ( record.description?.length ) {
 			//check if saving description too
@@ -162,8 +152,15 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 				[i18n.language, record.description as string])
 			if ( !rows.length ) {
 				await insertProperty(record.description ?? 'name', i18n.language, 'description');
+				loadConfigData();
 			}
 		}
+
+		formValues?.oldImgUri?.length && formValues?.oldImgUri != formValues.imgUri &&
+		(await FileSystem.deleteAsync(formValues?.oldImgUri ?? '', {idempotent: true}));
+
+		const savedFile = await saveFile(formValues.imgUri);
+		savedFile && (record.imgUri = savedFile);
 
 		if ( formValues.id != null ) {
 			await updateProduct(record).catch(error => {
@@ -175,24 +172,30 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 				alert(t('common:defaultDBError', {code: '001'}));
 				console.log(error);
 			});
-
 		}
 
 		setFormValues({} as RecordModel);
-		await loadData();
 		navigation.navigate('Main');
 	}
 
 	const updateRecordData = (key: keyof RecordModel, data: string | number) => {
-		setFormValues({...formValues, [key]: data});
+		let value: any = data;
+
+		if ( ['colorsIds', 'categoriesIds'].includes(key) ) {
+			const ids = [...(formValues?.[key] as any ?? [])];
+			if ( ids.includes(Number(data)) ) {
+				value = ids.filter(i => i !== data);
+			} else {
+				value = [...ids, data];
+			}
+		}
+
+		setFormValues({...formValues, [key]: value});
 	}
 
-
-	if ( loading || init ) {
-		return <Loading text/>
+	if ( loading ) {
+		return null;
 	}
-
-
 	const cancel = () => {
 		setFormValues({} as RecordModel);
 		navigation.navigate('Main');
@@ -200,47 +203,55 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 
 	const locationComponent = displayable.location ? <EntryCard title={t('createEntry:description.title')}
 																tooltipText={t('createEntry:description:tooltip')}
-																subtitle={t('createEntry:description.subtitle')}>
-			<LocationComponent items={data.descriptions}
-							   onValueSaved={(value: string) => updateRecordData('description', value)}
-							   value={formValues.description}
-			/>
-		</EntryCard>
-		: null;
+																footerText={t('createEntry:description.footer', {max: appConstants.maxLocationsAllowed})}
+																buttonDisabled={data.descriptions.length >= appConstants.maxLocationsAllowed}
+																buttonHandler={() => setShowCreateFieldModal('description')}
+																subtitle={(data.descriptions??[]).length ? t('createEntry:description.subtitle1') : t('createEntry:description.subtitle')}>
+																      <ChipsComponent items={data.descriptions ?? []}
+																				onclickItem={(item: ListItemModel) =>
+																					updateRecordData('description', formValues.description == item.name? '': item.name)}
+																				value={formValues.description}
+																	  />
+													</EntryCard>
+													: null;
 
 	const categoryComponent = displayable.categories ? <EntryCard title={t('createEntry:category.title')}
 																  tooltipText={t('createEntry:category:tooltip')}
 																  footerText={t('createEntry:category.footer', {max: appConstants.maxCategoriesAllowed})}
 																  buttonDisabled={data.categories.length >= appConstants.maxCategoriesAllowed}
-																  buttonHandler={() => setshowCreateNewCategoryModal(true)}>
-		<CategoryComponent items={data.categories}/>
-	</EntryCard> : null;
+																  buttonHandler={() => setShowCreateFieldModal('category')}>
+		                                                             <ChipsComponent items={data.categories}
+																						 onclickItem={(item: ListItemModel) => updateRecordData('categoriesIds', item.id)}
+																						 selectedIds={formValues.categoriesIds}/>
+													</EntryCard> : null;
 
 	const seasonComponent = displayable?.season ? <EntryCard title={t('createEntry:season.title')}
 															 tooltipText={t('createEntry:season:tooltip')}>
-																<SeasonComponent selectedSeason={formValues.season}
-																				 updateData={(value, valueIndex) => {
-																					 updateRecordData('season', value);
-																				 }}/>
+																			<SeasonComponent selectedSeason={formValues.season}
+																							 updateData={(value, valueIndex) => {
+																								 updateRecordData('season', value);
+																							 }}/>
 
 														</EntryCard> : null;
 
 	const userComponent = displayable?.users ? <EntryCard title={t('createEntry:users.title')}
 														  tooltipText={t('createEntry:season:tooltip')}>
-		<View style={{flexWrap: 'wrap', flex: 1, flexDirection: 'row'}}>
-			{users.map((user, index) => {
-				return <CheckBox size={40}
-								 title={user.nickname}
-								 checkedColor={themeColors.secondary}
-								 key={'user' + user.id}
-								 onPress={() => updateRecordData('userId', user.id)}
-								 checked={formValues.userId == user.id}/>
-			})
-			}
-		</View>
-	</EntryCard> : null
+														<View style={{flexWrap: 'wrap', flex: 1, flexDirection: 'row'}}>
+															{users.map((user, index) => {
+																return <CheckBox size={40}
+																				 title={user.nickname}
+																				 checkedColor={themeColors.secondary}
+																				 key={'user' + user.id}
+																				 onPress={() => updateRecordData('userID', user.id)}
+																				 checked={formValues.userID== user.id}/>
+															})
+															}
+														</View>
+													</EntryCard> : null;
 
-	return (<>
+
+	return (
+		<Animated.View  entering={FadeIn.duration(200)}>
 			<FAB
 				visible
 				onPress={() => setShowPreviewModal(true)}
@@ -249,7 +260,7 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 			>
 				<Ionicons name="eye-sharp" size={24} color="white"/>
 			</FAB>
-			<ScrollView>
+			<ScrollView >
 				<View style={s.container}>
 					<EntryCard title={t('createEntry:picture.title')}>
 						<UserImagePickerComponent onSaveData={(value: string) => updateRecordData('imgUri', value)}
@@ -271,7 +282,9 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 							   footerText={t('createEntry:colors.footer')}
 							   buttonHandler={() => setShowColorsModal(true)}
 							   subtitle={t('createEntry:colors.subtitle')}>
-						<SelectColors items={getDisplayColors()}/>
+						<SelectColors items={colorsConfig}
+									  selectedIs={formValues.colorsIds}
+									  updateData={(id: number) => id && updateRecordData('colorsIds', id)}/>
 					</EntryCard>
 					{categoryComponent}
 					{locationComponent}
@@ -296,18 +309,20 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 				closeModal={() => setShowPreviewModal(false)}
 			/>
 			<CreateNewCategoryComponent
-				isVisible={showCreateNewCategoryModal}
-				saveData={({name, insertId}: { name: string, insertId: number }) => {
-					setshowCreateNewCategoryModal(false);
-					dispatch({type: 'insert_category', payload: {insertId, name}})
+				isVisible={showCreateFieldModal != null}
+				for = {showCreateFieldModal}
+				saveData={() => {
+					setShowCreateFieldModal(null);
 				}}
-				closeModal={() => setshowCreateNewCategoryModal(false)}
+				closeModal={() => setShowCreateFieldModal(null)}
 			/>
 			<SelectColorsModal
+				selectedIds={formValues.colorsIds}
+				items={data.colors}
 				isVisible={showColorsModal}
-				closeModal={() => setShowColorsModal(false)}
+				closeModal={(colorsIds: number[]) => setColors(colorsIds)}
 			/>
-		</>
+		</Animated.View>
 	)
 }
 

@@ -14,7 +14,8 @@ interface CreateDescriptionProp {
 	isValid?: (valid: boolean) => void,
 	onValueSaved?: (value: number | string | undefined) => void,
 	keyboardType?: KeyboardType,
-	editDisabled?: boolean
+	editDisabled?: boolean,
+	isSelected?: boolean
 }
 
 const validation = {
@@ -24,10 +25,10 @@ const validation = {
 }
 
 
-const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen, isValid, keyboardType, editDisabled}: CreateDescriptionProp) => {
+const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen, isSelected, isValid, keyboardType, editDisabled}: CreateDescriptionProp) => {
 	const [error, setError] = useState<null | string>(null);
 	const [currentValue, setCurrentValue] = useState(value);
-	const [editMode, setEditMode] = useState(true);
+	const [editMode, setEditMode] = useState(isSelected ?? true);
 	const [autoFocus, setAutofocus] = useState(false);
 	const isTouched = useRef(false);
 	const ml = maxLen?.value ?? 100;
@@ -52,17 +53,15 @@ const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen
 	};
 
 	useEffect(() => {
-		if ( value?.length ) {
-			setEditMode(false);
-		}
-	}, []);
-
-	useEffect(() => {
 		if ( value == undefined ) {
 			return;
 		}
+
+		setCurrentValue(value);
+
 		validate(value ?? '');
 		isValid && isValid(error == null);
+		setEditMode(!value.length || error != null);
 
 	}, [value]);
 

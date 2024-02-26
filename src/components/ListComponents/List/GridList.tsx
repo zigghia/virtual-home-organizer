@@ -3,7 +3,6 @@ import { ImageBackground, StyleSheet, Text, TouchableOpacity, TouchableWithoutFe
 import { themeColors } from '@/constants/app.constants';
 import WithTemplateList, { WithTemplateListProps } from '@/hoc/withTemplateList';
 import commonStyle from '@/utils/common.style';
-import { RecordModelExtended } from '@/utils/models';
 import { FontAwesome5, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import PreviewItem from '@/components/PreviewItem';
 import { useActionSheet } from '@expo/react-native-action-sheet';
@@ -11,14 +10,15 @@ import { LongPressGestureHandler, State } from 'react-native-gesture-handler';
 import { HandlerStateChangeEvent } from 'react-native-gesture-handler/lib/typescript/handlers/gestureHandlerCommon';
 import { useTranslation } from 'react-i18next';
 import Loading from '@/components/Loading';
+import { RecordModel } from '@/utils/models';
 
 interface MainListItemProps1 extends WithTemplateListProps {
 	list: [];
 	deleteAction: (id: number) => void;
-	editAction: (item: RecordModelExtended) => void;
+	editAction: (item: RecordModel) => void;
 }
 const GridList = ({list, deleteAction, editAction}: MainListItemProps1) => {
-	const [preview, setPreview] = useState<null | RecordModelExtended>(null);
+	const [preview, setPreview] = useState<null | RecordModel>(null);
 	const {showActionSheetWithOptions} = useActionSheet();
 	const {t} = useTranslation();
 	const options = useRef([t('common:actions.preview'),
@@ -26,7 +26,7 @@ const GridList = ({list, deleteAction, editAction}: MainListItemProps1) => {
 		t('common:actions.delete'),
 		t('common:actions.cancel')]).current;
 
-	const onLongPress = (event: HandlerStateChangeEvent, item: RecordModelExtended) => {
+	const onLongPress = (event: HandlerStateChangeEvent, item: RecordModel) => {
 
 		if ( event.nativeEvent.state === State.ACTIVE ) {
 			showActionSheetWithOptions({
@@ -61,7 +61,7 @@ const GridList = ({list, deleteAction, editAction}: MainListItemProps1) => {
 				(list ?? []).map((line: [], i: number) => {
 					return <View style={{...commonStyle.containerList, backgroundColor: 'white'}} key={`line${i}`}>
 						{
-							line.map((item: RecordModelExtended, ii) =>
+							line.map((item: RecordModel, ii) =>
 								<TouchableWithoutFeedback onPress={() => setPreview(item)} key={'linecolumn' + ii}>
 									<View style={{...s.lineContainer}}>
 										<ImageBackground source={{uri: item.imgUri}} style={s.image} resizeMethod={'resize'}>

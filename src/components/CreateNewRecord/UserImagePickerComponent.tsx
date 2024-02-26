@@ -23,6 +23,10 @@ const UserImagePickerComponent = ({onSaveData, imgUri}: UserImagePickerProps) =>
 	const [loading, setLoading] = useState(false);
 	const [t] = useTranslation();
 
+	useEffect(() => {
+		setImage(imgUri);
+	}, [imgUri]);
+
 	const takePicture = async () => {
 		let permission: PermissionStatus | undefined = cameraPermission?.status;
 

@@ -1,7 +1,7 @@
 export interface ListItemModel {
 	plural?: string | undefined;
 	id: number;
-	name?: string;
+	name: string;
 	selected?: boolean;
 	deletable?: boolean
 }
@@ -16,20 +16,23 @@ export interface SelectColorItemModel extends ListItemModel {
 export interface RecordModel {
 	id?: number;
 	colors?: string;
+	colorsInfo?: SelectColorItemModel[];
+	colorsIds?: number[],
+	categoriesIds?: number[];
 	categories?: string;
 	imgUri: string;
 	oldImgUri?: string;
 	description?: string;
-	userId?: number;
+	userID?: number;
 	containerIdentifier?: string;
 	searchKeys?: string;
 	season?: string;
 }
-
-export interface RecordModelExtended extends  RecordModel{
-	colorsInfo?: SelectColorItemModel[],
-	categoriesInfo?: ListItemModel[];
-}
+//
+// export interface RecordModelExtended extends  RecordModel{
+// 	colorsInfo?: SelectColorItemModel[],
+// 	categoriesInfo?: ListItemModel[];
+// }
 
 export interface PropertiesDatabaseRecord {
 	id: number,

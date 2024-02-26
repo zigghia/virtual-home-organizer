@@ -1,33 +1,35 @@
 import * as React from 'react';
-import { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { BottomTabBarProps, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import SettingsScreen from '@/containers/Settings/SettingsScreen';
 import { themeColors } from '@/constants/app.constants';
-import { RecordsNumberContext } from '@/context/StaticDataContext';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CreateEntryScreen from '@/containers/CreateEntryScreen/CreateEntryScreen';
 import MainScreen from '@/containers/MainScreen';
 import commonStyle from '@/utils/common.style';
+import { RecordModel } from '@/utils/models';
+
+
+export type CustomRootNavigatorParamList = {
+	Main?: undefined;
+	Record?: { edit: RecordModel } | undefined;
+};
 
 const shoeIcon = require('./../assets/high-heels.png');
-
 export const Tab = createBottomTabNavigator();
-
 
 function TheTabBar({state, descriptors, navigation}: BottomTabBarProps) {
 	return (
 		<View style={{flexDirection: 'row'}}>
 			{state.routes.map((route, index) => {
 				const {options} = descriptors[route.key];
-				const label =
-					options.tabBarLabel !== undefined
-						? options.tabBarLabel
-						: options.title !== undefined
-							? options.title
-							: route.name ?? '';
+				const label = options.tabBarLabel !== undefined
+					? options.tabBarLabel
+					: options.title !== undefined
+						? options.title
+						: route.name ?? '';
 
 				const isFocused = state.index === index;
 				const onPress = () => {
@@ -64,13 +66,11 @@ function TheTabBar({state, descriptors, navigation}: BottomTabBarProps) {
 									</TouchableOpacity>
 								</View>
 							</View>
-							: <TouchableOpacity style={{alignItems: 'center'}} onPress={onPress}>
+							: <TouchableOpacity style={{alignItems: 'center'}} onPress={onPress} disabled={isFocused}>
 								<Ionicons name={route.name == 'Main' ? 'home' : 'settings'}
 										  size={24}
 										  color={isFocused ? options.tabBarActiveTintColor : options.tabBarInactiveTintColor}/>
-								<Text style={{color: isFocused ? themeColors.primary : themeColors.header}}>
-									{label}
-								</Text>
+								<Text style={{color: isFocused ? themeColors.secondary : themeColors.header}}>{label}</Text>
 							</TouchableOpacity>
 						}
 					</View>
@@ -82,54 +82,51 @@ function TheTabBar({state, descriptors, navigation}: BottomTabBarProps) {
 
 export default function AppNavigator() {
 	const {t} = useTranslation();
-	const [total, setTotal] = useState(0);
-
-	const setTotalValue = (total: number) => {
-		setTotal(total);
-	}
 
 	return (
-		<RecordsNumberContext.Provider value={{total, setTotal: setTotalValue}}>
-			<NavigationContainer>
-				<Tab.Navigator
-					tabBar={(props) => <TheTabBar {...props}/>}
-					screenOptions={({route}) => ({
-						tabBarActiveTintColor: themeColors.primary,
-						tabBarInactiveTintColor: themeColors.header,
-						headerStyle: {backgroundColor: themeColors.primary, borderWidth: 1, borderBottomColor: themeColors.primary},
-						headerShadowVisible: false,
-						headerTransparent: false,
-						headerTitleStyle: {color: 'white'},
-						headerShown: true
-					})}
-				>
-					<Tab.Screen
-						name='Main'
-						component={MainScreen}
-						options={{
-							tabBarLabel: t('navigate:home'),
-							headerStyle: {backgroundColor: themeColors.primary},
-							headerShown: true, title: t('common:route.search')
-						}
-						}
-					/>
-					<Tab.Screen
-						name='Record'
-						component={CreateEntryScreen}
-						options={{}}
-					/>
-					<Tab.Screen
-						name='Settings'
-						component={SettingsScreen}
-						options={{
-							tabBarLabel: t('navigate:settings'),
-							title: t('common:route.settings')
-						}
-						}
-					/>
-				</Tab.Navigator>
-			</NavigationContainer>
-		</RecordsNumberContext.Provider>
+		<NavigationContainer>
+			<Tab.Navigator
+				tabBar={(props) => <TheTabBar {...props}/>}
+				screenOptions={({route}) => ({
+					tabBarActiveTintColor: themeColors.secondary,
+					tabBarInactiveTintColor: themeColors.header,
+					headerStyle: {backgroundColor: themeColors.primary, borderWidth: 1, borderBottomColor: themeColors.primary},
+					headerShadowVisible: false,
+					headerTransparent: false,
+					headerTitleStyle: {color: 'white'},
+					headerShown: true
+				})}
+			>
+				<Tab.Screen
+					name='Main'
+					component={MainScreen}
+					options={{
+						tabBarLabel: t('navigate:home'),
+						headerStyle: {backgroundColor: themeColors.primary},
+						headerShown: true, title: t('common:route.search')
+					}
+					}
+				/>
+				<Tab.Screen
+					name='Record'
+					options={{
+						headerStyle: {backgroundColor: themeColors.primary},
+						headerShown: true,
+						title: t('navigate:record')
+					}}
+					component={CreateEntryScreen}
+				/>
+				<Tab.Screen
+					name='Settings'
+					component={SettingsScreen}
+					options={{
+						tabBarLabel: t('navigate:settings'),
+						title: t('common:route.settings')
+					}
+					}
+				/>
+			</Tab.Navigator>
+		</NavigationContainer>
 	);
 }
 

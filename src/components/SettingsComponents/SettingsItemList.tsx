@@ -1,5 +1,4 @@
-import Checkbox from 'expo-checkbox';
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import { themeColors } from '@/constants/app.constants';
 import { ListItemModel, User } from '@/utils/models';
@@ -23,10 +22,8 @@ const SettingsItemsList = ({list, deleted, type}: CLProps) => {
 	const [buttonDisabled, setButtonDisabled] = useState(true)
 	const [t, i18n] = useTranslation();
 	const [showAlertModal, setShowAlert] = useState(false);
-	const {dispatch} = useContext(DataContext)!;
 
 	const check = (id: number) => {
-
 		const newVal = {...checked, [id]: !checked[id]};
 		setChecked(newVal);
 		setButtonDisabled(!Object.keys(newVal).some((k) => newVal[Number(k)]));
@@ -36,13 +33,11 @@ const SettingsItemsList = ({list, deleted, type}: CLProps) => {
 		setButtonDisabled(true);
 		try {
 			const ids = Object.entries(checked).filter(e => e[1]).map(e => Number(e[0]));
-			setShowAlert(false);
 			await deleteFromTable(ids, Tables.PROPERTIES).catch(err => console.log('some err', err));
 			const newData = await loadPropertiedData(i18n.language).catch(err => alert(err));
-			dispatch({type: 'recalculate', payload: {data: newData, type}});
 			deleted(true);
 			setChecked([]);
-
+			setTimeout(() => setShowAlert(false), 200);
 		} catch (err) {
 			console.log('Delete settings', err);
 			deleted(false);

@@ -8,24 +8,25 @@ import { s } from '@/components/CreateNewRecord/SelectColors/SelectColors.style'
 interface SelectColorItemProps {
 	item?: SelectColorItemModel;
 	onItemPress?: () => void,
-	bulletSize?: number
+	bulletSize?: number,
+	isSelected: boolean
 }
 
-const SelectColorItem = ({item, onItemPress, bulletSize}: SelectColorItemProps) => {
+const SelectColorItem = ({item, isSelected, onItemPress, bulletSize}: SelectColorItemProps) => {
 
 	const extraTextStyle = {
 		color: item?.fontColor || 'black',
 	};
 
-	let content = <Text>{item?.name}</Text>;
-	const size  = bulletSize ? bulletSize: 30;
+	let content = <Text style={{fontSize: 12}} numberOfLines={1}>{item?.name}</Text>;
+	const size  = bulletSize ? bulletSize: 25;
 
 
 	return <Pressable onPress={onItemPress} style={({pressed}) => ([commonStyle.containerListItem, pressed && s.pressed])}>
 
 		<View style={[s.color, {height: size, width: size, marginLeft: 5, backgroundColor: item?.bgColor}]}>
 			{
-				item?.selected && <Icon
+				isSelected && <Icon
 					iconStyle={extraTextStyle}
 					name="check"
 					size={(size - 5)}

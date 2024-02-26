@@ -14,8 +14,11 @@ export default {
 	description: {
 		title: 'Locatie',
 		tooltip: "Nu este obigatoriu si poti dezactiva din setari daca nu vrei sa mai apara",
-		subtitle: 'Daca depozitezi incaltamintea in mai multe locuri fizice, poti sa specifici aici:',
-		footer: 'Nu este obligatoriu, dar nu uita sa il validezi daca introduci text'
+		footer: 'Adauga o locatie noua (posibil maxim {{max}} locatii)',
+		subtitle: 'Daca depozitezi incaltamintea in mai multe locuri fizice, poti sa selectezi o locatie existenta sau sa adaugi una noua. Campul NU este obligatoriu',
+		subtitle1: 'Adauga sau selecteaza o locatie de depozitare.',
+		createNewTitle: 'Locatie noua',
+		createNewSubtitle: 'Seteza un nume pentru noua locatie, maximum {{max}} caractere',
 	},
 	container: {
 		tooltip: 'Scrie intai numarul pe cutie si apoi noteaza-l aici',

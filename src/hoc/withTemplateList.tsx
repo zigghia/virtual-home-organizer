@@ -34,9 +34,6 @@ const withTemplateList = <T extends WithTemplateListProps = WithTemplateListProp
 
 		}), [props.items]);
 
-       if (props.items == null || !props.items?.length) {
-		   return [];
-	   }
 
 		return <WrappedComponent {...props} list={list}></WrappedComponent>
 	};

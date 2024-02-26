@@ -1,17 +1,17 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ImageBackground, StyleSheet, Text, View } from 'react-native';
 import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import { themeColors } from '@/constants/app.constants';
 import SwipeableItem from '@/components/ListComponents/List/SwipeItem';
-import { RecordModelExtended} from '@/utils/models';
 import 'react-native-gesture-handler';
 import RenderColors from '@/components/RenderColorsBullet';
+import { RecordModel } from '@/utils/models';
 import commonStyle from '@/utils/common.style';
 
 export interface MainListItemProps {
-	editAction: (item: RecordModelExtended) => void;
+	editAction: (item: RecordModel) => void;
 	deleteAction: (id: number | undefined) => void;
-	item: RecordModelExtended;
+	item: RecordModel;
 	index?: number
 }
 
@@ -60,7 +60,7 @@ export const s = StyleSheet.create({
 	icon: {
 		position: 'absolute',
 		right: 10,
-		top: 10,
+		bottom: 20,
 	},
 	image: {
 		height: 150,

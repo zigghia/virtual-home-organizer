@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { FlatList, StyleSheet, TouchableOpacity, View, Text } from 'react-native';
-import { RecordModel, RecordModelExtended } from '@/utils/models';
+import { FlatList, StyleSheet, TouchableOpacity, View, Text, ImageBackground, Image } from 'react-native';
+import { RecordModel } from '@/utils/models';
 import { useIsFocused } from '@react-navigation/native';
-import { CURRENT_USER } from '@/constants/IMLocalize';
 import { SQLResultSet } from 'expo-sqlite';
 import { deleteFromTable, fetchAllData, Tables } from '@/utils/databases';
 import * as FileSystem from 'expo-file-system';
@@ -13,45 +12,44 @@ import { Ionicons } from '@expo/vector-icons';
 import AlertComponent from '@/components/AlertComponent';
 import ErrorComponent from '@/components/ErrorComponent';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { DataContext, RecordsNumberContext } from '@/context/StaticDataContext';
-import Loading from '@/components/Loading';
+import { DataContext } from '@/context/StaticDataContext';
 import GridList from '@/components/ListComponents/List/GridList';
 import Filters from '@/components/MainScreen/Filters';
 import { SearchBar } from '@rneui/themed';
 import commonStyle from '@/utils/common.style';
+import Intro from '@/components/Animations/Intro';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 const MainScreen = (props: any) => {
-	const [dbData, setDbData] = useState<RecordModelExtended[]>([]);
-	const [filteredData, setFilteredData] = useState<RecordModelExtended[]>([]);
+	const [dbData, setDbData] = useState<RecordModel[]>([]);
+	const [filteredData, setFilteredData] = useState<RecordModel[]>([]);
 	const [error, setError] = useState<string | null>(null);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [showFilters, setShowFilters] = useState<boolean | null>(null);
 	const [toBeDeleted, setToBeDeleted] = useState<null | number>(null);
-	const {data, init} = useContext(DataContext)!;
+	const {data, loadingConfigData, loadConfigData} = useContext(DataContext)!;
+	const [loading, setLoading] = useState(true);
 	const [search, setSearch] = useState<string | undefined>("");
 	const [isList, setIsList] = useState(true);
-	const [loading, setLoading] = useState(init ?? false);
 	const isFocus = useIsFocused();
 	const [t] = useTranslation();
-	const {setTotal} = useContext(RecordsNumberContext)!;
 	const ref = useRef(null);
 
-	const setListData = (data: RecordModelExtended[]) => {
+	const setListData = (data: RecordModel[]) => {
 		setFilteredData(data);
-		setTotal(data.length ?? 0);
 	}
 
 	const getList = async () => {
 		try {
-			const cu = await CURRENT_USER(t('common:defaultNickname'));
-			const {rows}: SQLResultSet = await fetchAllData(Tables.PRODUCTS, ' WHERE userId=? ', [cu?.id ?? 1]);
-
+			setLoading(true);
+			const {rows}: SQLResultSet = await fetchAllData(Tables.PRODUCTS);
 			//add colorsInfo
-			const fullData: RecordModelExtended[] = rows._array.map(record => {
+			const fullData: RecordModel[] = rows._array.map(record => {
 				const cArr = record.colors.split(',').map((c: string) => c.trim().toLowerCase()) ?? [];
 				return {...record, colorsInfo: (data.colors ?? []).filter(c => cArr.includes(c.name?.toLowerCase()))}
 			});
-
+//colorsInfo
+			setLoading(false);
 			setDbData(fullData);
 			setListData(fullData);
 		} catch (error) {
@@ -60,14 +58,12 @@ const MainScreen = (props: any) => {
 	};
 
 	useEffect(() => {
-		if ( !isFocus || init ) {
+		if ( !isFocus || loadingConfigData ) {
 			setShowFilters(false);
 			return;
 		}
-
 		getList().catch((err) => console.log(err));
-		setLoading(false);
-	}, [isFocus, init]);
+	}, [isFocus, loadingConfigData]);
 
 
 	const deleteRecord = async () => {
@@ -107,7 +103,7 @@ const MainScreen = (props: any) => {
 		}
 	}
 
-	const editAction = async (item: RecordModelExtended) => {
+	const editAction = async (item: RecordModel) => {
 		await props.navigation.navigate('Record', {edit: item});
 	}
 
@@ -133,22 +129,20 @@ const MainScreen = (props: any) => {
 	}
 
 	if ( loading ) {
-		return <Loading/>
+		return null
 	}
 
-	const showFiltersPAnel = () => {
-		//if ()
-	}
 
-	const icon = () => {
-		return <Ionicons name='search' size={24} color="black"/>
+	if ( !dbData.length ) {
+		return <Intro/>;
 	}
 
 	return (
-		<View style={{flex: 1, backgroundColor: 'white'}}>
+		<Animated.View style={{flex: 1, backgroundColor: 'white'}} entering={FadeIn.duration(200)}>
 			<SearchBar
+				disabled={dbData.length == 0}
 				lightTheme
-				searchIcon={icon()}
+				searchIcon={<Ionicons name='search' size={24} color="black"/>}
 				rightIconContainerStyle={s.searchClear}
 				inputStyle={s.searchInput}
 				inputContainerStyle={s.searchInputContainer}
@@ -157,8 +151,12 @@ const MainScreen = (props: any) => {
 				onChangeText={searchData}
 				value={search}
 			/>
-			<View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end'}}>
-				<View style={s.buttonContainer2}>
+			<View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+
+				<View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 5}}>
+					<Text> {t('common:total') + ':' + filteredData.length}</Text>
+				</View>
+				<View style={{flexDirection: 'row'}}>
 					<TouchableOpacity style={s.button1} disabled={showFilters == true}
 									  onPress={() => setIsList(!isList)}>
 						<Ionicons name={isList ? 'grid-outline' : "list-outline"} size={28} color={showFilters ? themeColors.disabled : themeColors.header}/>
@@ -173,13 +171,13 @@ const MainScreen = (props: any) => {
 			</View>
 
 			<Filters isVisible={showFilters}
-					 cancel = {() => setShowFilters(false)}
+					 cancel={() => setShowFilters(false)}
 					 search={(value: string) => {
-															searchData(value);
-															setShowFilters(false);
-														}}/>
+						 searchData(value);
+						 setShowFilters(false);
+					 }}/>
 
-			<GestureHandlerRootView>
+			<GestureHandlerRootView style={{flex: 1}}>
 				{isList ?
 					<FlatList data={filteredData}
 							  ItemSeparatorComponent={() => <View style={s.separator}/>}
@@ -205,7 +203,7 @@ const MainScreen = (props: any) => {
 									  cancelText='OK'
 									  closeModal={() => setError(null)}/>
 			}
-		</View>
+		</Animated.View>
 	);
 }
 
@@ -230,14 +228,6 @@ export const s = StyleSheet.create({
 	searchClear: {
 		width: 24,
 		padding: 5
-	},
-	buttonContainer2: {
-		flex: 1,
-		flexDirection: 'row',
-		alignItems: 'flex-end',
-		justifyContent: 'flex-end',
-		alignContent: 'center',
-		paddingHorizontal: 10
 	},
 	button1: {
 		height: 60,

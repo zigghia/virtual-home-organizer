@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
-import { View, Text, StyleSheet, Dimensions, TouchableWithoutFeedback, Pressable, } from 'react-native';
-import Animated, { useAnimatedStyle, withSpring} from 'react-native-reanimated';
+import { View, Text, StyleSheet, Dimensions, Pressable, } from 'react-native';
+import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import Button from '@/components/Button/Button';
 import { DataContext } from '@/context/StaticDataContext';
@@ -24,18 +24,11 @@ const Filters = (props: any) => {
 	const {users, data, dispatch} = useContext(DataContext)!;
 	const [selectedUserIndex, setSelectedUserIndex] = useState<number | null>(null);
 	const [selectedSeason, setSelectedSeason] = useState<string | null>(null);
+	const [colors, setColors] = useState<number[]>([]);
 
 	const animatedStyles = useAnimatedStyle(() => ({
 		transform: [{translateX: withSpring(props.isVisible ? -OFFSET : 0)}],
 	}));
-
-
-	React.useEffect(() => {
-		if (!props.isVisible) {
-			//dispatch({type: 'reset'})
-		}
-
-	}, [props.isVisible]);
 
 	const reset = () => {
 		dispatch({type: 'reset'});
@@ -43,20 +36,29 @@ const Filters = (props: any) => {
 		setSelectedSeason(null);
 	}
 	const setSearch = () => {
-		const colors = data.colors.filter(c => c.selected).map(c=> c.name).join(' ').trim();
-		const user =  users.find(u=> u.id == selectedUserIndex)?.nickname ;
-		const season =  selectedSeason?.toLowerCase() ?? '';
-      props.search([colors, user, season].filter(e => e).join(' ').trim().toLowerCase());
+		const c = data.colors.filter(c => colors.includes(c.id)).map(c => c.name).join(' ').trim();
+		const user = users.find(u => u.id == selectedUserIndex)?.nickname;
+		const season = selectedSeason?.toLowerCase() ?? '';
+		props.search([c, user, season].filter(e => e).join(' ').trim().toLowerCase());
 	}
 
 	const DATA = [{
-		title: 'Culori',
-		component: <SelectColors bulletSize={20} items={data.colors}/>
-	},{
-		title: 'Anotimp',
+		title: t('common:colors'),
+		component: <SelectColors bulletSize={20}
+								 items={data.colors}
+								 updateData={(id: number) => {
+									 if ( colors.includes(id) ) {
+										 setColors(colors.filter(c => c != id));
+										 return;
+									 }
+									 setColors([...colors, id]);
+								 }}
+								 selectedIs={colors}/>
+	}, {
+		title: t('common:season'),
 		component: <SeasonComponent selectedSeason={selectedSeason} updateData={setSelectedSeason}/>
 	}, {
-		title: 'Familie',
+		title: t('common:family'),
 		component: <View style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap'}}>
 			{
 				users.map((user, index) => {
@@ -86,17 +88,17 @@ const Filters = (props: any) => {
 								  </>
 							  }}
 					/>
-					<View style={{ paddingVertical: 10}}>
-						<View style={{flex:1, flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20,  marginBottom: 10}}>
+					<View style={{paddingVertical: 10}}>
+						<View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, marginBottom: 10}}>
 							<Pressable onPress={reset}>
-								<Text style={{textDecorationLine: 'underline', fontSize: themeDefaults.fontHeader4}}> Reset filters </Text>
+								<Text style={{textDecorationLine: 'underline', fontSize: themeDefaults.fontHeader4}}> {t('search:resetFilters')}</Text>
 							</Pressable>
 							<Pressable onPress={props.cancel}>
-								<Text style={{textDecorationLine: 'underline', fontSize: themeDefaults.fontHeader4}}> Renunta </Text>
+								<Text style={{textDecorationLine: 'underline', fontSize: themeDefaults.fontHeader4}}> {t('search:cancelFilters')} </Text>
 							</Pressable>
 						</View>
 						<Divider style={s.divider}/>
-						<Button  text={t('common:OK')} isLeft onPress={setSearch}/>
+						<Button text={t('search:applyFilters')} isLeft onPress={setSearch}/>
 					</View>
 				</View>
 
