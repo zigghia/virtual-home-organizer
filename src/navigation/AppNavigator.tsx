@@ -12,11 +12,6 @@ import commonStyle from '@/utils/common.style';
 import { RecordModel } from '@/utils/models';
 
 
-export type CustomRootNavigatorParamList = {
-	Main?: undefined;
-	Record?: { edit: RecordModel } | undefined;
-};
-
 const shoeIcon = require('./../assets/high-heels.png');
 export const Tab = createBottomTabNavigator();
 

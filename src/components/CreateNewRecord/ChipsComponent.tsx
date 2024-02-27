@@ -3,16 +3,14 @@ import withTemplateList, { WithTemplateListProps } from "@/hoc/withTemplateList"
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { ListItemModel } from '@/utils/models';
 import commonStyle from '@/utils/common.style'
-import Loading from '@/components/Loading';
 
-interface CategoryComponentProps extends WithTemplateListProps {
+interface CategoryComponentProps extends WithTemplateListProps<ListItemModel> {
 	onclickItem: (item: ListItemModel) => void;
 	list: ListItemModel[][];
-	selectedIds?: number[],
-	value?: string | null
+	value?: string
 }
 
-const ChipsComponent = ({list, selectedIds = [], value=null, onclickItem}: CategoryComponentProps) => {
+const ChipsComponent = ({list, onclickItem, value}: CategoryComponentProps) => {
 	return (
 		<View>
 			{
@@ -20,12 +18,13 @@ const ChipsComponent = ({list, selectedIds = [], value=null, onclickItem}: Categ
 					return <View style={commonStyle.containerList} key={`line${index}`}>
 						{
 							line.map((item: ListItemModel, index) => {
-								    const isSelected = value? value == item.name:selectedIds.includes(item.id)
-									return <View key={`type${index}`} style={[commonStyle.containerListItem, s.container, isSelected && commonStyle.containerListItemBackground]}>
+                                     const isSelected = value != undefined ? item.name == value: item.selected;
+									return <View key={`type${index}`} style={[commonStyle.containerListItem, s.container,
+										isSelected && commonStyle.containerListItemBackground]}>
 										<TouchableOpacity
 											onPress={() => onclickItem(item)}
 											style={{flex: 1, alignItems: 'center', paddingVertical: 10}}>
-											<Text style={ isSelected && commonStyle.containerListItemTextWhite}>{item?.name} </Text>
+											<Text style={[isSelected&& commonStyle.containerListItemTextWhite]}>{item?.name} </Text>
 										</TouchableOpacity>
 									</View>
 								}
@@ -42,7 +41,6 @@ const ChipsComponent = ({list, selectedIds = [], value=null, onclickItem}: Categ
  const s = StyleSheet.create({
 	container: {
 		flex: 1,
-		justifyContent: 'center',
 		padding: 3
 	}
 });

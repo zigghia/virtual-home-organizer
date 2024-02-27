@@ -8,14 +8,13 @@ import { DataContext } from '@/context/StaticDataContext';
 import Loading from '@/components/Loading';
 import { appConstants } from '@/constants/app.constants';
 
-interface SelectColorProps extends WithTemplateListProps {
+interface SelectColorProps extends WithTemplateListProps<SelectColorItemModel> {
 	list?: [],
 	bulletSize?: number,
-	selectedIs: number [],
-	updateData: (v: number) => void
+	updateData: (v: SelectColorItemModel) => void
 }
 
-const SelectColorsComponent = ({list, bulletSize, selectedIs, updateData}: SelectColorProps) => {
+const SelectColorsComponent = ({list, bulletSize, updateData}: SelectColorProps) => {
 
 	return (
 		<View>
@@ -24,12 +23,11 @@ const SelectColorsComponent = ({list, bulletSize, selectedIs, updateData}: Selec
 					return <View style={{...commonStyle.containerList, width: '100%'}} key={`colorsLine${index}`}>
 						{
 							line.map((color, index) => {
-								const isSelected = (selectedIs ?? []).includes(color.id);
 								return <SelectColorItem key={`selectColor${color.id}`}
 														bulletSize={bulletSize}
 														item={color}
-														isSelected={isSelected}
-														onItemPress={() => updateData(color.id)}/>
+														isSelected={color.selected ?? false}
+														onItemPress={() => updateData(color)}/>
 							})
 						}
 					</View>

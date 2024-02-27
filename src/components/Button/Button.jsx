@@ -13,12 +13,13 @@ const Button = (props) => {
 	const style = [		s.button, {...extraStyle},
 						props?.isSecondary && s.secondary,
 						props.disabled && s.disabled,
+						props?.isCancel && s.cancel
 
 				  ];
 	return (
 		<TouchableOpacity style={style} onPress={props?.onPress} disabled={props.disabled}>
 			{
-				props.text && <Text style={[s.textButton, props.children && {marginRight: 10}]}>{props.text}</Text>
+				props.text && <Text style={[s.textButton, props.isCancel && {color: themeColors.secondary}, props.children && {marginRight: 10}]}>{props.text}</Text>
 			}
 			{props.children}
 		</TouchableOpacity>
@@ -45,6 +46,11 @@ export const s = StyleSheet.create({
 	},
 	secondary: {
 		backgroundColor: themeColors.secondary
+	},
+	cancel: {
+		backgroundColor: 'none',
+		borderColor: themeColors.secondary,
+		borderWidth: 1
 	},
 	textButton: {
 		color: '#fff',

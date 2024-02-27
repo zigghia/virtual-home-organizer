@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SelectColors from '@/components/CreateNewRecord/SelectColors/SelectColorsComponent';
 import withModal from '@/hoc/withModal';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -7,29 +7,39 @@ import { appConstants, themeColors, themeDefaults } from '@/constants/app.consta
 import { SelectColorItemModel } from '@/utils/models';
 import Fade from '@/components/Animations/Fade';
 import { useTranslation } from 'react-i18next';
+import { color } from '@rneui/base';
 
-const SelectColorsModal = ({closeModal, items, selectedIds}: { closeModal: (ids: number[]) => void, items: SelectColorItemModel[], selectedIds: number[] }) => {
-	const [colors, setColors] = useState(selectedIds);
+const SelectColorsModal = ({updateColors, items, selected}: { updateColors: (ids: SelectColorItemModel[]) => void, items: SelectColorItemModel[], selected: SelectColorItemModel[]}) => {
+	const [colors, setColors] = useState<SelectColorItemModel[]>([]);
 	const [warning, setWarning] = useState<boolean>(false);
 	const {t} = useTranslation();
 
-	if ( !items ) {
+	if ( !items?.length) {
 		return null;
 	}
 
-	const updateData = (id: number) => {
-		let c = colors.find(c => c == id);
-		const newVal = c ? [...colors.filter(c => c != id)] : [...colors, id];
+	useEffect(() => {
+		const ids = (selected ?? []).filter(c => c.selected).map(c => c.id);
+		const ce = JSON.parse(JSON.stringify(items)).map((i: SelectColorItemModel) => ({...i, selected: ids.includes(i.id)}));
+        setColors(ce);
+
+	}, []);
 
 
-		if ( newVal.length > appConstants.maxColorsSelected ) {
+	const updateLocalColors = (id: number) => {
+
+		if ( colors.filter(c => c.selected).length >= appConstants.maxColorsSelected +1) {
 			setWarning(true);
 			return;
 		}
 
 		setWarning(false);
-		setColors(newVal);
+		const color = colors.find(c => c.id == id) ?? {} as SelectColorItemModel;
+		color.selected = !color?.selected;
+		setColors([...colors]);
 	}
+
+
 	return (
 		<ScrollView style={{flex: 1}}>
 			<Fade isVisible={warning}>
@@ -39,11 +49,13 @@ const SelectColorsModal = ({closeModal, items, selectedIds}: { closeModal: (ids:
 			</Fade>
 
 			<SelectColors bulletSize={30}
-						  items={items}
-						  selectedIs={colors}
-						  updateData={(id: number) => updateData(id)}/>
+						  items={colors}
+						  updateData={(item: SelectColorItemModel) => updateLocalColors(item.id)}/>
+
 			<View style={{marginBottom: 30, marginTop: 30, height: themeDefaults.buttonHeight}}>
-				<Button text={'OK'} onPress={() => closeModal(colors)}/>
+				<Button text={'OK'}
+						disabled ={warning}
+						onPress={() => updateColors(colors)}/>
 			</View>
 
 		</ScrollView>

@@ -1,7 +1,7 @@
 export default {
 	preview: 'Preview',
 	cancel: 'Cancel',
-	category: {
+	categories: {
 		title: 'Select category:',
 		tooltip: 'You\'ll search your items by selected type (ex: red shoes).',
 		footer: 'Add a new category',

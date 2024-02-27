@@ -2,7 +2,7 @@ export default {
 	preview: 'Cum arata?',
 	cancel: 'Renunta',
 	loadingDataError: 'EROARE NECUNOSCUTA - la citirea de date din baza de date.',
-	category: {
+	categories: {
 		title: 'Selecteaza categoria',
 		tooltip: 'Va ajuta la cautare ca si cuvant cheie (ex vei cauta: pantofi rosii)',
 		footer: 'Adauga o categorie noua (posibil maxim {{max}} categorii)',

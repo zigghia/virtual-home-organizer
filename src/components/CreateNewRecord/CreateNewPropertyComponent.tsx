@@ -10,22 +10,23 @@ import { fetchAllData, insertProperty, Tables } from '@/utils/databases';
 import Fade from '@/components/Animations/Fade';
 import { DataContext } from '@/context/StaticDataContext';
 
-interface CreateNewCategoryProps {
+interface CreateNewPropertyProps {
 	saveData: ({}) => void,
 	closeModal: () => void,
 	for: string
 }
 
-const CreateNewPropertyComponent = (props: CreateNewCategoryProps) => {
+const CreateNewPropertyComponent = (props: CreateNewPropertyProps) => {
 	const [data, setData] = useState<string>('');
 	const {t, i18n} = useTranslation();
 	const [warning, setWaring] = useState(false);
 	const {loadConfigData} = useContext(DataContext)!;
 
-	const insertNewCategory = () => {
+	const insertNewProperty = () => {
 		const insert = async () => {
-			//check if category exists (by name')
-			const {rows}: SQLResultSet = await fetchAllData(Tables.PROPERTIES, ` WHERE lang=? and name= ? and type='${props.for}'`, [i18n.language, data as string])
+			//check if property exists (by name')
+			const type = props.for == 'categories' ? 'category' : 'description';
+			const {rows}: SQLResultSet = await fetchAllData(Tables.PROPERTIES, ` WHERE lang=? and name= ? and type='${type}'`, [i18n.language, data as string])
 			if ( rows.length ) {
 				setWaring(true);
 				setTimeout(() => {
@@ -33,9 +34,10 @@ const CreateNewPropertyComponent = (props: CreateNewCategoryProps) => {
 				}, 2000);
 				return;
 			}
-			const {insertId}: SQLResultSet = await insertProperty(data as string, i18n.language, props.for);
-			props.saveData({insertId, name: data});
-			loadConfigData();
+			const {insertId}: SQLResultSet = await insertProperty(data as string, i18n.language, type);
+			await loadConfigData();
+			props.saveData({insertId, value: data});
+
 		}
 		insert().catch(err => {
 			alert(t('common:defaultDBError', {code: '002'}));
@@ -44,23 +46,23 @@ const CreateNewPropertyComponent = (props: CreateNewCategoryProps) => {
 
 	};
 
-	const setCategory = (value: unknown) =>  {
+	const setProperty = (value: unknown) =>  {
 		setData( '' + (value ?? ''));
 	}
 
-	const max = props.for == 'category' ? appConstants.maxLocationsAllowed : appConstants.maxLocationsAllowed;
+	const max = props.for == 'categories' ? appConstants.maxLocationsAllowed : appConstants.maxLocationsAllowed;
 
-	return (<View style={{...StyleSheet.absoluteFillObject, paddingHorizontal: 10, flexDirection: 'row'}}>
+	return (<View style={{ paddingHorizontal: 10, flex: 1, justifyContent: 'space-between'}}>
 			<TouchableWithoutFeedback
 				onPress={(event) => {
 					Keyboard.dismiss();
 				}}>
-				<View style={{paddingHorizontal: 10, paddingVertical: 60}}>
+				<View style={{flex:1, paddingBottom: 30}}>
 					<Text style={st.title}>
 						{t(`createEntry:${props.for}.createNewTitle`)}
 					</Text>
 					<Text style={st.subtitle}>
-						{t(`createEntry:${props.for}.createNewSubtitle`, {max: appConstants.maxCategoryCharsAllowed})}
+						{t(`createEntry:${props.for}.createNewSubtitle`, {max: props.for == 'categories' ? appConstants.maxCategoryCharsAllowed: appConstants.maxLocationsAllowed})}
 					</Text>
 					<Fade isVisible={warning}>
 						<View style={{padding: 10}}>
@@ -69,13 +71,15 @@ const CreateNewPropertyComponent = (props: CreateNewCategoryProps) => {
 					</Fade>
 					<InfoTextFieldComponent
 						value = {data ?? ''}
-						onValueSaved={setCategory}
+						onValueSaved={setProperty}
 						maxLen={{message: t('common:errors.maxLen',  {max: max}), value: max}}
 						isRequired={{message: t('common:errors.required')}}/>
 
-					<Button buttonStyle={{maxHeight: 60, marginTop: 20}} text={t('common:save')} onPress={insertNewCategory} disabled={!data}/>
+					<Button buttonStyle={{maxHeight: 60}}  text={t('common:save')} onPress={insertNewProperty} disabled={!data}/>
+
 				</View>
 			</TouchableWithoutFeedback>
+
 		</View>
 	);
 }
@@ -85,7 +89,8 @@ const st = StyleSheet.create({
 		fontSize: themeDefaults.fontHeader3,
 		color: themeColors.header,
 		lineHeight: 22,
-		textTransform: 'uppercase'
+		textTransform: 'uppercase',
+		alignSelf: 'center'
 	},
 	subtitle: {
 		marginVertical: 20,

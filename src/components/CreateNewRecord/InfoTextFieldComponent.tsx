@@ -14,7 +14,7 @@ interface CreateDescriptionProp {
 	isValid?: (valid: boolean) => void,
 	onValueSaved?: (value: number | string | undefined) => void,
 	keyboardType?: KeyboardType,
-	editDisabled?: boolean,
+	withLock?: boolean,
 	isSelected?: boolean
 }
 
@@ -25,7 +25,7 @@ const validation = {
 }
 
 
-const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen, isSelected, isValid, keyboardType, editDisabled}: CreateDescriptionProp) => {
+const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen, isSelected, isValid, keyboardType, withLock}: CreateDescriptionProp) => {
 	const [error, setError] = useState<null | string>(null);
 	const [currentValue, setCurrentValue] = useState(value);
 	const [editMode, setEditMode] = useState(isSelected ?? true);
@@ -91,9 +91,9 @@ const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen
 		setCurrentValue(v);
 	}
 
-	if ( !editMode ) {
+	if ( !editMode && withLock) {
 		return (
-			<TouchableOpacity onPress={editValue} disabled={editDisabled}>
+			<TouchableOpacity onPress={editValue}>
 				<View style={{
 					flexDirection: 'row',
 					// flex: 1,
@@ -109,7 +109,7 @@ const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen
 							<Text style={{fontSize: 25}}> {currentValue}</Text>
 						</View>
 
-						<FontAwesome name="pencil-square" size={40} color={editDisabled ? themeColors.disabled : themeColors.secondary}/>
+						<FontAwesome name="pencil-square" size={40} color={themeColors.secondary}/>
 					</View>
 				</View>
 			</TouchableOpacity>

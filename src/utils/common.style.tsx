@@ -7,7 +7,7 @@ const commonStyle = StyleSheet.create({
 		flexDirection: 'row',
 	},
 	containerListItem: {
-		minWidth: 80,
+		//minWidth: 80,
 		flex: 1,
 		flexDirection: 'row',
 		backgroundColor: themeColors.lightGrey,
@@ -45,8 +45,7 @@ const commonStyle = StyleSheet.create({
 		backgroundColor: themeColors.secondary
 	},
 	containerListItemTextWhite: {
-		color: 'white',
-		fontSize: 15
+		color: 'white'
 	}
 });
 

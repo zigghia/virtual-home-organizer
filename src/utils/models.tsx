@@ -1,10 +1,4 @@
-export interface ListItemModel {
-	plural?: string | undefined;
-	id: number;
-	name: string;
-	selected?: boolean;
-	deletable?: boolean
-}
+
 
 
 export interface SelectColorItemModel extends ListItemModel {
@@ -13,15 +7,22 @@ export interface SelectColorItemModel extends ListItemModel {
 	default?: boolean; //only 9 color default maximum to be displayed in main page
 }
 
+export interface FormRecordModel {
+	id?: number;
+	colors: SelectColorItemModel[];
+	categories: ListItemModel[];
+	description?: string;
+	imgUri?: string;
+	oldImgUri?: string;
+	userID?: number;
+	containerIdentifier?: string;
+	season?: string;
+}
 export interface RecordModel {
 	id?: number;
 	colors?: string;
-	colorsInfo?: SelectColorItemModel[];
-	colorsIds?: number[],
-	categoriesIds?: number[];
 	categories?: string;
 	imgUri: string;
-	oldImgUri?: string;
 	description?: string;
 	userID?: number;
 	containerIdentifier?: string;
@@ -40,6 +41,14 @@ export interface PropertiesDatabaseRecord {
 	type: string,
 	lang: string,
 	properties: string
+}
+
+export interface ListItemModel {
+	plural?: string | undefined;
+	id: number;
+	name: string;
+	selected?: boolean;
+	deletable?: boolean
 }
 
 export interface User {
