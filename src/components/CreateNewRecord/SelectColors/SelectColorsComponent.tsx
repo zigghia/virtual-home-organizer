@@ -15,7 +15,6 @@ interface SelectColorProps extends WithTemplateListProps<SelectColorItemModel> {
 }
 
 const SelectColorsComponent = ({list, bulletSize, updateData}: SelectColorProps) => {
-
 	return (
 		<View>
 			{

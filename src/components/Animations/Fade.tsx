@@ -1,14 +1,13 @@
 import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
 import { Animated } from "react-native";
 
-const Fade = ({isVisible, style, children}: PropsWithChildren<{style?: {[key:string]:string}, isVisible: boolean}>) => {
+const Fade = ({isVisible, style, children}: PropsWithChildren<{ style?: { [key: string]: string }, isVisible: boolean }>) => {
 	const [visible, setVisible] = useState(isVisible);
 	const animation = useRef(new Animated.Value(isVisible ? 1 : 0)).current;
 
 	useEffect(() => {
-		if (isVisible) {
-			setVisible(true);
-		}
+
+		setVisible(isVisible);
 
 		Animated.timing(animation, {
 			toValue: isVisible ? 1 : 0,

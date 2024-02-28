@@ -6,22 +6,9 @@ export interface SelectColorItemModel extends ListItemModel {
 	fontColor?: string;
 	default?: boolean; //only 9 color default maximum to be displayed in main page
 }
-
-export interface FormRecordModel {
-	id?: number;
-	colors: SelectColorItemModel[];
-	categories: ListItemModel[];
-	description?: string;
-	imgUri?: string;
-	oldImgUri?: string;
-	userID?: number;
-	containerIdentifier?: string;
-	season?: string;
-}
 export interface RecordModel {
 	id?: number;
 	colors?: string;
-	colorsInfo?: SelectColorItemModel[];
 	categories?: string;
 	imgUri: string;
 	description?: string;
@@ -29,6 +16,12 @@ export interface RecordModel {
 	containerIdentifier?: string;
 	searchKeys?: string;
 	season?: string;
+}
+
+export interface  FormRecordModel extends RecordModel{
+	selectColors: SelectColorItemModel[];
+	selectCategories: ListItemModel[];
+	oldImgUri?: string;
 }
 //
 // export interface RecordModelExtended extends  RecordModel{

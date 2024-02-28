@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { s } from './CreateEntry.style';
-import { ScrollView, View} from 'react-native';
+import { ScrollView, View } from 'react-native';
 import UserImagePickerComponent from '@/components/CreateNewRecord/UserImagePickerComponent';
 import SelectColors from '@/components/CreateNewRecord/SelectColors/SelectColorsComponent';
 import Button from '@/components/Button/Button';
@@ -56,8 +56,8 @@ const saveFile = async (imgUri: string) => {
 
 const CreateEntryScreen = ({route, navigation}: Props) => {
 
-	const [formValues, setFormValues] = useState<FormRecordModel>({} as FormRecordModel);
-	const {data, loadConfigData, users} = React.useContext(DataContext)!;
+	const [formValues, setFormValues] = useState<FormRecordModel | null>(null);
+	const {data, users} = React.useContext(DataContext)!;
 	const [showPreviewModal, setShowPreviewModal] = useState(false);
 	const [showCreateFieldModal, setShowCreateFieldModal] = useState<'categories' | 'description' | null>(null);
 	const [showColorsModal, setShowColorsModal] = useState(false);
@@ -68,7 +68,6 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 	const mergeData = useCallback((sourceColors: SelectColorItemModel[], sourceCategories: ListItemModel[]) => {
 		const currColorsIds = (sourceColors ?? []).filter(c => c.selected).map(c => c.id);
 		const currCategoriesIds = (sourceCategories ?? []).filter(c => c.selected).map(c => c.id);
-		//merge
 		const merge = (obj: ListItemModel[], refObj: number[]) => {
 			obj.forEach(o => o.selected = refObj.includes(o.id));
 			return obj;
@@ -77,19 +76,12 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 		const colors = merge(JSON.parse(JSON.stringify(data.colors)), currColorsIds);
 
 		return {
-			colors: orderColors(colors),
-			categories: merge(JSON.parse(JSON.stringify(data.categories)), currCategoriesIds),
+			selectColors: orderColors(colors),
+			selectCategories: merge(JSON.parse(JSON.stringify(data.categories)), currCategoriesIds),
 		}
 	}, [data.categories, data.colors, isFocused]);
 
 	const listRef = useRef<ScrollView>(null);
-
-	const orderColors = (colors: SelectColorItemModel[]) => {
-		const colors1 = colors.sort((c1: SelectColorItemModel, c2: SelectColorItemModel) => Number(c2.default) - Number(c1.default));
-		const c1 = colors.filter(c => c.selected);
-		const c2 = c1.filter(c => (c as SelectColorItemModel).default).map(c => c.id);
-		return [...c1, ...colors1.filter(c => !c2.includes(c.id))].slice(0, 9);
-	}
 
 	useEffect(() => {
 		if ( isFocused ) {
@@ -106,20 +98,24 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 			initData().catch(err => console.log(err));
 
 			setFormValues({
-				...formValues,
-				...mergeData(formValues.colors, formValues.categories)
+				...formValues ?? {} as FormRecordModel,
+				...mergeData(formValues?.selectColors ?? [], formValues?.selectCategories ?? [])
 			});
 		}
 	}, [isFocused]);
 
-	useEffect(() => {
-		setFormValues({
-			...formValues,
-			...mergeData(formValues.colors, formValues.categories)
-		});
-	}, [data.colors, data.categories, users]);
 
 	useEffect(() => {
+
+		setFormValues({
+			...formValues ?? {} as FormRecordModel,
+			...mergeData(formValues?.selectColors ?? [], formValues?.selectCategories ?? [])
+		});
+	}, [data.colors, data.categories]);
+
+
+	useEffect(() => {
+
 		if ( route.params?.edit?.id ) {
 			setLoading(true);
 			const params = route.params.edit;
@@ -141,27 +137,33 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 					description,
 					oldImgUri: imgUri,
 					season,
-					colors: orderColors(mergeSavedData('colors')),
-					categories: mergeSavedData('categories')
+					selectColors: orderColors(mergeSavedData('colors')),
+					selectCategories: mergeSavedData('categories')
 				});
 
 
 			setLoading(false);
-		} else {
-			setFormValues({
-				...formValues,
-				...mergeData(formValues.colors, formValues.categories)
-			});
 		}
 
 	}, [route.params]);
 
+	const orderColors = (colors: SelectColorItemModel[]) => {
+		const colors1 = colors.sort((c1: SelectColorItemModel, c2: SelectColorItemModel) => Number(c2.default) - Number(c1.default));
+		const c1 = colors.filter(c => c.selected);
+		const c2 = c1.filter(c => (c as SelectColorItemModel).default).map(c => c.id);
+		return [...c1, ...colors1.filter(c => !c2.includes(c.id))].slice(0, 9);
+	}
+
 	const saveRecord = async () => {
+		if ( formValues == null ) {
+			return;
+		}
+
 		if ( !formValues.imgUri || !formValues.containerIdentifier ) {
 			return;
 		}
 
-		const colors = (formValues.colors ?? []).filter(c => c?.selected) ?? [];
+		const colors = (formValues.selectColors ?? []).filter(c => c?.selected) ?? [];
 
 		let record: RecordModel = {
 			colors: colors.map(c => c.name).join().toLowerCase(),
@@ -169,7 +171,7 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 			containerIdentifier: formValues.containerIdentifier,
 			description: formValues.description?.toLowerCase() ?? '',
 			season: formValues.season ?? '',
-			categories: (formValues.categories ?? []).filter(c => c.selected).map(c => c.name).join().toLowerCase(),
+			categories: (formValues.selectCategories ?? []).filter(c => c.selected).map(c => c.name).join().toLowerCase(),
 			imgUri: formValues.imgUri,
 			searchKeys: ''
 		};
@@ -181,7 +183,7 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 			colors.map(c => ([c.name, c.plural ?? ''] ?? []).filter(el => el?.length)).join(),
 			record.description].filter(el => el?.length).join().toLowerCase();
 
-        let saveNewFile = true;
+		let saveNewFile = true;
 		if ( formValues?.oldImgUri?.length ) {
 			const oldf = formValues.oldImgUri.split('/').pop();
 			const newf = formValues.imgUri.split('/').pop();
@@ -200,7 +202,7 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 		// 	// j();
 		// });
 
-		if (saveNewFile) {
+		if ( saveNewFile ) {
 			const savedFile = await saveFile(formValues.imgUri);
 			savedFile && (record.imgUri = savedFile);
 		}
@@ -223,7 +225,11 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 	const updateRecordData = (key: keyof FormRecordModel, data: string | number | ListItemModel) => {
 		let value: any = data;
 
-		if ( ['categories', 'colors'].includes(key) ) {
+		if ( formValues == null ) {
+			return;
+		}
+
+		if ( ['selectCategories', 'selectColors'].includes(key) ) {
 			const obj: ListItemModel[] = (formValues[key] as ListItemModel[]) ?? [];
 			const i = obj.find(o => o.id == value.id) ?? {selected: false};
 			i.selected = !i?.selected
@@ -252,95 +258,96 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 				<Ionicons name="eye-sharp" size={24} color="white"/>
 			</FAB>
 			<ScrollView ref={listRef}>
-					<View style={s.container}>
-						<EntryCard title={t('createEntry:picture.title')}>
-							<UserImagePickerComponent onSaveData={(value: string) => updateRecordData('imgUri', value)}
-													  imgUri={formValues.imgUri}
+				<View style={s.container}>
+					<EntryCard title={t('createEntry:picture.title')}>
+						<UserImagePickerComponent onSaveData={(value: string) => updateRecordData('imgUri', value)}
+												  imgUri={formValues?.imgUri}
+						/>
+					</EntryCard>
+					<EntryCard title={t('createEntry:container.title')}
+							   tooltipText={t('createEntry:container:tooltip')}
+							   subtitle={t('createEntry:container.subtitle')}>
+						<InfoTextFieldComponent
+							value={formValues?.containerIdentifier}
+							withLock
+							onValueSaved={(value: any) => updateRecordData('containerIdentifier', value)}
+							keyboardType='numeric'
+							isRequired={{message: t('common:errors.required')}}
+							maxLen={{message: t('common:errors.maxLen', {max: 3}), value: 3}}
+							onEdit={() => {
+								listRef?.current && listRef.current.scrollTo({x: 0, y: 150, animated: true})
+							}}
+							key='containerIdentifier'
+						/>
+					</EntryCard>
+
+					<EntryCard title={t('createEntry:colors.title')}
+							   footerText={t('createEntry:colors.footer')}
+							   buttonHandler={() => setShowColorsModal(true)}
+							   subtitle={t('createEntry:colors.subtitle')}>
+						<SelectColors items={formValues?.selectColors ?? []}
+									  updateData={(color: SelectColorItemModel) => updateRecordData('selectColors', color)}
+						/>
+					</EntryCard>
+					{show.categories && formValues?.selectCategories?.length &&
+						<EntryCard title={t('createEntry:categories.title')}
+								   tooltipText={t('createEntry:categories:tooltip')}
+								   footerText={t('createEntry:categories.footer', {max: appConstants.maxCategoriesAllowed})}
+								   buttonDisabled={data.categories.length >= appConstants.maxCategoriesAllowed}
+								   buttonHandler={() => setShowCreateFieldModal('categories')}>
+							<ChipsComponent items={formValues.selectCategories}
+											onclickItem={(item: ListItemModel) => updateRecordData('selectCategories', item)}
 							/>
 						</EntryCard>
-						<EntryCard title={t('createEntry:container.title')}
-								   tooltipText={t('createEntry:container:tooltip')}
-								   subtitle={t('createEntry:container.subtitle')}>
-							<InfoTextFieldComponent
-								value={formValues.containerIdentifier}
-								withLock
-								onValueSaved={(value: any) => updateRecordData('containerIdentifier', value)}
-								keyboardType='numeric'
-								isRequired={{message: t('common:errors.required')}}
-								maxLen={{message: t('common:errors.maxLen', {max: 3}), value: 3}}
-								onEdit = {() => {listRef?.current && listRef.current.scrollTo({x:0, y: 150, animated: true})}}
-								key='containerIdentifier'
+					}
+					{show.location &&
+						<EntryCard title={t('createEntry:description.title')}
+								   tooltipText={t('createEntry:description:tooltip')}
+								   footerText={t('createEntry:description.footer', {max: appConstants.maxLocationsAllowed})}
+								   buttonDisabled={data.descriptions.length >= appConstants.maxLocationsAllowed}
+								   buttonHandler={() => setShowCreateFieldModal('description')}
+								   subtitle={(data.descriptions ?? []).length ? t('createEntry:description.subtitle1') : t('createEntry:description.subtitle')}>
+							<ChipsComponent items={data.descriptions ?? []}
+											onclickItem={(item: ListItemModel) => updateRecordData('description', formValues?.description == item.name ? '' : item.name)}
+											value={formValues?.description}/>
+						</EntryCard>
+					}
+					{show.users && users.length &&
+						<EntryCard title={t('createEntry:users.title')}
+								   tooltipText={t('createEntry:season:tooltip')}>
+							<View style={{flexWrap: 'wrap', flex: 1, flexDirection: 'row'}}>
+								{users.map((user, index) => <CheckBox size={40}
+																	  title={user.nickname}
+																	  checkedColor={themeColors.secondary}
+																	  key={'user' + user.id}
+																	  onPress={() => updateRecordData('userID', user.id)}
+																	  checked={formValues?.userID == user.id}
+									/>
+								)}
+							</View>
+						</EntryCard>
+					}
+					{show?.season &&
+						<EntryCard title={t('createEntry:season.title')}
+								   tooltipText={t('createEntry:season:tooltip')}>
+							<SeasonComponent selectedSeason={formValues?.season}
+											 updateData={(value, valueIndex) => {
+												 updateRecordData('season', value);
+											 }}
 							/>
 						</EntryCard>
-						{formValues?.colors?.length &&
-							<EntryCard title={t('createEntry:colors.title')}
-									   footerText={t('createEntry:colors.footer')}
-									   buttonHandler={() => setShowColorsModal(true)}
-									   subtitle={t('createEntry:colors.subtitle')}>
-								<SelectColors items={formValues.colors}
-											  updateData={(color: SelectColorItemModel) => updateRecordData('colors', color)}
-								/>
-							</EntryCard>}
-						{show.categories && formValues?.categories?.length &&
-							<EntryCard title={t('createEntry:categories.title')}
-									   tooltipText={t('createEntry:categories:tooltip')}
-									   footerText={t('createEntry:categories.footer', {max: appConstants.maxCategoriesAllowed})}
-									   buttonDisabled={data.categories.length >= appConstants.maxCategoriesAllowed}
-									   buttonHandler={() => setShowCreateFieldModal('categories')}>
-								<ChipsComponent items={formValues.categories}
-												onclickItem={(item: ListItemModel) => updateRecordData('categories', item)}
-								/>
-							</EntryCard>
-						}
-						{show.location &&
-							<EntryCard title={t('createEntry:description.title')}
-									   tooltipText={t('createEntry:description:tooltip')}
-									   footerText={t('createEntry:description.footer', {max: appConstants.maxLocationsAllowed})}
-									   buttonDisabled={data.descriptions.length >= appConstants.maxLocationsAllowed}
-									   buttonHandler={() => setShowCreateFieldModal('description')}
-									   subtitle={(data.descriptions ?? []).length ? t('createEntry:description.subtitle1') : t('createEntry:description.subtitle')}>
-								<ChipsComponent items={data.descriptions ?? []}
-												onclickItem={(item: ListItemModel) => updateRecordData('description', formValues.description == item.name ? '' : item.name)}
-												value={formValues.description}/>
-							</EntryCard>
-						}
-						{show.users && users.length &&
-							<EntryCard title={t('createEntry:users.title')}
-									   tooltipText={t('createEntry:season:tooltip')}>
-								<View style={{flexWrap: 'wrap', flex: 1, flexDirection: 'row'}}>
-									{users.map((user, index) => <CheckBox size={40}
-																		  title={user.nickname}
-																		  checkedColor={themeColors.secondary}
-																		  key={'user' + user.id}
-																		  onPress={() => updateRecordData('userID', user.id)}
-																		  checked={formValues.userID == user.id}
-										/>
-									)}
-								</View>
-							</EntryCard>
-						}
-						{show?.season &&
-							<EntryCard title={t('createEntry:season.title')}
-									   tooltipText={t('createEntry:season:tooltip')}>
-								<SeasonComponent selectedSeason={formValues.season}
-												 updateData={(value, valueIndex) => {
-													 updateRecordData('season', value);
-												 }}
-								/>
-							</EntryCard>
-						}
-					</View>
+					}
+				</View>
 			</ScrollView>
 
 			<View style={s.bottomButtons}>
 				<Button onPress={reset} isSecondary text={t('createEntry:cancel')} isCancel isLeft/>
 				<Button isSecondary
-						disabled={!formValues.imgUri?.length || !formValues.containerIdentifier?.length}
+						disabled={!formValues?.imgUri?.length || !formValues?.containerIdentifier?.length}
 						onPress={saveRecord}
 						text={t('common:save')}/>
 			</View>
 			<PreviewItem
-				user = {formValues.userID ? users.find(u => u.id == formValues.userID)?.nickname : null}
 				isVisible={showPreviewModal}
 				formValues={formValues}
 				cancelText='OK'
@@ -356,11 +363,11 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 			/>
 			<SelectColorsModal
 				items={data.colors}
-				selected={formValues.colors}
+				selected={formValues?.selectColors}
 				isVisible={showColorsModal}
 				closeModal={() => setShowColorsModal(false)}
 				updateColors={(colors: SelectColorItemModel[]) => {
-					setFormValues({...formValues, colors: orderColors(colors)});
+					setFormValues({...formValues ?? {} as FormRecordModel, selectColors: orderColors(colors)});
 					setShowColorsModal(false);
 				}}
 			/>

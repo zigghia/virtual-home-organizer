@@ -1,23 +1,22 @@
 import React, { useContext, useEffect, useState } from "react";
-import { ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
 import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import { themeColors } from '@/constants/app.constants';
 import SwipeableItem from '@/components/ListComponents/List/SwipeItem';
 import 'react-native-gesture-handler';
 import RenderColors from '@/components/RenderColorsBullet';
-import { RecordModel } from '@/utils/models';
+import { FormRecordModel, RecordModel } from '@/utils/models';
 import commonStyle from '@/utils/common.style';
 
 export interface MainListItemProps {
-	editAction: (item: RecordModel) => void;
+	editAction: (item: FormRecordModel) => void;
 	deleteAction: (id: number | undefined) => void;
-	item: RecordModel;
-	index?: number
+	item: FormRecordModel;
+	index?: number,
+	clickPreview: () => void
 }
 
-const SwipeRow = ({deleteAction, editAction, item, index}: MainListItemProps) => {
-	const [imgPreview, setImgPreview] = useState(false);
-
+const SwipeRow = ({deleteAction, editAction, item, index, clickPreview}: MainListItemProps) => {
 	return (
 		<>
 			<SwipeableItem
@@ -25,7 +24,7 @@ const SwipeRow = ({deleteAction, editAction, item, index}: MainListItemProps) =>
 				onDelete={() => deleteAction && deleteAction(item?.id)}>
 				<View style={s.container}>
 
-					<View>
+					<Pressable onPress={clickPreview}>
 						<ImageBackground source={{uri: item.imgUri}} style={s.image}>
 							<View style={s.boxContainer}>
 								<FontAwesome5 name="box-open" size={24} color={themeColors.secondary} style={s.boxIcon}>
@@ -33,20 +32,17 @@ const SwipeRow = ({deleteAction, editAction, item, index}: MainListItemProps) =>
 								</FontAwesome5>
 							</View>
 						</ImageBackground>
-					</View>
+					</Pressable>
 
 					{(index == 0) && <MaterialIcons name="swipe-left" size={24} color={themeColors.primary} style={s.icon}/> }
 
 					<View style={{flex: 1, paddingHorizontal: 20}}>
-						{item?.colorsInfo?.[0] &&  <RenderColors items={item.colorsInfo ?? []}/>}
+						{item?.selectColors[0] &&  <RenderColors items={item.selectColors ?? []}/>}
 						{item.categories && <Text style={s.contentText}>{item.categories.replaceAll(',', ' | ')}</Text>}
 						{item.description && <Text style={s.titleText}>{item.description}</Text>}
 					</View>
 				</View>
 			</SwipeableItem>
-			{
-				imgPreview && <></>
-			}
 		</>
 	)
 }

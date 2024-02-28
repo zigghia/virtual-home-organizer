@@ -1,25 +1,32 @@
-import React, {  useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Image, Pressable, StyleSheet, View, Text } from "react-native";
 import withModal from '@/hoc/withModal';
-import { FormRecordModel, ListItemModel, RecordModel, SelectColorItemModel } from '@/utils/models';
+import { FormRecordModel, RecordModel, SelectColorItemModel } from '@/utils/models';
 import { themeColors } from '@/constants/app.constants';
 import { FontAwesome5 } from '@expo/vector-icons';
 import RenderColors from '@/components/RenderColorsBullet';
+import { DataContext } from '@/context/StaticDataContext';
 
 interface PreviewItemProps {
 	formValues: FormRecordModel,
-	closeModal: () => void,
-	user?: string
+	closeModal: () => void
 }
 
-const PreviewItem = ({formValues,  closeModal, user}: PreviewItemProps) => {
+const PreviewItem = ({formValues, closeModal}: PreviewItemProps) => {
 	const [colors, setColors] = useState<SelectColorItemModel[]>([]);
-	const [categories, setCategories] = useState<ListItemModel[]>([]);
+	const [categories, setCategories] = useState<string[]>([]);
+	const {users} = useContext(DataContext)!;
 
 	useEffect(() => {
-		setColors(formValues.colors.filter(c => c.selected) ?? []);
-		setCategories(formValues.categories.filter(c => c.selected) ?? [])
-	},[])
+		setColors((formValues.selectColors ?? []).filter((c:SelectColorItemModel) => c.selected) ?? []);
+		if (formValues.selectCategories) {
+            setCategories(formValues.selectCategories.map(c => c.name));
+		}
+		else {
+			setCategories((formValues?.categories ?? '').split(','));
+		}
+
+	}, [])
 
 	return (
 		<View style={s.container}>
@@ -28,20 +35,25 @@ const PreviewItem = ({formValues,  closeModal, user}: PreviewItemProps) => {
 					<Text style={{color: 'white', fontSize: 80,}}>{formValues?.containerIdentifier ?? '?'}</Text>
 				</FontAwesome5>
 			</View>
-			{ user && <View style={{paddingVertical: 10, paddingLeft: 5}}><Text style={s.text}>{user}</Text></View>}
-			{ formValues?.description && <View style={{paddingVertical: 10, paddingLeft: 5}}><Text style={s.text}>{formValues.description.toUpperCase()}</Text></View>}
-			{ formValues?.season && <View style={{paddingVertical: 5, paddingLeft: 5}}><Text style={s.text}>{formValues.season.toLowerCase()}</Text></View>}
-			{ categories.length ? <View style={s.categoriesContainer}>
-										{
-											categories.map((c, index) =>
-												<View key={'category' + index} style={s.categoriesStyle}>
-													<Text lineBreakMode={'clip'} style={[s.text, {padding: 5}]}>{c.name}</Text>
-												</View>)
-										}
-									</View>: null
+			{formValues?.userID && <View style={{paddingVertical: 5, paddingLeft: 5}}><Text style={s.text}>{users.find(u => u.id === formValues?.userID)?.nickname}</Text></View>}
+			{formValues?.description && <View style={{paddingVertical: 5, paddingLeft: 5}}><Text style={s.text}>{formValues.description.toUpperCase()}</Text></View>}
+			{formValues?.season && <View style={{paddingVertical: 5, paddingLeft: 5}}><Text style={s.text}>{formValues.season.toLowerCase()}</Text></View>}
+			{categories.length ? <View style={s.categoriesContainer}>
+				{
+					categories.map((c, index) =>
+						<View key={'category' + index} style={s.categoriesStyle}>
+							<Text lineBreakMode={'clip'} style={[s.text, {padding: 5}]}>{c}</Text>
+						</View>)
+				}
+			</View> : null
 			}
 
-			{colors.length ?  <RenderColors items={colors} /> : null}
+			{colors.length ?
+				<>
+					<RenderColors items={colors}/>
+					<Text>{colors.map(c => c.name).join(', ')}</Text>
+				</>
+				: null}
 
 			<Pressable style={[s.item, {justifyContent: 'center', marginVertical: 10}]} onPress={closeModal}>
 				{formValues?.imgUri?.length && <Image source={{uri: formValues.imgUri}} style={s.image}/>}
@@ -54,16 +66,16 @@ const PreviewItem = ({formValues,  closeModal, user}: PreviewItemProps) => {
 
 export const s = StyleSheet.create({
 	colorsContainer: {
-		paddingVertical: 10,
+		paddingVertical: 5,
 		flexDirection: 'row',
 		justifyContent: 'flex-start',
 		alignItems: 'flex-start'
 	},
 	container: {
-		margin: 10,
-		padding: 10
+		margin: 5,
+		padding: 5
 	},
-	boxNo :{
+	boxNo: {
 		verticalAlign: 'bottom',
 		alignItems: 'center',
 		alignSelf: 'center',

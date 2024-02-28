@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FlatList, StyleSheet, TouchableOpacity, View, Text, ImageBackground, Image } from 'react-native';
-import { RecordModel } from '@/utils/models';
+import { FormRecordModel, RecordModel } from '@/utils/models';
 import { useIsFocused } from '@react-navigation/native';
 import { SQLResultSet } from 'expo-sqlite';
 import { deleteFromTable, fetchAllData, Tables } from '@/utils/databases';
@@ -20,23 +20,24 @@ import { SearchBar } from '@rneui/themed';
 import commonStyle from '@/utils/common.style';
 import Intro from '@/components/Animations/Intro';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import PreviewItem from '@/components/PreviewItem';
 
 const MainScreen = (props: any) => {
-	const [dbData, setDbData] = useState<RecordModel[]>([]);
-	const [filteredData, setFilteredData] = useState<RecordModel[]>([]);
+	const [dbData, setDbData] = useState<FormRecordModel[]>([]);
+	const [filteredData, setFilteredData] = useState<FormRecordModel[]>([]);
 	const [error, setError] = useState<string | null>(null);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [showFilters, setShowFilters] = useState<boolean | null>(null);
 	const [toBeDeleted, setToBeDeleted] = useState<null | number>(null);
-	const {data, loadingConfigData, loadConfigData} = useContext(DataContext)!;
+	const {data, loadingConfigData} = useContext(DataContext)!;
 	const [loading, setLoading] = useState(true);
 	const [search, setSearch] = useState<string | undefined>("");
 	const [isList, setIsList] = useState(true);
+	const [previewInfo, setPreviewInfo] = useState<FormRecordModel | null>(null);
 	const isFocus = useIsFocused();
 	const [t] = useTranslation();
-	const ref = useRef(null);
 
-	const setListData = (data: RecordModel[]) => {
+	const setListData = (data: FormRecordModel[]) => {
 		setFilteredData(data);
 	}
 
@@ -45,9 +46,9 @@ const MainScreen = (props: any) => {
 			setLoading(true);
 			const {rows}: SQLResultSet = await fetchAllData(Tables.PRODUCTS);
 			//add colorsInfo
-			const fullData: RecordModel[] = rows._array.map(record => {
+			const fullData: FormRecordModel[] = rows._array.map(record => {
 				const cArr = record.colors.split(',').map((c: string) => c.trim().toLowerCase()) ?? [];
-				return {...record, colorsInfo: (data.colors ?? []).filter(c => cArr.includes(c.name?.toLowerCase()))}
+				return {...record, selectColors: (data.colors ?? []).filter(c => cArr.includes(c.name?.toLowerCase())).map(c => ({...c, selected: true}))}
 			});
 
 			setLoading(false);
@@ -90,10 +91,10 @@ const MainScreen = (props: any) => {
 			return;
 		}
 
-		if ( value.length > 2 ) {
-			const keys = value.split(/\s+/).filter(k => k.length);
+		if ( value.length >= 2 ) {
+			const keys = value.toLowerCase().split(/\s+/).filter(k => k.length);
 
-			const newList: RecordModel[] = [];
+			const newList: FormRecordModel[] = [];
 			dbData.forEach(item => {
 				let notFound = keys.some(k => item.searchKeys?.search(k) == -1);
 				if ( !notFound ) {
@@ -117,13 +118,14 @@ const MainScreen = (props: any) => {
 	}
 
 
-	const renderItem = ({item, index}: { item: RecordModel, index: number }): any => {
+	const renderItem = ({item, index}: { item: FormRecordModel, index: number }): any => {
 		if ( !item ) {
 			return;
 		}
 		return <SwipeRow key={`list${index}-${item.id}`}
 						 item={item}
 						 index={index}
+						 clickPreview = {() => setPreviewInfo(item)}
 						 deleteAction={deleteAction}
 						 editAction={editAction}/>
 
@@ -165,7 +167,7 @@ const MainScreen = (props: any) => {
 					</TouchableOpacity>
 					<TouchableOpacity style={{...s.button1, paddingLeft: 10}}
 									  onPress={() => setShowFilters(!showFilters)}>
-						<Ionicons name="options" size={30} color="black" ref={ref}/>
+						<Ionicons name="options" size={30} color="black"/>
 						<Text>{t('search:filters')}</Text>
 					</TouchableOpacity>
 				</View>
@@ -185,7 +187,10 @@ const MainScreen = (props: any) => {
 							  renderItem={renderItem}
 							  keyExtractor={(_item, index) => `list${index}`}
 					/> :
-					<GridList items={filteredData} deleteAction={deleteAction} editAction={editAction}/>
+					<GridList items={filteredData}
+							  deleteAction={deleteAction}
+							  onPreview = {(item: FormRecordModel) =>  setPreviewInfo(item)}
+							  editAction={editAction}/>
 				}
 			</GestureHandlerRootView>
 
@@ -198,6 +203,11 @@ const MainScreen = (props: any) => {
 				message={t('search:deleteMessage')}
 				title={t('search:deleteTitle')}
 				onPressOK={deleteRecord}/>
+
+			<PreviewItem isVisible={previewInfo != null}
+						 formValues={previewInfo}
+						 cancelText='OK'
+						 closeModal={() => setPreviewInfo(null)}/>
 
 			{error && <ErrorComponent transparent
 									  message={error}

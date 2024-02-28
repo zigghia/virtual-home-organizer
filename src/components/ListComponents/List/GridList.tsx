@@ -10,15 +10,15 @@ import { LongPressGestureHandler, State } from 'react-native-gesture-handler';
 import { HandlerStateChangeEvent } from 'react-native-gesture-handler/lib/typescript/handlers/gestureHandlerCommon';
 import { useTranslation } from 'react-i18next';
 import Loading from '@/components/Loading';
-import { RecordModel } from '@/utils/models';
+import { FormRecordModel, ListItemModel } from '@/utils/models';
 
-interface MainListItemProps1 extends WithTemplateListProps {
+interface MainListItemProps1 extends WithTemplateListProps<ListItemModel> {
 	list: [];
 	deleteAction: (id: number) => void;
-	editAction: (item: RecordModel) => void;
+	editAction: (item: FormRecordModel) => void;
+	onPreview: (item: FormRecordModel) => void;
 }
-const GridList = ({list, deleteAction, editAction}: MainListItemProps1) => {
-	const [preview, setPreview] = useState<null | RecordModel>(null);
+const GridList = ({list, deleteAction, editAction, onPreview}: MainListItemProps1) => {
 	const {showActionSheetWithOptions} = useActionSheet();
 	const {t} = useTranslation();
 	const options = useRef([t('common:actions.preview'),
@@ -26,24 +26,24 @@ const GridList = ({list, deleteAction, editAction}: MainListItemProps1) => {
 		t('common:actions.delete'),
 		t('common:actions.cancel')]).current;
 
-	const onLongPress = (event: HandlerStateChangeEvent, item: RecordModel) => {
+	const onLongPress = (event: HandlerStateChangeEvent, item: FormRecordModel) => {
 
 		if ( event.nativeEvent.state === State.ACTIVE ) {
 			showActionSheetWithOptions({
 				options,
 				cancelButtonIndex: 3,
 				destructiveButtonIndex: 2,
-				icons: [<FontAwesome name='trash-o' size={30} color={themeColors.header}/>, <FontAwesome name={'edit'} size={30} color={themeColors.header}/>]
+				icons: [<FontAwesome name='trash-o' size={30} color={themeColors.header}/>,
+					    <FontAwesome name={'edit'} size={30} color={themeColors.header}/>]
 			}, (selectedIndex: number | undefined) => {
+
 				switch (selectedIndex) {
 					case 0:
-						setPreview(item);
+						onPreview(item);
 						break;
-
 					case 1:
 						editAction(item);
 						break;
-
 					case 2:
 						deleteAction(item.id ?? 0);
 				}
@@ -61,8 +61,8 @@ const GridList = ({list, deleteAction, editAction}: MainListItemProps1) => {
 				(list ?? []).map((line: [], i: number) => {
 					return <View style={{...commonStyle.containerList, backgroundColor: 'white'}} key={`line${i}`}>
 						{
-							line.map((item: RecordModel, ii) =>
-								<TouchableWithoutFeedback onPress={() => setPreview(item)} key={'linecolumn' + ii}>
+							line.map((item: FormRecordModel, ii) =>
+								<TouchableWithoutFeedback onPress={() => onPreview(item)} key={'linecolumn' + ii}>
 									<View style={{...s.lineContainer}}>
 										<ImageBackground source={{uri: item.imgUri}} style={s.image} resizeMethod={'resize'}>
 											<LongPressGestureHandler
@@ -91,18 +91,6 @@ const GridList = ({list, deleteAction, editAction}: MainListItemProps1) => {
 					</View>
 				})
 			}
-
-			<PreviewItem isVisible={preview != null}
-								formValues={{
-									colorsInfo: preview?.colorsInfo,
-									containerIdentifier: preview?.containerIdentifier,
-									description: preview?.description,
-									imgUri: preview?.imgUri,
-									season: preview?.season
-								}}
-								categories={preview?.categories?.length ? preview.categories.split(',') : []}
-								cancelText='OK'
-								closeModal={() => setPreview(null)}/>
 		</ScrollView>
 	);
 };
