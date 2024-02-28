@@ -144,6 +144,7 @@ export const updateProduct = async (data: RecordModel) => {
 	if (data.id == null) {
 		return;
 	}
+
 	return await database.transactionAsync(async tx => {
 
 		const {colors = '', userID = 1, categories = '', containerIdentifier = '', description = '', imgUri = '', searchKeys = '', season = '', id} = data;

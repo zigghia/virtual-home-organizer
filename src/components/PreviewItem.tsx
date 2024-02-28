@@ -1,27 +1,24 @@
 import React, {  useEffect, useState } from "react";
 import { Image, Pressable, StyleSheet, View, Text } from "react-native";
 import withModal from '@/hoc/withModal';
-import { RecordModel, SelectColorItemModel } from '@/utils/models';
+import { FormRecordModel, ListItemModel, RecordModel, SelectColorItemModel } from '@/utils/models';
 import { themeColors } from '@/constants/app.constants';
 import { FontAwesome5 } from '@expo/vector-icons';
 import RenderColors from '@/components/RenderColorsBullet';
 
 interface PreviewItemProps {
-	colors?: SelectColorItemModel[],
-	categories: string [],
-	formValues: RecordModel,
-	closeModal: () => void
+	formValues: FormRecordModel,
+	closeModal: () => void,
+	user?: string
 }
 
-const PreviewItem = ({formValues, categories, colors, closeModal}: PreviewItemProps) => {
-	const [coolors, setColors] = useState<SelectColorItemModel[]>([]);
+const PreviewItem = ({formValues,  closeModal, user}: PreviewItemProps) => {
+	const [colors, setColors] = useState<SelectColorItemModel[]>([]);
+	const [categories, setCategories] = useState<ListItemModel[]>([]);
 
 	useEffect(() => {
-		let c = colors ?? [];
-		if (!colors?.length) {
-			c = formValues?.colorsInfo ?? [];
-		}
-		setColors(c);
+		setColors(formValues.colors.filter(c => c.selected) ?? []);
+		setCategories(formValues.categories.filter(c => c.selected) ?? [])
 	},[])
 
 	return (
@@ -31,19 +28,20 @@ const PreviewItem = ({formValues, categories, colors, closeModal}: PreviewItemPr
 					<Text style={{color: 'white', fontSize: 80,}}>{formValues?.containerIdentifier ?? '?'}</Text>
 				</FontAwesome5>
 			</View>
+			{ user && <View style={{paddingVertical: 10, paddingLeft: 5}}><Text style={s.text}>{user}</Text></View>}
 			{ formValues?.description && <View style={{paddingVertical: 10, paddingLeft: 5}}><Text style={s.text}>{formValues.description.toUpperCase()}</Text></View>}
 			{ formValues?.season && <View style={{paddingVertical: 5, paddingLeft: 5}}><Text style={s.text}>{formValues.season.toLowerCase()}</Text></View>}
 			{ categories.length ? <View style={s.categoriesContainer}>
 										{
 											categories.map((c, index) =>
 												<View key={'category' + index} style={s.categoriesStyle}>
-													<Text lineBreakMode={'clip'} style={[s.text, {padding: 5}]}>{c}</Text>
+													<Text lineBreakMode={'clip'} style={[s.text, {padding: 5}]}>{c.name}</Text>
 												</View>)
 										}
 									</View>: null
 			}
 
-			{coolors.length ?  <RenderColors items={coolors} /> : null}
+			{colors.length ?  <RenderColors items={colors} /> : null}
 
 			<Pressable style={[s.item, {justifyContent: 'center', marginVertical: 10}]} onPress={closeModal}>
 				{formValues?.imgUri?.length && <Image source={{uri: formValues.imgUri}} style={s.image}/>}

@@ -52,7 +52,7 @@ const CreateNewPropertyComponent = (props: CreateNewPropertyProps) => {
 
 	const max = props.for == 'categories' ? appConstants.maxLocationsAllowed : appConstants.maxLocationsAllowed;
 
-	return (<View style={{ paddingHorizontal: 10, flex: 1, justifyContent: 'space-between'}}>
+	return (<View style={{ paddingHorizontal: 10, flex: 1}}>
 			<TouchableWithoutFeedback
 				onPress={(event) => {
 					Keyboard.dismiss();

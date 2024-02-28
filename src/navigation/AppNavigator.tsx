@@ -61,7 +61,7 @@ function TheTabBar({state, descriptors, navigation}: BottomTabBarProps) {
 									</TouchableOpacity>
 								</View>
 							</View>
-							: <TouchableOpacity style={{alignItems: 'center'}} onPress={onPress} disabled={isFocused}>
+							: <TouchableOpacity style={{alignItems: 'center'}} onPress={onPress}>
 								<Ionicons name={route.name == 'Main' ? 'home' : 'settings'}
 										  size={24}
 										  color={isFocused ? options.tabBarActiveTintColor : options.tabBarInactiveTintColor}/>

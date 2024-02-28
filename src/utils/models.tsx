@@ -21,6 +21,7 @@ export interface FormRecordModel {
 export interface RecordModel {
 	id?: number;
 	colors?: string;
+	colorsInfo?: SelectColorItemModel[];
 	categories?: string;
 	imgUri: string;
 	description?: string;

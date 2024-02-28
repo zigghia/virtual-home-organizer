@@ -13,6 +13,7 @@ import AlertComponent from '@/components/AlertComponent';
 import ErrorComponent from '@/components/ErrorComponent';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { DataContext } from '@/context/StaticDataContext';
+import Loading from '@/components/Loading';
 import GridList from '@/components/ListComponents/List/GridList';
 import Filters from '@/components/MainScreen/Filters';
 import { SearchBar } from '@rneui/themed';
@@ -48,7 +49,7 @@ const MainScreen = (props: any) => {
 				const cArr = record.colors.split(',').map((c: string) => c.trim().toLowerCase()) ?? [];
 				return {...record, colorsInfo: (data.colors ?? []).filter(c => cArr.includes(c.name?.toLowerCase()))}
 			});
-//colorsInfo
+
 			setLoading(false);
 			setDbData(fullData);
 			setListData(fullData);
@@ -129,7 +130,7 @@ const MainScreen = (props: any) => {
 	}
 
 	if ( loading ) {
-		return null
+		return <Loading/>
 	}
 
 

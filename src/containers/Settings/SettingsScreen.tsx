@@ -1,10 +1,9 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Keyboard, ScrollView, Text,  TouchableWithoutFeedback, View } from 'react-native';
 import Selector from '@/components/SettingsComponents/LanguageSelector';
 import { useTranslation } from 'react-i18next';
 import { MaterialIcons } from '@expo/vector-icons';
 import { styles } from '@/containers/Settings/SettingsScreen.style';
-import { fetchAllData, Tables } from '@/utils/databases';
 import { ListItemModel, otherSettingsKeys, OtherSettingsProps } from '@/utils/models';
 import { useIsFocused } from '@react-navigation/native';
 import SettingsItemList from '@/components/SettingsComponents/SettingsItemList';
@@ -125,7 +124,6 @@ export default function SettingsScreen({navigation}: any) {
 												</View>
 											</View>)
 								}
-
 							</View>
 						</View>
 					</View>

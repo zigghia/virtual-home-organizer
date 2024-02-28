@@ -12,7 +12,7 @@ export type DataType = {
 	descriptions: ListItemModel[]
 };
 export const DataContext = createContext<{
-	data: DataType,
+	readonly data: DataType,
 	users: User[],
 	loadingConfigData: boolean,
 	loadConfigData: () => void,
@@ -68,34 +68,6 @@ const reducer = (state: DataType, action: ReducerPayload) => {
 				categories: init('category'),
 				colors: init('color')
 			};
-
-		case 'update': {
-			const payload = (action?.payload as { key: 'colors' | 'categories' | 'descriptions', id: number, name?: string, unique?: boolean });
-			return {...state, [payload.key]: getModifiedCopy(state[payload.key], payload.id ?? payload.name ?? 0, payload.unique ?? false)};
-		}
-		case 'insert_category' :
-			let obj = action.payload as { insertId: number, name: string };
-			const categories = [...state.categories ?? []];
-			categories.push({id: obj.insertId, deletable: true, name: obj.name, selected: true});
-			return {
-				...state,
-				categories: categories
-			};
-		case 'recalculate': {
-			const payload = (action?.payload as { data: PropertiesDatabaseRecord[], type: 'categories' | 'descriptions' });
-
-			const key = payload.type == 'categories' ? 'category' : 'description';
-
-			const arr = state[payload.type];
-			const selectedIds = arr.filter(el => el.selected).map(el => (el.id));
-			const n = ((payload.data ?? []) as PropertiesDatabaseRecord[]).filter(el => el.type == key);
-			const ref = n.map(((type: PropertiesDatabaseRecord) => constr(type))) ?? [];
-
-			return {
-				...state,
-				[payload.type]: ref.map((el, index) => ({...el, selected: selectedIds.includes(el.id)})),
-			}
-		}
 	}
 	return state;
 }

@@ -13,7 +13,6 @@ import Loading from '@/components/Loading';
 interface UserImagePickerProps {
 	onSaveData: (value: string) => void,
 	imgUri?: string;
-	oldImgUri?: string;
 }
 
 const UserImagePickerComponent = ({onSaveData, imgUri}: UserImagePickerProps) => {

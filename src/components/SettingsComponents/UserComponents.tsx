@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Text, StyleSheet, TextInput, View, TouchableOpacity } from 'react-native';
 import { appConstants, themeColors } from '@/constants/app.constants';
 import commonStyle from '@/utils/common.style';
@@ -10,11 +10,13 @@ import { debounce } from '@/utils/utils';
 import { FontAwesome } from '@expo/vector-icons';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import AlertComponent from '@/components/AlertComponent';
+import { DataContext } from '@/context/StaticDataContext';
 
 
 const UserComponents = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [value, setValue] = useState('');
+	const {loadConfigData} = useContext(DataContext)!;
 	const [users, setUsers] = useState<User[]>([]);
 	const [isTouched, setIsTouched] = useState(false);
 	const [edit, setEdit] = useState<number>(0);
@@ -110,6 +112,7 @@ const UserComponents = () => {
 			setError(null);
 			setIsTouched(false);
 			getUsers();
+			loadConfigData();
 		}
 		catch (err) {
 			alert('Error inserting user' + err);
@@ -124,6 +127,7 @@ const UserComponents = () => {
 		await deleteUser(toBeDeleted).catch(err => alert('Error ' + err));
 		setDeleteAlert(false);
 		getUsers();
+		loadConfigData()
 	}
 
 	return (<View>

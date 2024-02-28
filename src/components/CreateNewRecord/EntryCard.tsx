@@ -62,7 +62,8 @@ const EntryCard = ({title, subtitle, footerText, buttonHandler, containerStyle, 
 			</View>
 			<Card.Divider/>
 			{subtitle && <Text style={s.fonts}>{subtitle}</Text>}
-			{children}
+				{children}
+
 			{footerText && (
 				<>
 					<Card.Divider style={s.divider}/>
@@ -84,9 +85,7 @@ const EntryCard = ({title, subtitle, footerText, buttonHandler, containerStyle, 
 
 export const s = StyleSheet.create({
 	container: {
-		minHeight: 200,
-		marginTop: 15,
-		paddingBottom: 20
+		flex: 1
 	},
 	divider: {
 		marginTop: 20

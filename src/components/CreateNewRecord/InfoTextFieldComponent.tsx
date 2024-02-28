@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { GestureResponderEvent, Keyboard, KeyboardAvoidingView, KeyboardType, Platform, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { StyleSheet } from "react-native";
 import { Text } from '@rneui/base';
-import { FontAwesome, Ionicons } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 import { themeColors } from '@/constants/app.constants';
 import commonStyle from '@/utils/common.style';
 
@@ -15,7 +15,8 @@ interface CreateDescriptionProp {
 	onValueSaved?: (value: number | string | undefined) => void,
 	keyboardType?: KeyboardType,
 	withLock?: boolean,
-	isSelected?: boolean
+	isSelected?: boolean,
+	onEdit?: () => void
 }
 
 const validation = {
@@ -25,7 +26,7 @@ const validation = {
 }
 
 
-const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen, isSelected, isValid, keyboardType, withLock}: CreateDescriptionProp) => {
+const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen, isSelected, isValid, keyboardType, withLock, onEdit}: CreateDescriptionProp) => {
 	const [error, setError] = useState<null | string>(null);
 	const [currentValue, setCurrentValue] = useState(value);
 	const [editMode, setEditMode] = useState(isSelected ?? true);
@@ -61,7 +62,8 @@ const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen
 
 		validate(value ?? '');
 		isValid && isValid(error == null);
-		setEditMode(!value.length || error != null);
+		const editMode = !value.length || error != null;
+		setEditMode(editMode);
 
 	}, [value]);
 
@@ -96,7 +98,6 @@ const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen
 			<TouchableOpacity onPress={editValue}>
 				<View style={{
 					flexDirection: 'row',
-					// flex: 1,
 					width: '100%'
 				}}>
 
@@ -132,7 +133,7 @@ const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen
 					<TextInput
 						autoFocus={autoFocus}
 						onBlur={(event) => finishEdit()}
-						onFocus={() => setError(null)}
+						onFocus={() => {setError(null); withLock && onEdit && onEdit()}}
 						keyboardType={keyboardType || 'default'}
 						clearButtonMode='always'
 						style={commonStyle.input}
@@ -146,19 +147,15 @@ const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen
 				</View>
 			</TouchableWithoutFeedback>
 		</KeyboardAvoidingView>
-
 	);
 }
 
 export const s = StyleSheet.create({
 	container: {
-		flex: 1,
-		flexDirection: 'row'
+		flex: 1
 	},
 	inner: {
-		flex: 1,
-		marginHorizontal: 5,
-		justifyContent: 'flex-start'
+		justifyContent: 'flex-end'
 	},
 	text: {
 		height: 60,
@@ -166,7 +163,7 @@ export const s = StyleSheet.create({
 		padding: 10,
 		borderRadius: 20,
 		flexDirection: 'row',
-		alignItems: 'center',
+		//alignItems: 'center',
 		flex: 1
 	},
 	error: {
@@ -178,12 +175,6 @@ export const s = StyleSheet.create({
 		position: "absolute",
 		right: 10,
 		top: -20
-	},
-	checkmark: {
-		justifyContent: 'flex-end',
-		right: 0,
-		top: 0,
-		width: 30
 	}
 });
 
