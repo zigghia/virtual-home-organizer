@@ -26,7 +26,7 @@ const Filters = (props: any) => {
 	const {users, data} = useContext(DataContext)!;
 	const [selectedUserIndex, setSelectedUserIndex] = useState<number | null>(null);
 	const [selectedSeason, setSelectedSeason] = useState<string | null>(null);
-	const [colors, setColors] = useState<SelectColorItemModel[]>([...data.colors]);
+	const [colors, setColors] = useState<SelectColorItemModel[]>(JSON.parse(JSON.stringify(data.colors)));
 
 	const animatedStyles = useAnimatedStyle(() => ({
 		transform: [{translateX: withSpring(props.isVisible ? -OFFSET : 0)}],
@@ -35,9 +35,10 @@ const Filters = (props: any) => {
 	const reset = () => {
 		setSelectedUserIndex(null);
 		setSelectedSeason(null);
+		setColors(JSON.parse(JSON.stringify(data.colors)));
 	}
 	const setSearch = () => {
-		const c = data.colors.filter(c => c.selected).map(c => c.name).join(' ').trim();
+		const c = colors.filter(c => c.selected).map(c => c.name).join(' ').trim();
 		const user = users.find(u => u.id == selectedUserIndex)?.nickname;
 		const season = selectedSeason?.toLowerCase() ?? '';
 		props.search([c, user, season].filter(e => e).join(' ').trim().toLowerCase());

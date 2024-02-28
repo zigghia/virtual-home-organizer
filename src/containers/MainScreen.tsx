@@ -143,15 +143,17 @@ const MainScreen = (props: any) => {
 	return (
 		<Animated.View style={{flex: 1, backgroundColor: 'white'}} entering={FadeIn.duration(200)}>
 			<SearchBar
-				disabled={dbData.length == 0}
+				disabled={dbData.length == 0 || showFilters == true}
 				lightTheme
 				searchIcon={<Ionicons name='search' size={24} color="black"/>}
+				clearIcon={<Ionicons name='close' size={24} color="black"/>}
 				rightIconContainerStyle={s.searchClear}
 				inputStyle={s.searchInput}
 				inputContainerStyle={s.searchInputContainer}
 				containerStyle={s.searchContainer}
 				placeholder={t('search:searchPlaceholder')}
 				onChangeText={searchData}
+				onClear ={() => {console.log('ssssssssssssssssssssssssssss')}}
 				value={search}
 			/>
 			<View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
@@ -237,8 +239,7 @@ export const s = StyleSheet.create({
 		borderRadius: 3
 	},
 	searchClear: {
-		width: 24,
-		padding: 5
+
 	},
 	button1: {
 		height: 60,

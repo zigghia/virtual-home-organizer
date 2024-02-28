@@ -179,7 +179,7 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 		record.searchKeys = [
 			record.categories,
 			record.season,
-			formValues.userID ? users.find(u => u.id == formValues.userID)?.nickname : '',
+			formValues.userID ? users.find(u => u.id == formValues.userID)?.nickname : users.find(u=> u.id == 1)?.nickname,
 			colors.map(c => ([c.name, c.plural ?? ''] ?? []).filter(el => el?.length)).join(),
 			record.description].filter(el => el?.length).join().toLowerCase();
 

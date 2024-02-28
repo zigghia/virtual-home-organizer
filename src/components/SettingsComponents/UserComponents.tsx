@@ -153,16 +153,16 @@ const UserComponents = () => {
 				style={{flex: 1}}
 			>
 				<Fade isVisible={error != null && isTouched}>
-					{<Text style={{color: themeColors.error, marginVertical: 10}}>{error}</Text>}
+					<Text style={{color: themeColors.error, marginVertical: 10}}>{error}</Text>
 				</Fade>
 				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 					<View style={{flex: 1, justifyContent:'flex-end', marginTop: 10}}>
 						<TextInput
 							onBlur={() => {
+								setError(null);
 								if ( !value.length && edit ) {
 									setEdit(0);
 									setIsTouched(false);
-									setError(null);
 									return;
 								}
 								debounce(validate(value));

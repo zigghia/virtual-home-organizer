@@ -12,7 +12,7 @@ import { Divider } from '@rneui/base';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DataContext } from '@/context/StaticDataContext';
 import { Switch } from '@rneui/themed';
-import Animated, { FadeIn, SlideInDown, SlideInLeft, SlideInRight, SlideOutUp } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { themeColors } from '@/constants/app.constants';
 
@@ -67,7 +67,7 @@ export default function SettingsScreen({navigation}: any) {
 		return null;
 	}
 	return (
-		<Animated.View  entering={FadeIn.duration(200)}>
+		<Animated.View>
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<ScrollView>
 					<View style={{flex: 1, backgroundColor: '#fff', flexDirection: 'column'}}>
