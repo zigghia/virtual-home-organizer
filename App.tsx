@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import './src/constants/IMLocalize';
 import { useCallback, useEffect, useState } from 'react';
-import { initDatabase, } from '@/utils/databases';
+import { initDatabase, resetDataBase, } from '@/utils/databases';
 import * as SplashScreen from 'expo-splash-screen';
 import { Text } from '@rneui/base';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +22,7 @@ export default function App() {
 	useEffect(() => {
 		const init = async () => {
 			try {
+				//await resetDataBase();
 				await initDatabase(t('common:defaultNickname'));
 				let k = await AsyncStorage.getItem('vho-settings-other');
 				if ( k === null ) {
@@ -39,7 +40,6 @@ export default function App() {
 	}, []);
 
 	const onLayoutRootView = useCallback(async () => {
-
 		if ( appIsReady.app ) {
 			await SplashScreen.hideAsync();
 		}
@@ -56,6 +56,7 @@ export default function App() {
 	if ( !appIsReady.app ) {
 		return;
 	}
+
 	return (
 		<ActionSheetProvider>
 			<RecordDataProvider>

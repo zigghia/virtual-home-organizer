@@ -1,14 +1,16 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext} from "react";
 import { ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
-import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { themeColors } from '@/constants/app.constants';
 import SwipeableItem from '@/components/ListComponents/List/SwipeItem';
 import 'react-native-gesture-handler';
 import RenderColors from '@/components/RenderColorsBullet';
 import { FormRecordModel, RecordModel } from '@/utils/models';
 import commonStyle from '@/utils/common.style';
-import Fade from '@/components/Animations/Fade';
 import Slide from '@/components/Animations/Slide';
+import { Chip } from '@rneui/themed';
+import { useTranslation } from 'react-i18next';
+import { DataContext, SeasonIconsType } from '@/context/StaticDataContext';
 
 export interface MainListItemProps {
 	editAction: (item: FormRecordModel) => void;
@@ -19,23 +21,18 @@ export interface MainListItemProps {
 }
 
 const SwipeRow = ({deleteAction, editAction, item, index, clickPreview}: MainListItemProps) => {
+	const categories = (item?.categories ?? '').split(',');
+	const {t} = useTranslation();
+	const {seasons} = useContext(DataContext)!;
 
 	return (
 		<>
 			<SwipeableItem
+				itemKey={'swipe'+index}
 				onEdit={() => editAction && editAction(item)}
 				onDelete={() => deleteAction && deleteAction(item?.id)}>
 				<View style={s.container}>
 
-					<Pressable onPress={clickPreview}>
-						<ImageBackground source={{uri: item.imgUri}} style={s.image}>
-							<View style={s.boxContainer}>
-								<FontAwesome5 name="box-open" size={24} color={themeColors.secondary} style={s.boxIcon}>
-									<Text style={{color: 'white', marginLeft: 5, fontSize: 50}}>{item.containerIdentifier}</Text>
-								</FontAwesome5>
-							</View>
-						</ImageBackground>
-					</Pressable>
 
 					{index == 0 &&
 						<View style={s.icon}>
@@ -43,11 +40,40 @@ const SwipeRow = ({deleteAction, editAction, item, index, clickPreview}: MainLis
 						</View>
 					}
 
-					<View style={{flex: 1, marginHorizontal: 10}}>
-						{item?.selectColors[0] && <RenderColors items={item.selectColors ?? []}/>}
-						{item.categories && <Text style={s.contentText}>{item.categories.replaceAll(',', ' | ')}</Text>}
-						{item.description && <Text style={s.titleText}>{item.description}</Text>}
+					<View style={{flex: 1, paddingRight: 20, backgroundColor: themeColors.lightGrey, padding: 5,  height: 150}}>
+						{item.season && <View style={{flexDirection: 'row'}}>
+							<Ionicons name={(Object.keys(seasons).find((k: string )=> seasons[k as SeasonIconsType] == item.season)) as SeasonIconsType}
+									  size={24}
+									  color={themeColors.header}
+									  style={{paddingRight: 5}}/>
+							<Text style={s.contentText} numberOfLines={1}>{item.season}</Text>
+						</View>}
+						{item?.selectColors[0] &&
+							<View style={{flexDirection: 'row'}}>
+								<RenderColors items={item.selectColors.slice(0, 3) ?? []}/>
+								{item.selectColors.length > 3 && <Text style={{alignSelf: 'flex-end', paddingBottom: 10}}> + {item.selectColors.length - 3}</Text>}
+							</View>}
+						<View style={{flexDirection: 'row', alignContent: 'flex-start'}}>
+							{categories[0] &&
+								<Chip
+									color={themeColors.lightGrey}
+									titleStyle={{color: themeColors.header, fontSize: 14}}
+									containerStyle={{ padding: 0, borderColor: themeColors.secondary, borderWidth: StyleSheet.hairlineWidth}}
+									title={categories[0]}
+									key={'category' + item.id}/>
+							}
+							{categories.length > 1 ? <Text style={{ alignSelf: 'center'}}>  +{categories.length - 1} </Text> : null}
+						</View>
+
 					</View>
+					<Pressable onPress={clickPreview} style={{flex: 2}}>
+						<ImageBackground source={{uri: item.imgUri}} style={s.image}>
+							<View style={s.box}>
+								<Text style={{fontSize: 60, ...s.boxText}}>{item.containerIdentifier}</Text>
+								<Text style={{fontSize: 20, ...s.boxText}}>{item.description}</Text>
+							</View>
+						</ImageBackground>
+					</Pressable>
 				</View>
 			</SwipeableItem>
 		</>
@@ -55,11 +81,6 @@ const SwipeRow = ({deleteAction, editAction, item, index, clickPreview}: MainLis
 }
 
 export const s = StyleSheet.create({
-	boxIcon: {
-		// verticalAlign: 'bottom',
-		// alignItems: 'center',
-		// alignSelf: 'center'
-	},
 	icon: {
 		position: 'absolute',
 		right: 20,
@@ -67,46 +88,33 @@ export const s = StyleSheet.create({
 	},
 	image: {
 		height: 150,
-		width: 220,
-		margin: 5,
 		justifyContent: 'flex-end',
-		alignItems: 'flex-end',
-		...commonStyle.shadow
-	},
-	boxContainer: {
-        ...commonStyle.shadow,
-		marginLeft: 10,
-		marginBottom: 10,
-		borderRadius: 3,
-		minWidth: 80,
-		padding: 5,
-		//backgroundColor: themeColors.header,
-		alignSelf: 'flex-start',
-		justifyContent: 'flex-end',
-		alignContent: 'center'
-	},
-	boxText: {
-		color: 'white',
-		fontSize: 30,
-		fontWeight: 'bold'
+		alignItems: 'flex-end'
 	},
 	container: {
 		flexDirection: 'row',
 		flex: 1,
-		paddingVertical: 5,
-		justifyContent: 'center',
-		alignItems: 'center',
+		padding: 10,
+		alignItems: 'flex-start',
 		backgroundColor: 'white'
-	},
-	titleText: {
-		fontWeight: 'bold',
-		backgroundColor: 'transparent',
-		fontSize: 20,
-		textTransform: 'uppercase'
 	},
 	contentText: {
 		color: themeColors.header,
-		fontSize: 18,
+		paddingVertical: 3,
+	},
+	boxText : {
+		color: themeColors.white,
+		fontWeight: 'bold'
+	},
+	box: {
+		justifyContent: 'flex-end',
+		padding: 10,
+		opacity: 0.8,
+		alignItems: 'flex-start',
+		margin: 10,
+		...commonStyle.shadow,
+		backgroundColor: themeColors.header,
+		width: 120
 	}
 });
 

@@ -29,6 +29,7 @@ export enum themeColors {
 
 export enum themeDefaults {
 	buttonHeight = 40,
+	inputHeight = 50,
 	fontSize = 16,
 	fontHeader1 = 40,
 	fontHeader2 = 30,

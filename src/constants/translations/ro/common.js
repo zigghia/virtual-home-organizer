@@ -7,10 +7,12 @@ export default {
 	colors: 'Culori',
 	season: 'Anotimp',
 	family: 'Membri familie',
-	defaultNickname: 'Eu',
+	defaultNickname: 'Ale mele',
 	defaultDBError: 'EROARE NECUNOSCUTA, \n cod {{code}}',
 	yes: 'OK',
 	no: 'Nu',
+	or: 'sau',
+	and: 'si',
 	route: {
 		search: "Lista ta",
 		create: "Adaugare item",

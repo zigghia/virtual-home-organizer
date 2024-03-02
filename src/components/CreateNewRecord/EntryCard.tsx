@@ -41,12 +41,12 @@ const EntryCard = ({title, subtitle, footerText, buttonHandler, containerStyle, 
 
 	return (
 		<Card containerStyle={[s.container, {...eStyle}]}>
-			<View style={{  flexDirection: 'row', flex: 1, alignContent: 'space-between', justifyContent: 'space-between', paddingVertical: 10}}>
-				<View  style={{ flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+			<View style={{  flexDirection: 'row', flex: 1, justifyContent: 'space-between', paddingBottom: 10}}>
+
 					<Text  style={{fontSize: themeDefaults.fontHeader3}}>
 						{title.toUpperCase()}
 					</Text>
-				</View>
+
 				<View>
 					{
 						tooltipText && <ControlledTooltip
@@ -68,11 +68,12 @@ const EntryCard = ({title, subtitle, footerText, buttonHandler, containerStyle, 
 				<>
 					<Card.Divider style={s.divider}/>
 					<View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center'}}>
-						<Text style={{flex: 10, justifyContent: 'center', alignItems: 'center'}}>{footerText}</Text>
-						{buttonHandler && <Button buttonStyle={{width: 30, justifyContent: 'center', alignItems: 'center'}}
+						<Text style={{flex: 1, justifyContent: 'center', alignItems: 'center', paddingRight: 10}}>{footerText}</Text>
+						{buttonHandler && <Button buttonStyle={{width: 30, height: 50,
+							                                borderRadius: 50, paddingHorizontal: 0, flex: 'none', justifyContent: 'center', alignItems: 'center'}}
 												  onPress={buttonHandler}
 												  disabled={buttonDisabled}>
-							<MaterialIcons name="library-add" size={24} color="white"/>
+						               	<MaterialIcons name="library-add" size={24} color="white"/>
 						</Button>
 						}
 					</View>
@@ -85,7 +86,8 @@ const EntryCard = ({title, subtitle, footerText, buttonHandler, containerStyle, 
 
 export const s = StyleSheet.create({
 	container: {
-		flex: 1
+		flex: 1,
+		paddingTop: 10
 	},
 	divider: {
 		marginTop: 20

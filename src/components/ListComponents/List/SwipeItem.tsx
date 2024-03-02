@@ -1,9 +1,11 @@
-import React, { Component, PropsWithChildren } from 'react';
-import { Animated, StyleSheet, Text, View } from 'react-native';
+import React, {  PropsWithChildren, useContext, useEffect, useRef } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
-import Swipeable from 'react-native-gesture-handler/Swipeable';
+import Swipeable from "react-native-gesture-handler/Swipeable";
 import { FontAwesome } from '@expo/vector-icons';
 import { themeColors } from '@/constants/app.constants';
+import { SwipeContext } from '@/context/SwipeProvider';
+import { useTranslation } from 'react-i18next';
 
 enum ActionType {
 	EDIT,
@@ -14,94 +16,76 @@ enum ActionType {
 interface SwipeableRowProps {
 	onDelete: () => void,
 	onEdit: () => void,
+	itemKey: string
 }
 
-export default class SwipeableItem extends Component<PropsWithChildren<SwipeableRowProps>> {
+ const SwipeableItem = ({children, onDelete, onEdit, itemKey}: PropsWithChildren<SwipeableRowProps>) => {
+	const swipeableRow = useRef<Swipeable | null>(null);
+	const {openedItemKey, setOpenedItemKey} = useContext(SwipeContext);
+	const {t} = useTranslation();
 
-	private renderRightAction = (
-		text: string,
-		color: string,
-		type: ActionType,
-		icon: string,
-		x: number,
-		progress: Animated.AnimatedInterpolation<number>
-	) => {
-		const trans = progress.interpolate({
-			inputRange: [0, 1],
-			outputRange: [x, 0],
-		});
-		const pressHandler = () => {
-			this.close();
+	 useEffect(() => {
+		 if (openedItemKey && itemKey !== openedItemKey) {
+			close();
+		 }
+	 }, [itemKey, openedItemKey]);
+
+	 const handleSwipe = () => {
+		 setOpenedItemKey(itemKey);
+	 }
+
+	const renderRightActions = () => {
+		const pressHandler = (type :  ActionType) => {
+			close();
 			if ( type == ActionType.DELETE ) {
-				this.props.onDelete();
+				onDelete();
 				return;
 			}
 
 			if ( type == ActionType.EDIT ) {
-				this.props.onEdit();
+				onEdit();
 			}
 		};
-
-		return (
-			<Animated.View style={{flex: 1, transform: [{translateX: trans}]}}>
+		return(
+			<View
+				style={{
+					width: 200,
+					flexDirection: 'row',
+				}}>
 				<RectButton
-					style={[styles.rightAction, {backgroundColor: color}]}
-					onPress={pressHandler}>
-					{
-						icon ? <FontAwesome name={icon as 'trash-o' | 'edit'} size={30} color="white"/> : null
-					}
-					<Text style={styles.actionText}>{text}</Text>
+					style={[styles.rightAction, {backgroundColor: themeColors.secondary}]}
+					onPress={() => pressHandler(ActionType.EDIT)}>
+					<FontAwesome name={'edit'} size={30} color="white"/>
+					<Text style={styles.actionText}>{t('search:edit')}</Text>
 				</RectButton>
-			</Animated.View>
-		);
+				<RectButton
+					style={[styles.rightAction, {backgroundColor: themeColors.header}]}
+					onPress={() => pressHandler(ActionType.DELETE)}>
+					<FontAwesome name={'trash-o'} size={30} color="white"/>
+					<Text style={styles.actionText}>{t('search:delete')}</Text>
+				</RectButton>
+			</View>
+	)};
+
+	const close = () => {
+		swipeableRow.current &&  swipeableRow.current.close();
 	};
 
-	private renderRightActions = (
-		progress: Animated.AnimatedInterpolation<number>,
-		_dragAnimatedValue: Animated.AnimatedInterpolation<number>
-	) => (
-		<View
-			style={{
-				width: 200,
-				flexDirection: 'row',
-			}}>
-			{this.renderRightAction('Edit', themeColors.secondary, ActionType.EDIT, 'edit', 101, progress)}
-			{this.renderRightAction('Delete', themeColors.header, ActionType.DELETE, 'trash-o', 100, progress)}
-		</View>
-	);
-
-	private swipeableRow?: Swipeable;
-
-	private updateRef = (ref: Swipeable) => {
-		this.swipeableRow = ref;
-	};
-	private close = () => {
-		this.swipeableRow?.close();
-	};
-
-	render() {
-		const {children} = this.props;
 
 		return (<Swipeable
-				ref={this.updateRef}
-				friction={2}
-				enableTrackpadTwoFingerGesture
-				leftThreshold={30}
-				rightThreshold={40}
-				renderRightActions={this.renderRightActions}
-			>
-				{children}
-			</Swipeable>
-		);
-	}
+						ref= {(ref) => swipeableRow.current = ref}
+						enableTrackpadTwoFingerGesture
+						rightThreshold={30}
+						friction={4}
+						onSwipeableWillOpen={handleSwipe}
+						renderRightActions={renderRightActions}
+					>
+						{children}
+					</Swipeable>
+		)
 }
 
 const styles = StyleSheet.create({
-	leftAction: {
-		flex: 1,
-		backgroundColor: '#497AFC',
-		justifyContent: 'center',
-	},
 	actionText: {
 		color: 'white',
 		fontSize: 16,
@@ -114,3 +98,5 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 	},
 });
+
+export default SwipeableItem;

@@ -8,5 +8,8 @@ export default {
 	applyFilters: 'Aplica',
 	list: 'Lista',
 	grid: 'Tabel',
+	delete: 'Sterge',
+	edit: 'Modifica',
+	deleteFilters: 'filtre',
 	searchPlaceholder: 'Cauta'
 }

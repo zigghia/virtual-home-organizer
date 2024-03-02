@@ -71,13 +71,9 @@ const GridList = ({list, deleteAction, editAction, onPreview}: MainListItemProps
 												maxDist={20}
 											>
 												<View  style={s.image}>
-													{/*<View style={{...s.infoBar, ...s.infoBarPreview}}>*/}
-													{/*	<MaterialIcons name="zoom-out-map" size={30} color={themeColors.header}/>*/}
-													{/*</View>*/}
-
 													<View style={{...s.infoBar, ...s.infoBarBox}}>
 														<FontAwesome5 name="box-open" size={24} color={themeColors.secondary} style={s.boxIcon}>
-															<Text style={{color: 'white', marginLeft: 5, fontSize: 60}}>{item.containerIdentifier}</Text>
+															<Text style={{color: 'white', opacity: 1, marginLeft: 5, fontSize: 60}}>{item.containerIdentifier}</Text>
 														</FontAwesome5>
 													</View>
 												</View>
@@ -100,7 +96,10 @@ export const s = StyleSheet.create({
 	infoBar: {
 		height: 100,
 		justifyContent: 'center',
-		alignContent: 'center'
+		alignContent: 'center',
+		backgroundColor: themeColors.header,
+		opacity: 0.85,
+		margin: 10
 	},
 	infoBarPreview: {
 		flex: 1,
@@ -113,8 +112,6 @@ export const s = StyleSheet.create({
 		borderColor: themeColors.header,
 		flexDirection: 'row',
 		padding: 20
-		//opacity: 0.75,
-		//backgroundColor: themeColors.header
 	},
 	lineContainer: {
 		flex: 1,
@@ -123,7 +120,8 @@ export const s = StyleSheet.create({
 	boxIcon: {
 		verticalAlign: 'bottom',
 		alignItems: 'center',
-		alignSelf: 'center'
+		alignSelf: 'center',
+		opacity: 1
 	},
 	image: {
 		flex: 1,

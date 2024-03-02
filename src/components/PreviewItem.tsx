@@ -3,9 +3,11 @@ import { Image, Pressable, StyleSheet, View, Text } from "react-native";
 import withModal from '@/hoc/withModal';
 import { FormRecordModel, RecordModel, SelectColorItemModel } from '@/utils/models';
 import { themeColors } from '@/constants/app.constants';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { FontAwesome, FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import RenderColors from '@/components/RenderColorsBullet';
-import { DataContext } from '@/context/StaticDataContext';
+import { DataContext, SeasonIconsType } from '@/context/StaticDataContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Chip } from '@rneui/themed';
 
 interface PreviewItemProps {
 	formValues: FormRecordModel,
@@ -15,7 +17,8 @@ interface PreviewItemProps {
 const PreviewItem = ({formValues, closeModal}: PreviewItemProps) => {
 	const [colors, setColors] = useState<SelectColorItemModel[]>([]);
 	const [categories, setCategories] = useState<string[]>([]);
-	const {users} = useContext(DataContext)!;
+	const {users, seasons} = useContext(DataContext)!;
+	const [user, setUser] = useState<string | null>(null);
 
 	useEffect(() => {
 		setColors((formValues.selectColors ?? []).filter((c:SelectColorItemModel) => c.selected) ?? []);
@@ -26,31 +29,61 @@ const PreviewItem = ({formValues, closeModal}: PreviewItemProps) => {
 			setCategories((formValues?.categories ?? '').split(','));
 		}
 
+		if (users.length > 1) {
+			setUser(formValues?.userName ?? (formValues?.userID ? (users.find(u => u.id == formValues.userID)?.nickname ?? null ): null));
+		}
+
+		if (formValues.categories) {
+			setCategories(formValues.categories.split(','));
+		}
+		else {
+			setCategories((formValues.selectCategories ?? []).filter(c => c.selected).map(c => c.name));
+		}
+
 	}, [])
 
 	return (
-		<View style={s.container}>
+		<View>
 			<View style={{backgroundColor: themeColors.secondary}}>
-				<FontAwesome5 name="box-open" size={80} color='white' style={s.boxNo}>
-					<Text style={{color: 'white', fontSize: 80,}}>{formValues?.containerIdentifier ?? '?'}</Text>
+				<FontAwesome5 name="box-open" size={70} color='white' style={s.boxNo}>
+					<Text style={{color: 'white', fontSize: 70}}>{formValues?.containerIdentifier ?? '?'}</Text>
 				</FontAwesome5>
 			</View>
-			{formValues?.userID && <View style={{paddingVertical: 5, paddingLeft: 5}}><Text style={s.text}>{users.find(u => u.id === formValues?.userID)?.nickname}</Text></View>}
-			{formValues?.description && <View style={{paddingVertical: 5, paddingLeft: 5}}><Text style={s.text}>{formValues.description.toUpperCase()}</Text></View>}
-			{formValues?.season && <View style={{paddingVertical: 5, paddingLeft: 5}}><Text style={s.text}>{formValues.season.toLowerCase()}</Text></View>}
-			{categories.length ? <View style={s.categoriesContainer}>
+			{formValues?.description && <View style={s.rowView}>
+				<MaterialIcons  name="door-sliding" size={24} color={themeColors.header} />
+					<Text style={s.text}>{formValues.description.toLowerCase()}</Text>
+				</View>
+			}
+			{formValues?.season && <View style={s.rowView}>
+				<Ionicons name={(Object.keys(seasons).find((k: string )=> seasons[k as SeasonIconsType] == formValues.season)) as SeasonIconsType}
+						  size={24}
+						  color={themeColors.header}/>
+				<Text style={s.text}>{formValues.season.toLowerCase()}</Text>
+			</View>
+			}
+			{user && <View style={s.rowView}>
+				<Ionicons name="body" size={24}  color={themeColors.header}/>
+				<Text style={s.text}>{user.toLowerCase()}</Text>
+			</View>
+			}
+			{categories && <View style={s.rowView}>
 				{
-					categories.map((c, index) =>
-						<View key={'category' + index} style={s.categoriesStyle}>
-							<Text lineBreakMode={'clip'} style={[s.text, {padding: 5}]}>{c}</Text>
-						</View>)
+					categories.map((c: string, ind: number) =>
+						                <Chip title={c}
+											  key = {'previewCategory' + ind}
+											  titleStyle = {{color: themeColors.header}}
+											  buttonStyle = {{borderWidth: 1, borderColor: themeColors.disabled, marginRight: 5}}
+											  containerStyle = {{borderWidth: 0}}
+											  color = {themeColors.disabled}
+											  type={ 'solid'}/>)
 				}
-			</View> : null
+
+			</View>
 			}
 
 			{colors.length ?
 				<>
-					<RenderColors items={colors}/>
+					<RenderColors items={colors} size={30}/>
 					<Text>{colors.map(c => c.name).join(', ')}</Text>
 				</>
 				: null}
@@ -71,9 +104,9 @@ export const s = StyleSheet.create({
 		justifyContent: 'flex-start',
 		alignItems: 'flex-start'
 	},
-	container: {
-		margin: 5,
-		padding: 5
+	rowView: {
+		flexDirection: 'row',
+		paddingVertical: 5,
 	},
 	boxNo: {
 		verticalAlign: 'bottom',
@@ -95,8 +128,10 @@ export const s = StyleSheet.create({
 		borderLeftWidth: StyleSheet.hairlineWidth
 	},
 	text: {
-		fontSize: 25,
-		color: themeColors.header
+		fontSize: 20,
+		color: themeColors.header,
+		alignItems: 'flex-start',
+		marginLeft: 10
 	},
 	image: {
 		minHeight: 250,

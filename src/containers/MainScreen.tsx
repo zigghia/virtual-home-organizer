@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FlatList, StyleSheet, TouchableOpacity, View, Text, ImageBackground, Image } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View, Text, ImageBackground, Image, Pressable } from 'react-native';
 import { FormRecordModel, RecordModel } from '@/utils/models';
 import { useIsFocused } from '@react-navigation/native';
 import { SQLResultSet } from 'expo-sqlite';
@@ -8,7 +8,7 @@ import * as FileSystem from 'expo-file-system';
 import SwipeRow from '@/components/ListComponents/List/SwipeRow';
 import { useTranslation } from 'react-i18next';
 import { themeColors } from '@/constants/app.constants';
-import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import AlertComponent from '@/components/AlertComponent';
 import ErrorComponent from '@/components/ErrorComponent';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -17,17 +17,20 @@ import Loading from '@/components/Loading';
 import GridList from '@/components/ListComponents/List/GridList';
 import Filters from '@/components/MainScreen/Filters';
 import { SearchBar } from '@rneui/themed';
-import commonStyle from '@/utils/common.style';
 import Intro from '@/components/Animations/Intro';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import PreviewItem from '@/components/PreviewItem';
+import { SwipeProvider } from '@/context/SwipeProvider';
 
+
+export type FilterDataType = { [key in 'seasons' | 'users' | 'colors']: string[] }
 const MainScreen = (props: any) => {
 	const [dbData, setDbData] = useState<FormRecordModel[]>([]);
 	const [filteredData, setFilteredData] = useState<FormRecordModel[]>([]);
 	const [error, setError] = useState<string | null>(null);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [showFilters, setShowFilters] = useState<boolean | null>(null);
+	const [hasFilters, setHasFilters] = useState<boolean>(false);
 	const [toBeDeleted, setToBeDeleted] = useState<null | number>(null);
 	const {data, loadingConfigData} = useContext(DataContext)!;
 	const [loading, setLoading] = useState(true);
@@ -84,6 +87,27 @@ const MainScreen = (props: any) => {
 		}
 	}
 
+	const searchMultifilterData = (obj: string [][]) => {
+		setHasFilters(true);
+		setListData(performSearch(obj));
+	}
+
+	const performSearch = (searchKeys: string[][]) => {
+		const newList: FormRecordModel[] = [];
+
+		dbData.forEach(item => {
+			let found = searchKeys.map((key: string[]) => {
+				return key.some(k => item.searchKeys?.search(`,${k}`) != -1)
+			});
+
+
+			if ( found.every(f => f) ) {
+				newList.push(item);
+			}
+		});
+
+		return newList;
+	}
 	const searchData = (value: string) => {
 		setSearch(value);
 		if ( value.length == 0 ) {
@@ -93,15 +117,7 @@ const MainScreen = (props: any) => {
 
 		if ( value.length >= 2 ) {
 			const keys = value.toLowerCase().split(/\s+/).filter(k => k.length);
-
-			const newList: FormRecordModel[] = [];
-			dbData.forEach(item => {
-				let notFound = keys.some(k => item.searchKeys?.search(k) == -1);
-				if ( !notFound ) {
-					newList.push(item);
-				}
-			});
-			setListData(newList);
+			setListData(performSearch([keys]));
 		}
 	}
 
@@ -125,7 +141,7 @@ const MainScreen = (props: any) => {
 		return <SwipeRow key={`list${index}-${item.id}`}
 						 item={item}
 						 index={index}
-						 clickPreview = {() => setPreviewInfo(item)}
+						 clickPreview={() => setPreviewInfo(item)}
 						 deleteAction={deleteAction}
 						 editAction={editAction}/>
 
@@ -145,53 +161,66 @@ const MainScreen = (props: any) => {
 			<SearchBar
 				disabled={dbData.length == 0 || showFilters == true}
 				lightTheme
-				searchIcon={<Ionicons name='search' size={24} color="black"/>}
-				clearIcon={<Ionicons name='close' size={24} color="black"/>}
+				showSoftInputOnFocus
+				searchIcon={<Ionicons name='search' size={24} color="black" style={{left: 0}}/>}
+				clearIcon={<TouchableOpacity onPress={() => searchData('')}><Ionicons name='close' size={24} color="black"/></TouchableOpacity>}
 				rightIconContainerStyle={s.searchClear}
 				inputStyle={s.searchInput}
 				inputContainerStyle={s.searchInputContainer}
 				containerStyle={s.searchContainer}
 				placeholder={t('search:searchPlaceholder')}
 				onChangeText={searchData}
-				onClear ={() => {console.log('ssssssssssssssssssssssssssss')}}
 				value={search}
 			/>
 			<View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
 
 				<View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 5}}>
-					<Text> {t('common:total') + ':' + filteredData.length}</Text>
+					<Text style={{fontSize: 18, fontWeight: '500'}}> {t('common:total') + ': ' + filteredData.length + ' '}</Text>
+					<FontAwesome5 name="box-open" size={24} color={themeColors.secondary}/>
 				</View>
 				<View style={{flexDirection: 'row'}}>
 					<TouchableOpacity style={s.button1} disabled={showFilters == true}
 									  onPress={() => setIsList(!isList)}>
-						<Ionicons name={isList ? 'grid-outline' : "list-outline"} size={28} color={showFilters ? themeColors.disabled : themeColors.header}/>
-						<Text>{!isList ? t('search:list') : t('search:grid')}</Text>
+						<Ionicons name={isList ? 'grid-outline' : "list-outline"} size={24} color={showFilters ? themeColors.disabled : themeColors.header}/>
+						<Text style={s.iconText}>{!isList ? t('search:list') : t('search:grid')}</Text>
 					</TouchableOpacity>
-					<TouchableOpacity style={{...s.button1, paddingLeft: 10}}
+					<TouchableOpacity style={{...s.button1}}
 									  onPress={() => setShowFilters(!showFilters)}>
-						<Ionicons name="options" size={30} color="black"/>
-						<Text>{t('search:filters')}</Text>
+						<Ionicons name="options" size={24} color="black"/>
+						<Text style={s.iconText} >{t('search:filters')}</Text>
 					</TouchableOpacity>
+					{hasFilters && !showFilters && <TouchableOpacity style={{...s.button1}}
+													 onPress={() => {
+														 setHasFilters(false);
+														 searchData('');
+													 }}>
+						<Ionicons name="close" size={20} color="black"/>
+						<Text style={s.iconText}> {t('search:delete')}</Text>
+						<Text style={s.iconText}> {t('search:deleteFilters')}</Text>
+					</TouchableOpacity>}
 				</View>
 			</View>
 
 			<Filters isVisible={showFilters}
+					 hasFilters = {hasFilters}
 					 cancel={() => setShowFilters(false)}
-					 search={(value: string) => {
-						 searchData(value);
+					 search={(obj: [][]) => {
+						 searchMultifilterData(obj);
 						 setShowFilters(false);
 					 }}/>
 
 			<GestureHandlerRootView style={{flex: 1}}>
 				{isList ?
-					<FlatList data={filteredData}
-							  ItemSeparatorComponent={() => <View style={s.separator}/>}
-							  renderItem={renderItem}
-							  keyExtractor={(_item, index) => `list${index}`}
-					/> :
+					<SwipeProvider>
+						<FlatList data={filteredData}
+								  ItemSeparatorComponent={() => <View style={s.separator}/>}
+								  renderItem={renderItem}
+								  keyExtractor={(_item, index) => `list${index}`}
+						/>
+					</SwipeProvider> :
 					<GridList items={filteredData}
 							  deleteAction={deleteAction}
-							  onPreview = {(item: FormRecordModel) =>  setPreviewInfo(item)}
+							  onPreview={(item: FormRecordModel) => setPreviewInfo(item)}
 							  editAction={editAction}/>
 				}
 			</GestureHandlerRootView>
@@ -221,26 +250,33 @@ const MainScreen = (props: any) => {
 }
 
 export const s = StyleSheet.create({
+	iconText: {
+		fontSize: 10,
+		paddingTop: 3
+	},
 	searchContainer: {
-		backgroundColor: 'white',
+		backgroundColor: themeColors.lightGrey,
 		paddingVertical: 5,
-		paddingHorizontal: 5,
-		borderBottomColor: 'white'
+		paddingHorizontal: 0
 	},
 	searchInputContainer: {
-		backgroundColor: themeColors.disabled,
-		padding: 2,
-		borderRadius: 10,
-		...commonStyle.shadow
-	},
-	searchInput: {
-		backgroundColor: 'white',
-		padding: 3,
-		borderRadius: 3
-	},
-	searchClear: {
+		backgroundColor: themeColors.lightGrey,
+		padding: 0,
+		paddingVertical: 5
 
 	},
+	searchInput: {
+		backgroundColor: themeColors.lightGrey,
+		borderWidth: StyleSheet.hairlineWidth,
+		paddingLeft: 20,
+		borderRadius: 20,
+		left: -5
+
+	},
+	searchClear: {
+		marginRight: 0
+	},
+
 	button1: {
 		height: 60,
 		paddingHorizontal: 10,

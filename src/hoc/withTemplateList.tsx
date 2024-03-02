@@ -5,6 +5,7 @@ type P = ListItemModel | SelectColorItemModel;
 export interface WithTemplateListProps<P> {
 	WrappedComponent: React.ComponentType;
 	items: Array<P>;
+	list: Array<P>[];
 }
 
 const withTemplateList = <T extends WithTemplateListProps<P> = WithTemplateListProps<P>>(WrappedComponent: ComponentType<T>, cols = 2) => {

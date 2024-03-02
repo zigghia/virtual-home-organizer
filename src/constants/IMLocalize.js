@@ -2,43 +2,13 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import "intl-pluralrules";
-
 import en from './translations/en';
 import ro from './translations/ro';
-import { fetchAllData, Tables } from "@/utils/databases";
-import { User } from '@/utils/models';
-
-
-export const CURRENT_USER = async (me = 'None') => {
-	const def = {nickname: me, id: 1, 'isDefault': 1};
-	try {
-		let currentUser = await AsyncStorage.getItem('vho-current-user');
-		if (!currentUser) {
-			const {rows} = await fetchAllData(Tables.USERS);
-			currentUser = JSON.stringify((rows._array ?? [])[0]);
-
-			try {
-				await AsyncStorage.setItem(
-					'vho-current-user',
-					currentUser
-				);
-			} catch (error) {
-				return def;
-			}
-		}
-
-		return JSON.parse(currentUser);
-
-	} catch (error) {
-		return def;
-	}
-}
 
 const LANGUAGES = {
 	en,
 	ro
 };
-
 
 const LANGUAGE_DETECTOR = {
 	type: 'languageDetector',

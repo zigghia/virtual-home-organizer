@@ -3,7 +3,7 @@ import { GestureResponderEvent, Keyboard, KeyboardAvoidingView, KeyboardType, Pl
 import { StyleSheet } from "react-native";
 import { Text } from '@rneui/base';
 import { FontAwesome } from '@expo/vector-icons';
-import { themeColors } from '@/constants/app.constants';
+import { themeColors, themeDefaults } from '@/constants/app.constants';
 import commonStyle from '@/utils/common.style';
 
 interface CreateDescriptionProp {
@@ -98,19 +98,18 @@ const InfoTextFieldComponent = ({value, onValueSaved, maxLen, isRequired, minLen
 			<TouchableOpacity onPress={editValue}>
 				<View style={{
 					flexDirection: 'row',
-					width: '100%'
+					width: '100%',
 				}}>
 
 					<View style={s.text}>
 						<View style={{
-							paddingHorizontal: 15,
 							alignItems: 'center',
 							flex: 1
 						}}>
 							<Text style={{fontSize: 25}}> {currentValue}</Text>
 						</View>
 
-						<FontAwesome name="pencil-square" size={40} color={themeColors.secondary}/>
+						<FontAwesome name="pencil-square" size={30} color={themeColors.secondary}/>
 					</View>
 				</View>
 			</TouchableOpacity>
@@ -158,12 +157,11 @@ export const s = StyleSheet.create({
 		justifyContent: 'flex-end'
 	},
 	text: {
-		height: 60,
+		height: themeDefaults.inputHeight,
 		backgroundColor: themeColors.disabled,
 		padding: 10,
-		borderRadius: 20,
+		borderRadius: 30,
 		flexDirection: 'row',
-		//alignItems: 'center',
 		flex: 1
 	},
 	error: {

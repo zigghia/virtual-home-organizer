@@ -34,12 +34,12 @@ export const s = StyleSheet.create({
 		backgroundColor: themeColors.disabled
 	},
 	button: {
-		minWidth: 100,
+		minWidth: 50,
 		flex: 1,
 		alignItems: 'center',
 		justifyContent: 'center',
 		paddingVertical: 10,
-		paddingHorizontal: 32,
+		paddingHorizontal: 20,
 		borderRadius: 20,
 		flexDirection: 'row',
 		backgroundColor: themeColors.primary

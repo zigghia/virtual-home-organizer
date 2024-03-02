@@ -8,6 +8,9 @@ export default {
 	resetFilters: 'Clear filters',
 	cancelFilters: 'Back to list',
 	applyFilters: 'Apply',
+	delete: 'Delete',
+	edit: 'Edit',
+	deleteFilters: 'filters',
 	searchPlaceholder: 'Search'
 }
 

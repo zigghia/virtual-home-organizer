@@ -27,6 +27,7 @@ export default {
 		addButtonText: 'Adauga',
 		editButtonText: 'Salveaza',
 		title: 'Familia ta',
+		placeholder: 'Adauga un membru nou',
 		alert: {
 			title: 'Confirmare stergere',
 			message: 'Sigur stergi membru familie?',

@@ -18,7 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import SeasonComponent from '@/components/CreateNewRecord/SeasonComponent';
 import PreviewItem from '@/components/PreviewItem';
 import CreateNewCategoryComponent from '@/components/CreateNewRecord/CreateNewPropertyComponent';
-import { CheckBox, FAB } from '@rneui/themed';
+import {FAB } from '@rneui/themed';
 import { Ionicons } from '@expo/vector-icons';
 import commonStyle from '@/utils/common.style';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -80,7 +80,6 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 			selectCategories: merge(JSON.parse(JSON.stringify(data.categories)), currCategoriesIds),
 		}
 	}, [data.categories, data.colors, isFocused]);
-
 	const listRef = useRef<ScrollView>(null);
 
 	useEffect(() => {
@@ -128,12 +127,14 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 				return obj;
 			}
 
+			const user = users.find(u => u.id === params.userID);
 			setFormValues(
 				{
 					id,
 					imgUri,
 					containerIdentifier,
-					userID: params.userID,
+					userID: user?.id ?? 1,
+					userName: user?.nickname ?? '',
 					description,
 					oldImgUri: imgUri,
 					season,
@@ -167,7 +168,7 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 
 		let record: RecordModel = {
 			colors: colors.map(c => c.name).join().toLowerCase(),
-			userID: formValues.userID || 1,
+			userID: formValues.userID ?? formValues.userName ? users.find(u => u.nickname == formValues.userName)?.id ?? 1 : 1,
 			containerIdentifier: formValues.containerIdentifier,
 			description: formValues.description?.toLowerCase() ?? '',
 			season: formValues.season ?? '',
@@ -176,12 +177,12 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 			searchKeys: ''
 		};
 
-		record.searchKeys = [
+		record.searchKeys = ',' + [
 			record.categories,
 			record.season,
-			formValues.userID ? users.find(u => u.id == formValues.userID)?.nickname : users.find(u=> u.id == 1)?.nickname,
+			formValues.userName ? formValues.userName : users.find(u=> u.id == 1)?.nickname,
 			colors.map(c => ([c.name, c.plural ?? ''] ?? []).filter(el => el?.length)).join(),
-			record.description].filter(el => el?.length).join().toLowerCase();
+			record.description].filter(el => el?.length).join().toLowerCase() + ',';
 
 		let saveNewFile = true;
 		if ( formValues?.oldImgUri?.length ) {
@@ -194,13 +195,6 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 				formValues.oldImgUri = undefined;
 			}
 		}
-
-		// const x = await FileSystem.readDirectoryAsync(FileSystem.documentDirectory + 'appImages') ?? [];
-		// x.forEach(a => {
-		// 	const j = async  () => await FileSystem.deleteAsync(FileSystem.documentDirectory + 'appImages/' + a );
-		// 	console.log(a);
-		// 	// j();
-		// });
 
 		if ( saveNewFile ) {
 			const savedFile = await saveFile(formValues.imgUri);
@@ -248,7 +242,7 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 	}
 
 	return (
-		<Animated.View entering={FadeIn.duration(200)}>
+		<Animated.View entering={FadeIn.duration(200)} onLayout={() => listRef?.current && listRef.current.scrollTo({x: 0, y: 0, animated: true})}>
 			<FAB
 				visible
 				onPress={() => setShowPreviewModal(true)}
@@ -296,6 +290,7 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 								   buttonDisabled={data.categories.length >= appConstants.maxCategoriesAllowed}
 								   buttonHandler={() => setShowCreateFieldModal('categories')}>
 							<ChipsComponent items={formValues.selectCategories}
+											fieldkey = 'name'
 											onclickItem={(item: ListItemModel) => updateRecordData('selectCategories', item)}
 							/>
 						</EntryCard>
@@ -308,6 +303,7 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 								   buttonHandler={() => setShowCreateFieldModal('description')}
 								   subtitle={(data.descriptions ?? []).length ? t('createEntry:description.subtitle1') : t('createEntry:description.subtitle')}>
 							<ChipsComponent items={data.descriptions ?? []}
+											fieldkey={'name'}
 											onclickItem={(item: ListItemModel) => updateRecordData('description', formValues?.description == item.name ? '' : item.name)}
 											value={formValues?.description}/>
 						</EntryCard>
@@ -316,23 +312,22 @@ const CreateEntryScreen = ({route, navigation}: Props) => {
 						<EntryCard title={t('createEntry:users.title')}
 								   tooltipText={t('createEntry:season:tooltip')}>
 							<View style={{flexWrap: 'wrap', flex: 1, flexDirection: 'row'}}>
-								{users.map((user, index) => <CheckBox size={40}
-																	  title={user.nickname}
-																	  checkedColor={themeColors.secondary}
-																	  key={'user' + user.id}
-																	  onPress={() => updateRecordData('userID', user.id)}
-																	  checked={formValues?.userID == user.id}
-									/>
-								)}
+								<ChipsComponent items={users ?? []}
+												fieldkey = 'nickname'
+												onclickItem={(user: User) => {
+													updateRecordData('userID', user.id);
+													updateRecordData('userName', user.nickname);
+												}}
+												value={formValues?.userName}/>
 							</View>
 						</EntryCard>
 					}
 					{show?.season &&
 						<EntryCard title={t('createEntry:season.title')}
 								   tooltipText={t('createEntry:season:tooltip')}>
-							<SeasonComponent selectedSeason={formValues?.season}
-											 updateData={(value, valueIndex) => {
-												 updateRecordData('season', value);
+							<SeasonComponent selectedSeasons={[formValues?.season ??'']}
+											 updateData={(value, isDelete) => {
+												 updateRecordData('season', isDelete? '' : value);
 											 }}
 							/>
 						</EntryCard>

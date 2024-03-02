@@ -41,7 +41,7 @@ export default {
 		title: "Cam asa arata"
 	},
 	users: {
-		title:  "Apartine lui",
+		title:  "Incaltamintea apartine lui",
 		tooltip: "Nu este obigatoriu si poti dezactiva din setari daca nu vrei sa mai apara"
 	},
 	season: {

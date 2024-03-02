@@ -27,6 +27,7 @@ export default {
 		title: 'Your family',
 		addButtonText: 'Add',
 		editButtonText: 'Save',
+		placeholder: 'Add a new member',
 		alert: {
 			title: 'Confirm deleting',
 			message: 'Are you sure you want to delete this user?',

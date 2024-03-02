@@ -11,8 +11,7 @@ import AlertComponent from '@/components/AlertComponent';
 import { DataContext } from '@/context/StaticDataContext';
 import { CheckBox } from '@rneui/themed';
 
-interface CLProps extends WithTemplateListProps {
-	list: [];
+interface CLProps extends WithTemplateListProps<ListItemModel> {
 	deleted: (value: boolean) => void,
 	type: 'categories' | 'descriptions'
 }

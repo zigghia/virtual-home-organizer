@@ -7,7 +7,7 @@ const Slide = ({ children}: PropsWithChildren<{ style?: { [key: string]: string 
 
 
 	useEffect(() => {
-		animation.value = withRepeat(withTiming(-animation.value, { duration: 1000}), 10, true);
+		animation.value = withRepeat(withTiming(-animation.value, { duration: 800}), 4, true);
 	}, [])
 
 	const animatedStyle = useAnimatedStyle(() => ({

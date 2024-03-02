@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { themeColors } from '@/constants/app.constants';
+import { themeColors, themeDefaults } from '@/constants/app.constants';
 
 const commonStyle = StyleSheet.create({
 	containerList: {
@@ -7,16 +7,26 @@ const commonStyle = StyleSheet.create({
 		flexDirection: 'row',
 	},
 	containerListItem: {
-		//minWidth: 80,
-		flex: 1,
 		flexDirection: 'row',
+		minWidth: 100,
 		backgroundColor: themeColors.lightGrey,
-		margin: 5,
 		alignItems: 'center',
-		paddingVertical: 5,
-		paddingRight: 15,
+		alignContent: 'center',
+		justifyContent: 'center',
+		textAlign: 'center',
+		padding: 5,
+		marginTop: 5,
+		marginRight: 5,
 		fontWeight: 'bold',
 		borderRadius: 20
+	},
+	listIemSelected: {
+		borderWidth: StyleSheet.hairlineWidth,
+		borderColor: themeColors.disabled,
+		backgroundColor: themeColors.secondary
+	},
+	containerListItemBackground: {
+		backgroundColor: themeColors.secondary
 	},
 	input: {
 		fontSize: 25,
@@ -25,11 +35,10 @@ const commonStyle = StyleSheet.create({
 		margin: 0,
 		paddingRight: 0,
 		paddingLeft: 10,
-		paddingVertical: 15,
 		borderRadius: 20,
 		borderColor: themeColors.secondary,
 		backgroundColor: '#fff',
-		height: 60
+		height: themeDefaults.inputHeight
 	},
 	shadow: {
 		shadowColor: "#000000",
@@ -40,9 +49,6 @@ const commonStyle = StyleSheet.create({
 		shadowOpacity:  0.19,
 		shadowRadius: 5.62,
 		elevation: 6
-	},
-	containerListItemBackground: {
-		backgroundColor: themeColors.secondary
 	},
 	containerListItemTextWhite: {
 		color: 'white'

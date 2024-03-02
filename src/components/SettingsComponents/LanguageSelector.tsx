@@ -38,7 +38,8 @@ const Selector = ({onSelect, code} : ComponentProps<any>) => {
 const styles = StyleSheet.create({
 	buttonContainer: {
 		marginTop: 10,
-		height: 30
+		height: 30,
+		flex: 1
 	},
 	text: {
 		fontSize: 18,

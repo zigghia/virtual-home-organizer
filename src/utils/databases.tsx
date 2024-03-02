@@ -28,40 +28,98 @@ const createTables = async (userNicknameDefault: string): Promise<unknown> => {
 	return database.transactionAsync(async tx => {
 		await tx.executeSqlAsync(`CREATE TABLE IF NOT EXISTS ${Tables.SETTINGS}
                                   (
-                                      id INTEGER PRIMARY KEY AUTOINCREMENT
-                                      NOT NULL,
-                                      dbversion TEXT NOT NULL
+                                      id
+                                      INTEGER
+                                      PRIMARY
+                                      KEY
+                                      AUTOINCREMENT
+                                      NOT
+                                      NULL,
+                                      dbversion
+                                      TEXT
+                                      NOT
+                                      NULL
                                   )`, []);
 
 		await tx.executeSqlAsync(`CREATE TABLE IF NOT EXISTS ${Tables.PROPERTIES}
                                   (
-                                      id INTEGER PRIMARY KEY AUTOINCREMENT
-                                      NOT NULL,
-                                      name TEXT NOT NULL,
-                                      type TEXT NOT NULL,
-                                      lang TEXT NOT NULL,
-                                      properties  TEXT
+                                      id
+                                      INTEGER
+                                      PRIMARY
+                                      KEY
+                                      AUTOINCREMENT
+                                      NOT
+                                      NULL,
+                                      name
+                                      TEXT
+                                      NOT
+                                      NULL,
+                                      type
+                                      TEXT
+                                      NOT
+                                      NULL,
+                                      lang
+                                      TEXT
+                                      NOT
+                                      NULL,
+                                      properties
+                                      TEXT
                                   )`, []);
 
-		await tx.executeSqlAsync(`CREATE TABLE IF NOT EXISTS ${Tables.USERS} (
-												id INTEGER PRIMARY KEY NOT NULL,
-												nickname TEXT UNIQUE NOT NULL,
-                                                               isDefault INTEGER  NOT NULL CHECK (isDefault IN (0, 1)) default 0
-                                    )`,[]);
+		await tx.executeSqlAsync(`CREATE TABLE IF NOT EXISTS ${Tables.USERS}
+        (
+            id
+            INTEGER
+            PRIMARY
+            KEY
+            NOT
+            NULL,
+            nickname
+            TEXT
+            UNIQUE
+            NOT
+            NULL,
+            isDefault
+            INTEGER
+            NOT
+            NULL
+            CHECK (
+            isDefault
+            IN
+                                  (
+            0,
+            1
+                                  )) default 0
+            )`, []);
 
-		await tx.executeSqlAsync(`CREATE TABLE IF NOT EXISTS ${Tables.PRODUCTS}(
-                                                               id        			INTEGER PRIMARY KEY NOT NULL,
-                                                               containerIdentifier  TEXT,
-                                                               colors  	  			TEXT,
-                                                               categories  			TEXT,
-                                                               imgUri				TEXT,
-                                                               description			TEXT,
-                                                               season  				TEXT,
-                                                               searchKeys           TEXT,
-                                                               userID INTEGER  default 1      
-                                                               
-                                    )`,[]);
+		await tx.executeSqlAsync(`CREATE TABLE IF NOT EXISTS ${Tables.PRODUCTS}
+                                  (
+                                      id
+                                      INTEGER
+                                      PRIMARY
+                                      KEY
+                                      NOT
+                                      NULL,
+                                      containerIdentifier
+                                      TEXT,
+                                      colors
+                                      TEXT,
+                                      categories
+                                      TEXT,
+                                      imgUri
+                                      TEXT,
+                                      description
+                                      TEXT,
+                                      season
+                                      TEXT,
+                                      searchKeys
+                                      TEXT,
+                                      userID
+                                      INTEGER
+                                      default
+                                      1
 
+                                  )`, []);
 
 
 		const {rows} = await tx.executeSqlAsync(`SELECT (SELECT count(*) FROM ${Tables.PROPERTIES}) as cp, (SELECT count(*) as count
@@ -141,33 +199,52 @@ export const insertProduct = async (data: RecordModel) => {
 }
 
 export const updateProduct = async (data: RecordModel) => {
-	if (data.id == null) {
+	if ( data.id == null ) {
 		return;
 	}
 
 	return await database.transactionAsync(async tx => {
 
 		const {colors = '', userID = 1, categories = '', containerIdentifier = '', description = '', imgUri = '', searchKeys = '', season = '', id} = data;
+
 		await tx.executeSqlAsync(`UPDATE ${Tables.PRODUCTS}
-                                             SET  colors = ?, userID = ?, categories =?, containerIdentifier =? , description = ?, imgUri = ?, searchKeys = ?, season = ?
-											 WHERE id =?`,
-			[colors, userID, categories, containerIdentifier, description, imgUri, searchKeys, season, id ?? 0]);
+                                  SET colors = ?,
+                                      userID = ?,
+                                      categories =?,
+                                      containerIdentifier =?,
+                                      description = ?,
+                                      imgUri = ?,
+                                      searchKeys = ?,
+                                      season = ?
+                                  WHERE id = ?`,
+			[colors, userID ?? 1, categories, containerIdentifier, description, imgUri, searchKeys, season, id ?? 0]);
 
 	}, false);
 }
 
+const updateDbVersion = async (version: number) => {
+	return await database.transactionAsync(async tx => {
+
+		await tx.executeSqlAsync(`INSERT INTO ${Tables.SETTINGS} (dbVersion)
+                                  VALUES (?)`, [version]);
+	}, false);
+}
+export const resetDataBase = async () => {
+	await dropTables(Tables.PRODUCTS);
+	await dropTables(Tables.PROPERTIES);
+	await dropTables(Tables.USERS);
+	await dropTables(Tables.SETTINGS);
+	await updateDbVersion(1);
+}
 export const initDatabase = async (userNicknameDefault: string): Promise<void> => {
 
 	try {
-		 // await dropTables(Tables.PRODUCTS);
-		 // await dropTables(Tables.PROPERTIES);
-		 // await dropTables(Tables.USERS);
 		await createTables(userNicknameDefault);
 	} catch (err: unknown) {
 		throw err;
 	}
 }
-export const insertProperty = (name: string, language: string, type= 'category'): Promise<SQLResultSet> => {
+export const insertProperty = (name: string, language: string, type = 'category'): Promise<SQLResultSet> => {
 	return new Promise((resolve, reject) =>
 		database.transaction((tx) => {
 			tx.executeSql(
@@ -183,7 +260,7 @@ export const insertProperty = (name: string, language: string, type= 'category')
 	);
 }
 
-export const insertUser= (name: string): Promise<SQLResultSet> => {
+export const insertUser = (name: string): Promise<SQLResultSet> => {
 	return new Promise((resolve, reject) =>
 		database.transaction((tx) => {
 			tx.executeSql(
@@ -202,12 +279,11 @@ export const insertUser= (name: string): Promise<SQLResultSet> => {
 export const updateUser = async (id: number, name: string) => {
 	try {
 		await database.transactionAsync(async tx => {
-			const {rows} = await tx.executeSqlAsync(`UPDATE  ${Tables.USERS}
-													 SET nickname = ?
+			const {rows} = await tx.executeSqlAsync(`UPDATE ${Tables.USERS}
+                                                     SET nickname = ?
                                                      WHERE id = ?`, [name, id]);
 		}, false);
-	}
-	catch (err) {
+	} catch (err) {
 		throw err;
 	}
 }
@@ -218,10 +294,9 @@ export const deleteUser = async (id: number) => {
 			const {rows} = await tx.executeSqlAsync(`DELETE
                                                      FROM ${Tables.USERS}
                                                      WHERE id = ?
-                                                     AND isDefault == 0`, [id]);
+                                                       AND isDefault == 0`, [id]);
 		}, false);
-	}
-	catch (err) {
+	} catch (err) {
 		throw err;
 	}
 }
@@ -248,14 +323,13 @@ export const deleteFromTable = async (ids: number [], table: Tables) => {
 			}
 
 		}, false);
-	}
-	catch (err) {
+	} catch (err) {
 		throw err;
 	}
 }
 
 
-export const fetchAllData = (table: Tables, where: string = '', args?:  SQLStatementArg[]): Promise<SQLResultSet> => {
+export const fetchAllData = (table: Tables, where: string = '', args?: SQLStatementArg[]): Promise<SQLResultSet> => {
 
 	return new Promise((resolve, reject) =>
 		database.transaction((tx) => {
@@ -272,16 +346,15 @@ export const fetchAllData = (table: Tables, where: string = '', args?:  SQLState
 	);
 }
 
-export const loadPropertiedData = async (language: string, where: string = '') : Promise<any> => {
+export const loadPropertiedData = async (language: string, where: string = ''): Promise<any> => {
 	try {
 		const {rows}: SQLResultSet = await fetchAllData(Tables.PROPERTIES, where);
-		if (rows) {
+		if ( rows ) {
 			return (rows._array ?? []).filter((data: PropertiesDatabaseRecord) => data.lang == language);
 		}
 
 		return [];
-	}
-	catch (err) {
+	} catch (err) {
 		throw err;
 	}
 };

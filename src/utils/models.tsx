@@ -22,6 +22,7 @@ export interface  FormRecordModel extends RecordModel{
 	selectColors: SelectColorItemModel[];
 	selectCategories: ListItemModel[];
 	oldImgUri?: string;
+	userName?: string;
 }
 //
 // export interface RecordModelExtended extends  RecordModel{

@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { Text, StyleSheet, TextInput, View, TouchableOpacity, Platform, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, SafeAreaView } from 'react-native';
-import { appConstants, themeColors } from '@/constants/app.constants';
+import { Text, StyleSheet, TextInput, View, TouchableOpacity, Platform, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { appConstants, themeColors, themeDefaults } from '@/constants/app.constants';
 import commonStyle from '@/utils/common.style';
 import Button from '@/components/Button/Button';
 import { useTranslation } from 'react-i18next';
@@ -11,8 +11,6 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import AlertComponent from '@/components/AlertComponent';
 import { DataContext } from '@/context/StaticDataContext';
-import { s } from '@/components/CreateNewRecord/InfoTextFieldComponent';
-import Fade from '@/components/Animations/Fade';
 
 
 const UserComponents = () => {
@@ -29,7 +27,6 @@ const UserComponents = () => {
 		const v = (value ?? '').trim();
 
 		if ( !v.length ) {
-			setError(t('common:errors.required'));
 			return;
 		}
 		if ( v.length < appConstants.minUserLength ) {
@@ -70,7 +67,7 @@ const UserComponents = () => {
 
 	const onChangeText = (value: string) => {
 		setValue(value);
-		debounce(validate(value), 500);
+		setTimeout(() => validate(value), 500);
 	}
 	const onUserClick = (user: User) => {
 		setIsTouched(false);
@@ -101,16 +98,16 @@ const UserComponents = () => {
 	}
 
 	const handleUser = async () => {
-
 		try {
 			if ( edit ) {
 				await updateUser(edit, value);
 				setEdit(0)
 			} else {
-				await insertUser(value);
+				if ( users.find(user => user.nickname == value) == null) {
+					await insertUser(value);
+				}
 			}
 			setValue('');
-			setError(null);
 			setIsTouched(false);
 			getUsers();
 			await loadConfigData();
@@ -119,7 +116,6 @@ const UserComponents = () => {
 		}
 
 	}
-
 	const deleteSelected = async () => {
 		if ( !toBeDeleted ) {
 			return;
@@ -130,44 +126,46 @@ const UserComponents = () => {
 		setDeleteAlert(false);
 	}
 
-	return (<View>
-			<View style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap'}}>
-				{
-					users.map((user, index) => {
-						return <View key={`type${index}`}
-									 style={[commonStyle.containerListItem, styles.container,
-										 user.id === edit ? styles.selected : null,
-										 user.isDefault ? styles.disabled : null]}>
-							<TouchableOpacity
-								onPress={() => onUserClick(user)}
-								style={{flex: 1, alignItems: 'center', paddingVertical: 10}}>
-								<Text>{user?.nickname} </Text>
-							</TouchableOpacity>
-						</View>
-					})
-				}
-			</View>
+	return (<View style={{flex: 1, paddingTop: 10}}>
+					<View style={{flex: 1, flexWrap: 'wrap', flexDirection: 'row'}}>
+						{
+							users.map((user, index) => {
+								return <View key={`type${index}`}
+											 style={[commonStyle.containerListItem,
+												 user.id === edit ? commonStyle.listIemSelected : null,
+												 user.isDefault ? styles.disabled : null]}>
+									<TouchableOpacity
+										onPress={() => onUserClick(user)}
+										style={{alignItems: 'center', justifyContent: 'center', paddingVertical: 10}}>
+										<Text>{user?.nickname} </Text>
+									</TouchableOpacity>
+								</View>
+							})
+						}
+					</View>
 
 			<KeyboardAvoidingView
-				behavior={Platform.OS === 'ios' ? 'position' : 'height'}
+				behavior={Platform.OS === 'ios' ? 'height' : 'height'}
 				style={{flex: 1}}
 			>
-				<Fade isVisible={error != null && isTouched}>
-					<Text style={{color: themeColors.error, marginVertical: 10}}>{error}</Text>
-				</Fade>
+
+				{error && <Text style={{color: themeColors.error, marginTop: 20}}>{error}</Text>}
 				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-					<View style={{flex: 1, justifyContent:'flex-end', marginTop: 10}}>
+					<View style={{marginTop: 20}}>
 						<TextInput
+							selectTextOnFocus
 							onBlur={() => {
 								setError(null);
 								if ( !value.length && edit ) {
 									setEdit(0);
+									setError(null);
 									setIsTouched(false);
 									return;
 								}
-								debounce(validate(value));
+								debounce(validate(value), 500);
 								setIsTouched(true);
 							}}
+							placeholder={t('settings:users.placeholder')}
 							onFocus={() => setError(null)}
 							clearButtonMode='always'
 							style={commonStyle.input}
@@ -179,8 +177,10 @@ const UserComponents = () => {
 				</TouchableWithoutFeedback>
 
 			</KeyboardAvoidingView>
-			<Button text={edit ? t('settings:users.editButtonText') : t('settings:users.addButtonText')} disabled={error != null ||
-				!edit && users.length > appConstants.maxUsersNo} buttonStyle={{marginTop: 20}} onPress={handleUser}/>
+
+			<Button text={edit ? t('settings:users.editButtonText') : t('settings:users.addButtonText')} disabled={
+				error != null || !value.length ||
+				!edit && users.length > appConstants.maxUsersNo} buttonStyle={{marginTop: 20, height: themeDefaults.buttonHeight}} onPress={handleUser}/>
 
 			<AlertComponent
 				isVisible={deleteAlert}
@@ -195,18 +195,11 @@ const UserComponents = () => {
 }
 
 const styles = StyleSheet.create({
-	selected: {
-		borderWidth: StyleSheet.hairlineWidth,
-		borderColor: themeColors.disabled,
-		backgroundColor: themeColors.secondary
-	},
 	disabled: {
 		backgroundColor: themeColors.disabled
 	},
 	container: {
-		flex: 1,
-	//	justifyContent: 'flex-start',
-		padding: 3
+		flex: 1
 	}
 });
 
