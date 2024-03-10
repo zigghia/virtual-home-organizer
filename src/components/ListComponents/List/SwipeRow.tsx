@@ -40,7 +40,7 @@ const SwipeRow = ({deleteAction, editAction, item, index, clickPreview}: MainLis
 						</View>
 					}
 
-					<View style={{flex: 1, paddingRight: 20, backgroundColor: themeColors.lightGrey, padding: 5,  height: 150}}>
+					<View style={{flex: 1,  backgroundColor: themeColors.lightGrey, padding: 15,  height: 150}}>
 						{item.season && <View style={{flexDirection: 'row'}}>
 							<Ionicons name={(Object.keys(seasons).find((k: string )=> seasons[k as SeasonIconsType] == item.season)) as SeasonIconsType}
 									  size={24}

@@ -20,7 +20,7 @@ export default function App() {
 
 
 	useEffect(() => {
-		const init = async () => {
+		(async () => {
 			try {
 				//await resetDataBase();
 				await initDatabase(t('common:defaultNickname'));
@@ -35,8 +35,7 @@ export default function App() {
 			} finally {
 				setAppIsReady({...appIsReady, app: true});
 			}
-		}
-		init();
+		})();
 	}, []);
 
 	const onLayoutRootView = useCallback(async () => {

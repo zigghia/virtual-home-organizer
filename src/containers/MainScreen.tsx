@@ -22,8 +22,6 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import PreviewItem from '@/components/PreviewItem';
 import { SwipeProvider } from '@/context/SwipeProvider';
 
-
-export type FilterDataType = { [key in 'seasons' | 'users' | 'colors']: string[] }
 const MainScreen = (props: any) => {
 	const [dbData, setDbData] = useState<FormRecordModel[]>([]);
 	const [filteredData, setFilteredData] = useState<FormRecordModel[]>([]);
